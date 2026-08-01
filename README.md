@@ -2,17 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 1 — Learning core and vocabulary import
+## Version 2 — Visual system and application icons
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Topic-based German learning workspace
-- Core TestDaF skill navigation
-- Vocabulary practice cards
-- JSON vocabulary-content import
-- Browser-based local progress persistence
+- Consistent application icon system
+- Clearer visual hierarchy for learning actions
+- Refined navigation and card styling
 
 ### Available features at this stage
 
@@ -21,6 +19,9 @@ This version is an independently viewable product release reconstructed from rea
 - Vocabulary practice cards
 - JSON vocabulary-content import
 - Browser-based local progress persistence
+- Consistent application icon system
+- Clearer visual hierarchy for learning actions
+- Refined navigation and card styling
 
 ### Run this version
 
