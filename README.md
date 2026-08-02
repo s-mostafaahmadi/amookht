@@ -30,3 +30,7 @@ Open `index.html` in a modern browser. Account synchronization and server-backed
 ### Privacy and security
 
 Production credentials, real `.env` files, database contents, user uploads, recordings, logs, and server backups are excluded from every version.
+
+## Later product releases
+
+Public notes for Versions 22 through 25 are available in [`PUBLISHER.md`](PUBLISHER.md). These notes document the advanced content system, Owner AI Assistant, Premium German Conversation Coach, and reliability improvements while keeping production data and secrets private.
