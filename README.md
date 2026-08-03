@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 2 — Visual system and application icons
+## Version 3 — TestDaF simulation experience
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Consistent application icon system
-- Clearer visual hierarchy for learning actions
-- Refined navigation and card styling
+- Dedicated TestDaF simulation flow
+- Timed exam-style activities
+- Skill-specific simulation sections
 
 ### Available features at this stage
 
@@ -22,6 +22,9 @@ This version is an independently viewable product release reconstructed from rea
 - Consistent application icon system
 - Clearer visual hierarchy for learning actions
 - Refined navigation and card styling
+- Dedicated TestDaF simulation flow
+- Timed exam-style activities
+- Skill-specific simulation sections
 
 ### Run this version
 
@@ -30,7 +33,3 @@ Open `index.html` in a modern browser. Account synchronization and server-backed
 ### Privacy and security
 
 Production credentials, real `.env` files, database contents, user uploads, recordings, logs, and server backups are excluded from every version.
-
-## Later product releases
-
-Public notes for Versions 22 through 25 are available in [`PUBLISHER.md`](PUBLISHER.md). These notes document the advanced content system, Owner AI Assistant, Premium German Conversation Coach, and reliability improvements while keeping production data and secrets private.
