@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 3 — TestDaF simulation experience
+## Version 4 — Dashboard learning metrics
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Dedicated TestDaF simulation flow
-- Timed exam-style activities
-- Skill-specific simulation sections
+- Dashboard summary metrics
+- Visible learning totals and activity indicators
+- Improved progress overview
 
 ### Available features at this stage
 
@@ -25,6 +25,9 @@ This version is an independently viewable product release reconstructed from rea
 - Dedicated TestDaF simulation flow
 - Timed exam-style activities
 - Skill-specific simulation sections
+- Dashboard summary metrics
+- Visible learning totals and activity indicators
+- Improved progress overview
 
 ### Run this version
 
