@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 5 — Daily learning history
+## Version 6 — Daily progress visualization
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Day-by-day study history
-- Historical activity review
-- Persistent daily learning records
+- Daily progress ring
+- At-a-glance completion visualization
+- Clearer daily target feedback
 
 ### Available features at this stage
 
@@ -31,6 +31,9 @@ This version is an independently viewable product release reconstructed from rea
 - Day-by-day study history
 - Historical activity review
 - Persistent daily learning records
+- Daily progress ring
+- At-a-glance completion visualization
+- Clearer daily target feedback
 
 ### Run this version
 
