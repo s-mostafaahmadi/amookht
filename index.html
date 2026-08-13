@@ -1177,6 +1177,15 @@ function renderDashboard(){
       ${S.aiSource?`<div dir="rtl" role="status" class="slide-up rounded-2xl p-4 border ${S.aiSource.type==='ai'?(S.dark?'bg-emerald-900/20 border-emerald-700':'bg-emerald-50 border-emerald-200'):(S.dark?'bg-amber-900/20 border-amber-700':'bg-amber-50 border-amber-200')}">
         <div class="flex items-start gap-3"><span class="mt-0.5 w-3 h-3 rounded-full shrink-0 ${S.aiSource.type==='ai'?'bg-emerald-500':'bg-amber-500'}"></span><div><p class="font-bold text-sm ${S.aiSource.type==='ai'?'text-emerald-700 dark:text-emerald-300':'text-amber-700 dark:text-amber-300'}">${S.aiSource.label}</p>${S.aiSource.provider?`<p class="text-xs mt-1 text-emerald-600 dark:text-emerald-400">سرویس: ${S.aiSource.provider} · قرارداد ${examPlanLabel()} نسخه 1.0.0</p>`:`<p class="text-xs mt-1 text-amber-600 dark:text-amber-400">هر زمان پلان تازه بسازید، اتصال دوباره امتحان می‌شود.</p>`}</div></div>
       </div>`:''}
+      <!-- Daily progress uses the same completion ring as Verlauf / Deine Lernreise. -->
+      <article class="slide-up history-panel text-slate-100" aria-labelledby="dailyProgressTitle">
+        <div class="grid grid-cols-[minmax(0,1fr)_150px] max-[480px]:grid-cols-[minmax(0,1fr)_110px] items-center gap-4">
+          <div class="min-w-0"><span class="history-eyebrow">FORTSCHRITT</span><h2 id="dailyProgressTitle" class="mt-2 text-xl font-black">Tagesfortschritt</h2><p class="mt-1 text-xs leading-5 text-slate-400">${comp}/${tot} Aktivitäten des heutigen Plans abgeschlossen</p>
+            <div class="mt-4"><div class="history-mini-stat"><i style="background:#38bdf8"></i><span>Lernzeit</span><b>${timeStr(ts)}</b></div><div class="history-mini-stat"><i style="background:#a855f7"></i><span>Erledigt</span><b>${comp}/${tot}</b></div><div class="history-mini-stat"><i style="background:#fb7185"></i><span>Offen</span><b>${Math.max(0,tot-comp)}</b></div></div>
+          </div>
+          <div class="history-completion"><div class="history-ring" role="progressbar" aria-label="Tagesfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" style="--value:${pct*3.6}deg"><div><b>${pct}%</b><span>erledigt</span></div></div></div>
+        </div>
+      </article>
       <!-- Error Notebook Quick Access -->
       ${true?`<div class="slide-up ${S.dark?'bg-amber-900/20':'bg-amber-50'} rounded-2xl shadow-lg p-5 border-l-4 border-amber-500 cursor-pointer card-hover" onclick="S.screen='errorbook';render()">
         <div class="flex items-center justify-between">
@@ -1184,16 +1193,6 @@ function renderDashboard(){
           <span class="text-2xl ${S.dark?'text-amber-300':'text-amber-600'}">→</span>
         </div>
       </div>`:''}
-      <!-- Progress -->
-      <div class="slide-up ${S.dark?'bg-gray-800':'bg-white'} rounded-2xl shadow-lg p-5">
-        <div class="flex items-center justify-between mb-3"><h2 class="font-bold ${S.dark?'text-white':'text-gray-900'}">Fortschritt</h2><span class="text-sm text-indigo-600 font-medium">${comp}/${tot}</span></div>
-        <div class="h-2.5 ${S.dark?'bg-gray-700':'bg-gray-100'} rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700" style="width:${pct}%"></div></div>
-        <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
-          <div class="text-center"><div class="text-xl font-bold ${S.dark?'text-white':'text-gray-900'}">${pct}%</div><div class="${S.dark?'text-gray-400':'text-gray-500'}">Fertig</div></div>
-          <div class="text-center"><div class="text-xl font-bold text-green-500">${timeStr(ts)}</div><div class="${S.dark?'text-gray-400':'text-gray-500'}">Tatsächlich</div></div>
-
-        </div>
-      </div>
       <!-- Tagesbewertung is revealed only after every activity is complete. -->
       ${pct===100?renderDailyScores():''}
       <!-- Next Activity -->

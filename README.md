@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 6 — Daily progress visualization
+## Version 7 — Mistake management workflow
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Daily progress ring
-- At-a-glance completion visualization
-- Clearer daily target feedback
+- Delete and manage recorded mistakes
+- Improved mistake-review controls
+- Cleaner error-learning workflow
 
 ### Available features at this stage
 
@@ -34,6 +34,9 @@ This version is an independently viewable product release reconstructed from rea
 - Daily progress ring
 - At-a-glance completion visualization
 - Clearer daily target feedback
+- Delete and manage recorded mistakes
+- Improved mistake-review controls
+- Cleaner error-learning workflow
 
 ### Run this version
 
