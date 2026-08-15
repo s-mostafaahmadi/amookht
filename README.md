@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 7 — Mistake management workflow
+## Version 8 — Responsive mobile navigation
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Delete and manage recorded mistakes
-- Improved mistake-review controls
-- Cleaner error-learning workflow
+- Mobile-first navigation
+- Responsive controls for small screens
+- Improved touch interaction
 
 ### Available features at this stage
 
@@ -37,6 +37,9 @@ This version is an independently viewable product release reconstructed from rea
 - Delete and manage recorded mistakes
 - Improved mistake-review controls
 - Cleaner error-learning workflow
+- Mobile-first navigation
+- Responsive controls for small screens
+- Improved touch interaction
 
 ### Run this version
 
