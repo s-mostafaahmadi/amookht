@@ -96,6 +96,32 @@
   <script>
     tailwind.config={darkMode:'class',theme:{extend:{colors:{primary:{50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81'}}}}}
   </script>
+
+<style id="mobile-navigation-fix">
+.mobile-nav-backdrop,.mobile-nav-sheet{display:none}
+@media(max-width:900px){
+  .mobile-dock{z-index:150!important;padding-bottom:calc(5px + env(safe-area-inset-bottom,0px))!important}
+  .mobile-dock>div{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .mobile-dock button{min-width:0;padding:5px 2px!important}
+  .mobile-dock button b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-nav-backdrop{display:block;position:fixed;inset:0;z-index:138;border:0!important;border-radius:0!important;background:rgba(3,5,15,.62)!important;backdrop-filter:blur(5px)}
+  .mobile-nav-sheet{display:flex;position:fixed;left:9px;right:9px;bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:145;max-height:min(68vh,560px);overflow-y:auto;overscroll-behavior:contain;flex-direction:column;gap:12px;padding:14px;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:linear-gradient(155deg,rgba(38,40,57,.99),rgba(23,24,36,.99));box-shadow:0 25px 70px rgba(3,5,15,.55);color:#f7f8ff;direction:ltr;text-align:left}
+  .mobile-nav-sheet-head{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.09)}
+  .mobile-nav-sheet-avatar{width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:13px;overflow:hidden;background:linear-gradient(145deg,var(--app-accent),var(--app-accent-2));font-weight:900;color:#fff}
+  .mobile-nav-sheet-avatar img,.mobile-nav-sheet-avatar>span{width:100%;height:100%;object-fit:cover;display:grid;place-items:center}
+  .mobile-nav-sheet-user{min-width:0;flex:1}.mobile-nav-sheet-user b,.mobile-nav-sheet-user small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobile-nav-sheet-user b{font-size:14px}.mobile-nav-sheet-user small{margin-top:2px;font-size:10px;color:#969bb1}
+  .mobile-nav-close{width:36px;height:36px;flex:none;border-radius:11px!important;background:rgba(255,255,255,.08)!important;color:#fff!important;font-size:24px;line-height:1}
+  .mobile-nav-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .mobile-nav-grid button{min-width:0;min-height:62px;display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;padding:10px!important;border-radius:14px!important;background:rgba(255,255,255,.055)!important;color:#dfe2ee!important;text-align:left}
+  .mobile-nav-grid button>span{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.07)}
+  .mobile-nav-grid button>b{min-width:0;font-size:11px;white-space:normal;line-height:1.25}
+  .mobile-nav-grid button>em{min-width:21px;height:21px;padding:0 5px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.12);font-style:normal;font-size:9px}
+  .mobile-nav-grid button.is-active{background:linear-gradient(125deg,color-mix(in srgb,var(--app-accent) 78%,transparent),color-mix(in srgb,var(--app-accent-2) 58%,transparent))!important;color:#fff!important}
+  .mobile-nav-logout{width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:14px!important;background:rgba(239,68,68,.15)!important;color:#fda4af!important;font-size:12px;font-weight:800}
+  .mobile-nav-logout .ui-icon{width:18px;height:18px}
+}
+@media(max-width:380px){.mobile-dock button b{font-size:7px}.mobile-nav-grid{grid-template-columns:1fr}.mobile-nav-sheet{max-height:72vh}}
+</style>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div id="app"></div>
@@ -200,7 +226,7 @@ const S={
   historyFilter:'week',
   appSettings:{accent:'violet',fontScale:100,density:'comfortable',radius:20,glass:true,highContrast:false,sidebarCompact:false},
   contentBankGlobal:{topics:{}},contentBankPersonal:{topics:{}},contentBankTopic:'',contentBankSkill:'wortschatz',contentBankTopicExpanded:null,contentBankDraft:'',contentBankDraftKey:'',contentBankDraftSkill:'',contentBankMessage:'',contentBankMessageType:'info',
-  expandedHistoryPlan:null,customBuilder:null,pendingPlanDelete:null,accountDeleteArmed:false,settingsMessage:'',serverConnected:false,syncStatus:'local',saveTimer:null,
+  expandedHistoryPlan:null,mobileNavOpen:false,customBuilder:null,pendingPlanDelete:null,accountDeleteArmed:false,settingsMessage:'',serverConnected:false,syncStatus:'local',saveTimer:null,
 };
 
 // ═══════════════════════════════════════════════════
@@ -711,7 +737,7 @@ async function loginAs(email,useServer=false){
 }function persistedData(){return{user:{name:S.user.name,level:S.user.level,examDate:S.user.examDate,dailyMinutes:S.user.dailyMinutes,weakSkills:S.user.weakSkills,topic:S.user.topic,subtopic:S.user.subtopic,customTopic:S.user.customTopic,examPlan:S.user.examPlan,customPlans:S.user.customPlans||[],profileCompleted:!!S.user.profileCompleted,nativeLanguage:S.user.nativeLanguage||'fa',timezone:S.user.timezone||'',learningGoal:S.user.learningGoal||'',notifications:S.user.notifications!==false,reducedMotion:!!S.user.reducedMotion,avatarDataUrl:S.user.avatarDataUrl||''},plan:S.plan,completed:S.completedActivities,points:S.totalPoints,history:S.history,streak:S.streak,errors:S.errors,activityTimers:S.activityTimers,activityProgress:S.activityProgress,activityPoints:S.activityPoints,learningResources:S.learningResources,dataSource:S.dataSource,recordingDate:S.recordingDate,skillTargets:S.skillTargets,historyFilter:S.historyFilter,darkMode:S.dark,uiLanguage:S.uiLanguage,appSettings:S.appSettings,contentBankPersonal:S.contentBankPersonal,contentBankTopic:S.contentBankTopic,contentBankSkill:S.contentBankSkill||'wortschatz',testdafSim:S.testdafSim,testdafExamStates:{...(S.testdafExamStates||{}),[S.selectedTestdafExamId||'builtin-testdaf-1']:S.testdafSim},testdafExamVisits:S.testdafExamVisits||{},selectedTestdafExamId:S.selectedTestdafExamId||'builtin-testdaf-1'}}
 function authTokens(){try{return JSON.parse(localStorage.getItem('amookht_tokens')||'null')}catch{return null}}
 async function apiRequest(path,options={},retry=true){let tokens=authTokens(),headers={'Content-Type':'application/json',...(options.headers||{})};if(tokens?.access_token)headers.Authorization=`Bearer ${tokens.access_token}`;const response=await fetch(`${APP_API_BASE}${path}`,{...options,headers});if(response.status===401&&retry&&tokens?.refresh_token&&!path.startsWith('/auth/')){const refreshed=await fetch(`${APP_API_BASE}/auth/refresh?refresh_token=${encodeURIComponent(tokens.refresh_token)}`,{method:'POST'});if(refreshed.ok){tokens=await refreshed.json();localStorage.setItem('amookht_tokens',JSON.stringify(tokens));return apiRequest(path,options,false)}}if(!response.ok)throw new Error(`${response.status}: ${await response.text()}`);return response.status===204?null:response.json()}async function syncProfileToServer(){if(!authTokens()?.access_token)return;try{await apiRequest('/account/profile',{method:'PATCH',body:JSON.stringify({display_name:S.user.name||null,current_level:S.user.level||null,target_exam:examPlanLabel(),target_level:S.user.level||null,exam_date:S.user.examDate||null,native_language:S.user.nativeLanguage||'fa',profile_completed:!!S.user.profileCompleted,daily_minutes:Number(S.user.dailyMinutes)||60,timezone:S.user.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone,learning_goals:S.user.learningGoal?[S.user.learningGoal]:[],accessibility:{reduced_motion:!!S.user.reducedMotion},avatar_data_url:S.user.avatarDataUrl||null})});S.serverConnected=true}catch(error){console.warn('Profile sync unavailable:',error)}}async function syncStateToServer(){if(!S.currentUser||!authTokens()?.access_token)return false;try{await apiRequest('/account/state',{method:'PUT',body:JSON.stringify({schema_version:1,state_data:persistedData()})});S.serverConnected=true;S.syncStatus='synced';return true}catch(error){S.serverConnected=false;S.syncStatus='local';console.warn('SQL sync unavailable:',error);return false}}function flushStateToServer(){const tokens=authTokens();if(!S.currentUser||!tokens?.access_token)return false;const payload=JSON.stringify({schema_version:1,state_data:persistedData()});const url=`${APP_API_BASE}/account/state`;try{fetch(url,{method:'PUT',headers:{'Content-Type':'application/json',Authorization:`Bearer ${tokens.access_token}`},body:payload,keepalive:true}).then(r=>{S.syncStatus=r.ok?'synced':'local'}).catch(()=>{S.syncStatus='local'});S.syncStatus='pending';return true}catch(error){console.warn('Keepalive sync unavailable:',error)}return false}
-function saveData(){if(!S.currentUser)return;const data=persistedData();DB.saveData(S.currentUser,data);clearTimeout(S.saveTimer);S.syncStatus=authTokens()?'pending':'local';S.saveTimer=setTimeout(syncStateToServer,450)}function userAvatarMarkup(cls=''){const initial=safeText((S.user.name||S.currentUser||'A').trim().charAt(0).toUpperCase()||'A');const klass=cls?` class="${cls}"`:'';return S.user.avatarDataUrl?`<img src="${safeText(S.user.avatarDataUrl)}" alt="avatar"${klass}>`:`<span${klass}>${initial}</span>`}async function updateAvatarFile(input){const file=input?.files?.[0];if(!file)return;if(!/^image\//.test(file.type)){S.settingsMessage='Please choose an image file.';render();return}if(file.size>6*1024*1024){S.settingsMessage='Profile image must be smaller than 6 MB.';render();return}try{const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(new Error('read-failed'));reader.readAsDataURL(file)});const optimized=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d');if(!ctx){resolve(dataUrl);return}const scale=Math.max(size/img.width,size/img.height),w=img.width*scale,h=img.height*scale,x=(size-w)/2,y=(size-h)/2;ctx.fillStyle='#111827';ctx.fillRect(0,0,size,size);ctx.drawImage(img,x,y,w,h);resolve(canvas.toDataURL('image/jpeg',0.86))};img.onerror=()=>reject(new Error('image-invalid'));img.src=dataUrl});S.user.avatarDataUrl=String(optimized||dataUrl);S.user.profileCompleted=true;saveData();await syncProfileToServer();S.settingsMessage='Profile image saved.';render()}catch(error){console.warn('Avatar update failed:',error);S.settingsMessage='Could not save profile image. Please try another file.';render()}finally{if(input)input.value=''}}async function removeAvatar(){S.user.avatarDataUrl='';saveData();await syncProfileToServer();S.settingsMessage='Profile image removed.';render()}function logout(){stopTimers();DB.clearSession();localStorage.removeItem('amookht_tokens');S.currentUser=null;S.screen='landing';S.plan=null;S.completedActivities=[];S.totalPoints=0;S.history=[];S.errors=[];S.activityProgress={};S.activityTimers={};S.activityPoints={};render()}
+function saveData(){if(!S.currentUser)return;const data=persistedData();DB.saveData(S.currentUser,data);clearTimeout(S.saveTimer);S.syncStatus=authTokens()?'pending':'local';S.saveTimer=setTimeout(syncStateToServer,450)}function userAvatarMarkup(cls=''){const initial=safeText((S.user.name||S.currentUser||'A').trim().charAt(0).toUpperCase()||'A');const klass=cls?` class="${cls}"`:'';return S.user.avatarDataUrl?`<img src="${safeText(S.user.avatarDataUrl)}" alt="avatar"${klass}>`:`<span${klass}>${initial}</span>`}async function updateAvatarFile(input){const file=input?.files?.[0];if(!file)return;if(!/^image\//.test(file.type)){S.settingsMessage='Please choose an image file.';render();return}if(file.size>6*1024*1024){S.settingsMessage='Profile image must be smaller than 6 MB.';render();return}try{const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>reject(new Error('read-failed'));reader.readAsDataURL(file)});const optimized=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const ctx=canvas.getContext('2d');if(!ctx){resolve(dataUrl);return}const scale=Math.max(size/img.width,size/img.height),w=img.width*scale,h=img.height*scale,x=(size-w)/2,y=(size-h)/2;ctx.fillStyle='#111827';ctx.fillRect(0,0,size,size);ctx.drawImage(img,x,y,w,h);resolve(canvas.toDataURL('image/jpeg',0.86))};img.onerror=()=>reject(new Error('image-invalid'));img.src=dataUrl});S.user.avatarDataUrl=String(optimized||dataUrl);S.user.profileCompleted=true;saveData();await syncProfileToServer();S.settingsMessage='Profile image saved.';render()}catch(error){console.warn('Avatar update failed:',error);S.settingsMessage='Could not save profile image. Please try another file.';render()}finally{if(input)input.value=''}}async function removeAvatar(){S.user.avatarDataUrl='';saveData();await syncProfileToServer();S.settingsMessage='Profile image removed.';render()}function logout(){S.mobileNavOpen=false;stopTimers();DB.clearSession();localStorage.removeItem('amookht_tokens');S.currentUser=null;S.screen='landing';S.plan=null;S.completedActivities=[];S.totalPoints=0;S.history=[];S.errors=[];S.activityProgress={};S.activityTimers={};S.activityPoints={};render()}
 
 // ═══════════════════════════════════════════════════
 // UI LOCALIZATION — interface text only; German learning material stays intact.
@@ -776,6 +802,7 @@ function render(){
 }
 
 function navigateApp(target){
+  S.mobileNavOpen=false;
   if(S.activeActivity&&S.screen!=='dashboard'){pauseActivity();S.activeActivity=null}
   if(target==='history'){openHistory();return}
   if(target==='testdafSim')S.testdafExamLibraryView=true;
@@ -801,18 +828,28 @@ function uiIcon(id,cls=''){
     radius:'M5 21h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-8a8 8 0 0 0-8 8v8a2 2 0 0 0 2 2Z',
     display:'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
     database:'M4 6c0-2 3.6-3 8-3s8 1 8 3-3.6 3-8 3-8-1-8-3Zm0 0v6c0 2 3.6 3 8 3s8-1 8-3V6m-16 6v6c0 2 3.6 3 8 3s8-1 8-3v-6',
+    more:'M5 12h.01M12 12h.01M19 12h.01',
     chevronDown:'m7 9 5 5 5-5',
     chevronUp:'m7 15 5-5 5 5'
   };
   const d=paths[id]||paths.settings;
   return `<svg aria-hidden="true" focusable="false" class="ui-icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"></path></svg>`;
 }
+
+function renderMobileNavigation(items,active){
+  const primary=items.slice(0,4),extras=items.slice(4),moreActive=extras.some(item=>item.id===active);
+  const labels=S.uiLanguage==='fa'?{more:'\u0628\u06cc\u0634\u062a\u0631',menu:'\u0645\u0646\u0648\u06cc \u0628\u0631\u0646\u0627\u0645\u0647',close:'\u0628\u0633\u062a\u0646 \u0645\u0646\u0648',logout:'\u062e\u0631\u0648\u062c \u0627\u0632 \u062d\u0633\u0627\u0628'}:S.uiLanguage==='en'?{more:'More',menu:'App menu',close:'Close menu',logout:'Log out'}:{more:'Mehr',menu:'App-Menue',close:'Menue schliessen',logout:'Abmelden'};
+  const primaryButtons=primary.map(item=>`<button type="button" onclick="navigateApp('${item.screen}')" class="${active===item.id?'is-active':''}" title="${safeText(item.label)}"><span>${uiIcon(item.icon)}</span><b>${safeText(item.label)}</b></button>`).join('');
+  const extraButtons=extras.map(item=>`<button type="button" onclick="navigateApp('${item.screen}')" class="${active===item.id?'is-active':''}"><span>${uiIcon(item.icon)}</span><b>${safeText(item.label)}</b>${item.id==='history'&&S.history.length?`<em>${S.history.length}</em>`:''}</button>`).join('');
+  const sheet=S.mobileNavOpen?`<button type="button" class="mobile-nav-backdrop" onclick="S.mobileNavOpen=false;render()" aria-label="${labels.close}"></button><section class="mobile-nav-sheet" role="dialog" aria-modal="true" aria-label="${labels.menu}"><header class="mobile-nav-sheet-head"><div class="mobile-nav-sheet-avatar">${userAvatarMarkup()}</div><div class="mobile-nav-sheet-user"><b>${safeText(S.user.name||'Learner')}</b><small>${safeText(S.currentUser)}</small></div><button type="button" class="mobile-nav-close" onclick="S.mobileNavOpen=false;render()" aria-label="${labels.close}">&times;</button></header><div class="mobile-nav-grid">${extraButtons}</div><button type="button" class="mobile-nav-logout" onclick="logout()">${uiIcon('logout')}<span>${labels.logout}</span></button></section>`:'';
+  return `<nav aria-label="Hauptnavigation" class="mobile-dock"><div>${primaryButtons}<button type="button" onclick="S.mobileNavOpen=!S.mobileNavOpen;render()" class="${moreActive||S.mobileNavOpen?'is-active':''}" aria-haspopup="dialog" aria-expanded="${S.mobileNavOpen}"><span>${uiIcon('more')}</span><b>${labels.more}</b></button></div></nav>${sheet}`;
+}
 function renderGlobalNav(root){
   if(!S.currentUser||S.screen==='auth'||S.screen==='landing')return;
   const active=S.screen==='history'?'history':S.screen==='errorbook'?'errorbook':S.screen==='settings'?'account':S.screen==='contentBank'?'contentBank':S.screen==='appSettings'?'appSettings':S.screen==='testdafSim'?'testdafSim':S.screen==='planSelect'||S.screen==='customPlanBuilder'?'plans':'dashboard',compact=!!S.appSettings?.sidebarCompact;
   root.firstElementChild?.classList.add('app-with-sidebar','pb-24');
-  const items=[{id:'dashboard',screen:'dashboard',icon:'home',label:examPlanLabel()},{id:'plans',screen:'planSelect',icon:'plans',label:'Plans'},{id:'testdafSim',screen:'testdafSim',icon:'exam',label:'TestDaF Exam'},{id:'errorbook',screen:'errorbook',icon:'errors',label:'Mistakes'},{id:'history',screen:'history',icon:'history',label:'Verlauf'},{id:'appSettings',screen:'appSettings',icon:'settings',label:'App Settings'},{id:'account',screen:'settings',icon:'account',label:'Account'}];
-  root.insertAdjacentHTML('beforeend',`<aside class="mac-sidebar ${compact?'is-compact':''}" aria-label="App navigation"><div class="mac-traffic" aria-hidden="true"><i></i><i></i><i></i></div><div class="mac-brand"><span>${userAvatarMarkup()}</span><div><b>${safeText(S.user.name||'Learner')}</b><small>${safeText(S.currentUser)}</small></div></div><nav>${items.map(item=>`<button onclick="navigateApp('${item.screen}')" class="${active===item.id?'is-active':''}" title="${item.label}"><span>${uiIcon(item.icon)}</span><b>${item.label}</b>${item.id==='history'&&S.history.length?`<em>${S.history.length}</em>`:''}</button>`).join('')}</nav><div class="mac-sidebar-footer"><button onclick="S.appSettings.sidebarCompact=!S.appSettings.sidebarCompact;saveData();render()" title="Sidebar"><span>${uiIcon(compact?'expand':'collapse')}</span><b>جمع‌کردن نوار</b></button><button onclick="logout()"><span>${uiIcon('logout')}</span><b>خروج از حساب</b></button></div></aside><nav aria-label="Hauptnavigation" class="mobile-dock"><div>${items.slice(0,4).map(item=>`<button onclick="navigateApp('${item.screen}')" class="${active===item.id?'is-active':''}"><span>${uiIcon(item.icon)}</span><b>${item.label}</b></button>`).join('')}</div></nav>`);
+  const items=[{id:'dashboard',screen:'dashboard',icon:'home',label:examPlanLabel()},{id:'plans',screen:'planSelect',icon:'plans',label:'Plans'},{id:'testdafSim',screen:'testdafSim',icon:'exam',label:'TestDaF Exam'},{id:'errorbook',screen:'errorbook',icon:'errors',label:'Mistakes'},{id:'history',screen:'history',icon:'history',label:'Verlauf'},{id:'appSettings',screen:'appSettings',icon:'settings',label:'App Settings'},{id:'account',screen:'settings',icon:'account',label:'Account'},{id:'contentBank',screen:'contentBank',icon:'database',label:'Data Import'}];
+  root.insertAdjacentHTML('beforeend',`<aside class="mac-sidebar ${compact?'is-compact':''}" aria-label="App navigation"><div class="mac-traffic" aria-hidden="true"><i></i><i></i><i></i></div><div class="mac-brand"><span>${userAvatarMarkup()}</span><div><b>${safeText(S.user.name||'Learner')}</b><small>${safeText(S.currentUser)}</small></div></div><nav>${items.map(item=>`<button onclick="navigateApp('${item.screen}')" class="${active===item.id?'is-active':''}" title="${item.label}"><span>${uiIcon(item.icon)}</span><b>${item.label}</b>${item.id==='history'&&S.history.length?`<em>${S.history.length}</em>`:''}</button>`).join('')}</nav><div class="mac-sidebar-footer"><button onclick="S.appSettings.sidebarCompact=!S.appSettings.sidebarCompact;saveData();render()" title="Sidebar"><span>${uiIcon(compact?'expand':'collapse')}</span><b>جمع‌کردن نوار</b></button><button onclick="logout()"><span>${uiIcon('logout')}</span><b>خروج از حساب</b></button></div></aside>${renderMobileNavigation(items,active)}`);
 }
 // ═══════════════════════════════════════════════════// ONBOARDING
 // ═══════════════════════════════════════════════════
@@ -890,7 +927,7 @@ function renderCustomActivity(){const act=S.activeActivity,pr=S.activityProgress
   const selectedDefinition=learningPlanById(type);if(!selectedDefinition)return;const samePlan=S.plan&&(S.plan.examType||'testdaf')===type;
   S.user.examPlan=type;if(samePlan){saveData();S.screen='dashboard';render();await loadStoredResources();return}
   if(type.startsWith('custom-')&&!samePlan){S.customBuilder={step:0,preset:type,name:selectedDefinition.name,icon:selectedDefinition.icon,description:selectedDefinition.description||'',goal:selectedDefinition.goal||'',level:selectedDefinition.level||'Anfänger',topic:selectedDefinition.topic||'',modules:[...(selectedDefinition.modules||[])],dailyMinutes:selectedDefinition.dailyMinutes||60,targetDate:selectedDefinition.targetDate||''};S.screen='customPlanBuilder';saveData();render();return}
-  if(S.plan){await cleanupSpeakingRecordings('exam-plan-change');stopTimers();S.plan=null;S.learningResources=null;S.dataSource=null;S.completedActivities=[];S.activityProgress={};S.activityTimers={};S.activityPoints={}}
+  if(S.plan){archiveCurrentPlan('exam-plan-change');await cleanupSpeakingRecordings('exam-plan-change');S.plan=null;S.learningResources=null;S.dataSource=null;S.completedActivities=[];S.activityProgress={};S.activityTimers={};S.activityPoints={}}
   saveData();S.step=S.user.profileCompleted?5:0;S.screen='onboarding';render();
 }function renderOnboarding(){
   const t=6,p=((S.step+1)/t)*100;
@@ -1133,10 +1170,9 @@ function renderDashboard(){
   }
   const comp=S.completedActivities.length,tot=S.plan?S.plan.activities.length:0,pct=tot?Math.round(comp/tot*100):0;
   const rem=S.plan?S.plan.activities.filter(a=>!S.completedActivities.includes(a.id)):[];
-  const next=rem[0],ts=Object.values(S.activityTimers).reduce((s,v)=>s+v,0);
-  const dueCount=getDueErrors().length;
+  const next=rem[0];
   const topicLabel=S.user.customTopic||getSubtopicLabel(S.user.subtopic)||getTopicLabel(S.user.topic)||'Allgemein';
-  upsertDailyHistorySegment(currentPlanHistorySnapshot());
+  const todayRecord=upsertDailyHistorySegment(currentPlanHistorySnapshot()),ts=todayRecord.time;
   const examDays=daysUntil(S.user.examDate),activityStreak=calculateActivityStreak(),progressLabels=dashboardProgressLabels(examDays,activityStreak);S.streak=activityStreak;
   saveData();
   return`<div class="min-h-screen ${S.dark?'bg-gray-900':'bg-gray-50'} pb-24">
@@ -1198,13 +1234,6 @@ function renderDashboard(){
           <div class="history-completion"><div class="history-ring" role="progressbar" aria-label="Tagesfortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" style="--value:${pct*3.6}deg"><div><b>${pct}%</b><span>erledigt</span></div></div></div>
         </div>
       </article>
-      <!-- Error Notebook Quick Access -->
-      ${true?`<div class="slide-up ${S.dark?'bg-amber-900/20':'bg-amber-50'} rounded-2xl shadow-lg p-5 border-l-4 border-amber-500 cursor-pointer card-hover" onclick="S.screen='errorbook';render()">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3"><span class="text-3xl">📒</span><div><h3 class="font-bold ${S.dark?'text-amber-300':'text-amber-800'}">Fehlerheft</h3><p class="text-sm ${S.dark?'text-amber-400':'text-amber-600'}">${dueCount} Fehler zur Wiederholung fällig</p></div></div>
-          <span class="text-2xl ${S.dark?'text-amber-300':'text-amber-600'}">→</span>
-        </div>
-      </div>`:''}
       <!-- Tagesbewertung is revealed only after every activity is complete. -->
       ${pct===100?renderDailyScores():''}
       <!-- Next Activity -->
@@ -1213,9 +1242,6 @@ function renderDashboard(){
           <button onclick="startActivity('${next.id}')" class="px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 transition shadow-lg">Starten →</button></div></div>`
       :`<div class="slide-up ${S.dark?'bg-green-900/30':'bg-green-50'} rounded-2xl shadow-lg p-5 text-center border-l-4 border-green-500"><div class="text-3xl mb-2">🎉</div><h3 class="font-bold ${S.dark?'text-green-300':'text-green-800'}">Alles erledigt!</h3><p class="text-sm ${S.dark?'text-green-400':'text-green-600'}">Die Tagesbewertung ist jetzt verfügbar.</p>
           <button onclick="S.screen='summary';render()" class="mt-3 px-5 py-2 rounded-xl font-semibold bg-green-500 text-white hover:bg-green-600 transition">Zusammenfassung</button></div>`}
-      <div class="slide-up ${S.dark?'bg-slate-800 border-slate-700':'bg-white border-slate-100'} rounded-2xl shadow-lg p-5 border">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="font-bold ${S.dark?'text-white':'text-gray-900'}">Tagesplan beenden</h3><p class="text-sm ${S.dark?'text-gray-400':'text-gray-500'} mt-1">Speichert den heutigen Stand mit aktueller Lernzeit und macht den Plan wieder frisch startbar.</p></div><button onclick="finishDailyPlan()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold shadow-lg">Tag speichern & neu starten</button></div>
-      </div>
       <!-- Activity List -->
       <div class="slide-up">
         <div class="flex items-center justify-between mb-3">
@@ -1241,6 +1267,10 @@ function renderDashboard(){
               ${S.showPlanEditor?`<span class="text-xs font-bold text-indigo-500">#${idx+1}</span>`:done?`<div class="text-xs text-green-600 font-bold">Abgeschlossen</div>`
               :`<span class="text-xs text-indigo-500">${hasP?'▶ Weiter':'Start'}</span>`}</div></div>`;
         }).join(''):''}</div></div>
+      <!-- Day-end action stays at the bottom of the dashboard. -->
+      <div class="slide-up ${S.dark?'bg-slate-800 border-slate-700':'bg-white border-slate-100'} rounded-2xl shadow-lg p-5 border">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="font-bold ${S.dark?'text-white':'text-gray-900'}">Tagesplan beenden</h3><p class="text-sm ${S.dark?'text-gray-400':'text-gray-500'} mt-1">Speichert den heutigen Stand mit aktueller Lernzeit und macht den Plan wieder frisch startbar.</p></div><button onclick="finishDailyPlan()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold shadow-lg">Tag speichern & neu starten</button></div>
+      </div>
   </div>`;
 }
 
@@ -1823,6 +1853,8 @@ window.addEventListener('beforeunload',()=>{clearTimeout(S.saveTimer);flushState
 const session=DB.getSession();
 if(session&&REQUIRE_SERVER_ACCOUNT&&!authTokens()){DB.clearSession();S.authError='???? ????? ??????? ??? ????????? ???? ?????? ???? ???? ????.';S.screen='auth';render()}
 else if(session)loginAs(session,!!authTokens()).catch(()=>{DB.clearSession();localStorage.removeItem('amookht_tokens');S.currentUser=null;S.authError='????? ????/SQL ?????? ???? ????? ?????? ???? ????.';S.screen='auth';render()});else render();
+
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&S.mobileNavOpen){S.mobileNavOpen=false;render()}});
 </script>
 </body>
 </html>

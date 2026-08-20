@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 9 — Daily study-time tracking
+## Version 10 — Second-generation error book
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Daily study-time measurement
-- Time-based progress feedback
-- Study-duration visibility on the dashboard
+- Redesigned error book
+- Structured mistake categorization
+- Faster return from mistakes to practice
 
 ### Available features at this stage
 
@@ -43,6 +43,9 @@ This version is an independently viewable product release reconstructed from rea
 - Daily study-time measurement
 - Time-based progress feedback
 - Study-duration visibility on the dashboard
+- Redesigned error book
+- Structured mistake categorization
+- Faster return from mistakes to practice
 
 ### Run this version
 
