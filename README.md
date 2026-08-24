@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 10 — Second-generation error book
+## Version 11 — Refined learning-content workflow
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Redesigned error book
-- Structured mistake categorization
-- Faster return from mistakes to practice
+- Simplified content-management workflow
+- Cleaner exercise-generation path
+- Reduced dependency on legacy data-maker controls
 
 ### Available features at this stage
 
@@ -46,6 +46,9 @@ This version is an independently viewable product release reconstructed from rea
 - Redesigned error book
 - Structured mistake categorization
 - Faster return from mistakes to practice
+- Simplified content-management workflow
+- Cleaner exercise-generation path
+- Reduced dependency on legacy data-maker controls
 
 ### Run this version
 
