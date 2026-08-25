@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 11 — Refined learning-content workflow
+## Version 12 — Favorites and saved exercises
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Simplified content-management workflow
-- Cleaner exercise-generation path
-- Reduced dependency on legacy data-maker controls
+- Save learning items as favorites
+- Dedicated favorites review
+- Persistent saved-item collection
 
 ### Available features at this stage
 
@@ -49,6 +49,9 @@ This version is an independently viewable product release reconstructed from rea
 - Simplified content-management workflow
 - Cleaner exercise-generation path
 - Reduced dependency on legacy data-maker controls
+- Save learning items as favorites
+- Dedicated favorites review
+- Persistent saved-item collection
 
 ### Run this version
 
