@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 12 — Favorites and saved exercises
+## Version 13 — Multilingual user experience
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Save learning items as favorites
-- Dedicated favorites review
-- Persistent saved-item collection
+- Persian, German, and English interface support
+- Runtime language switching
+- Localized labels and learning guidance
 
 ### Available features at this stage
 
@@ -52,6 +52,9 @@ This version is an independently viewable product release reconstructed from rea
 - Save learning items as favorites
 - Dedicated favorites review
 - Persistent saved-item collection
+- Persian, German, and English interface support
+- Runtime language switching
+- Localized labels and learning guidance
 
 ### Run this version
 
