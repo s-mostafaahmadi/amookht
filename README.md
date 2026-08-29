@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 13 — Multilingual user experience
+## Version 14 — Email verification experience
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Persian, German, and English interface support
-- Runtime language switching
-- Localized labels and learning guidance
+- Email-verification account flow
+- Verification-code interface
+- Clear authentication feedback states
 
 ### Available features at this stage
 
@@ -55,6 +55,9 @@ This version is an independently viewable product release reconstructed from rea
 - Persian, German, and English interface support
 - Runtime language switching
 - Localized labels and learning guidance
+- Email-verification account flow
+- Verification-code interface
+- Clear authentication feedback states
 
 ### Run this version
 
