@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 14 — Email verification experience
+## Version 15 — Authentication security and lockout
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Email-verification account flow
-- Verification-code interface
-- Clear authentication feedback states
+- Progressive login lockout
+- Remaining-attempt feedback
+- Stronger authentication error handling
 
 ### Available features at this stage
 
@@ -58,6 +58,9 @@ This version is an independently viewable product release reconstructed from rea
 - Email-verification account flow
 - Verification-code interface
 - Clear authentication feedback states
+- Progressive login lockout
+- Remaining-attempt feedback
+- Stronger authentication error handling
 
 ### Run this version
 
