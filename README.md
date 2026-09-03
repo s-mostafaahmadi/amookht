@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 15 — Authentication security and lockout
+## Version 16 — Improved favorites and review layout
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Progressive login lockout
-- Remaining-attempt feedback
-- Stronger authentication error handling
+- Refined favorites layout
+- More focused review cards
+- Improved mistake-card direction and readability
 
 ### Available features at this stage
 
@@ -61,6 +61,9 @@ This version is an independently viewable product release reconstructed from rea
 - Progressive login lockout
 - Remaining-attempt feedback
 - Stronger authentication error handling
+- Refined favorites layout
+- More focused review cards
+- Improved mistake-card direction and readability
 
 ### Run this version
 
