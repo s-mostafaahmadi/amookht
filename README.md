@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 16 — Improved favorites and review layout
+## Version 17 — Four-level spaced repetition
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Refined favorites layout
-- More focused review cards
-- Improved mistake-card direction and readability
+- Four review-quality ratings
+- Adaptive next-review scheduling
+- Twelve-hour handling for difficult material
 
 ### Available features at this stage
 
@@ -64,6 +64,9 @@ This version is an independently viewable product release reconstructed from rea
 - Refined favorites layout
 - More focused review cards
 - Improved mistake-card direction and readability
+- Four review-quality ratings
+- Adaptive next-review scheduling
+- Twelve-hour handling for difficult material
 
 ### Run this version
 
