@@ -2,15 +2,15 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 18 — Guided learner onboarding
+## Version 19 — Structured learning programs
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Step-by-step first-run onboarding
-- Learner level and preference setup
-- Guided initial study configuration
+- Multiple structured learning programs
+- Program-specific activities and timing
+- Study-range and plan-preparation workflow
 
 ### Available features at this stage
 
@@ -70,6 +70,9 @@ This version is an independently viewable product release reconstructed from rea
 - Step-by-step first-run onboarding
 - Learner level and preference setup
 - Guided initial study configuration
+- Multiple structured learning programs
+- Program-specific activities and timing
+- Study-range and plan-preparation workflow
 
 ### Run this version
 
