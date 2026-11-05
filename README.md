@@ -2,15 +2,20 @@
 
 Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
 
-## Version 19 — Structured learning programs
+## Version 20 — Scalable full-stack learning platform
 
 This version is an independently viewable product release reconstructed from real application snapshots.
 
 ### Added in this version
 
-- Multiple structured learning programs
-- Program-specific activities and timing
-- Study-range and plan-preparation workflow
+- FastAPI application backend
+- PostgreSQL normalized global content bank
+- Redis-ready caching and abuse protection
+- Account synchronization and role-based administration
+- Tree-based live content statistics
+- Refresh-safe session and page restoration
+- Docker, Alembic migrations, and backend test suite
+- Production-minded database pooling and pagination
 
 ### Available features at this stage
 
@@ -73,6 +78,14 @@ This version is an independently viewable product release reconstructed from rea
 - Multiple structured learning programs
 - Program-specific activities and timing
 - Study-range and plan-preparation workflow
+- FastAPI application backend
+- PostgreSQL normalized global content bank
+- Redis-ready caching and abuse protection
+- Account synchronization and role-based administration
+- Tree-based live content statistics
+- Refresh-safe session and page restoration
+- Docker, Alembic migrations, and backend test suite
+- Production-minded database pooling and pagination
 
 ### Run this version
 
@@ -81,3 +94,12 @@ Open `index.html` in a modern browser. Account synchronization and server-backed
 ### Privacy and security
 
 Production credentials, real `.env` files, database contents, user uploads, recordings, logs, and server backups are excluded from every version.
+
+### Full-stack development
+
+```bash
+cp backend/.env.example backend/.env
+docker compose up --build
+```
+
+Use development-only values and never commit a real `.env`.

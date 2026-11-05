@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.log
+*.sqlite*
+*.db
+uploads/
+backend/data/speaking_recordings/
+*.pem
+*.key
+*.p12
+*.pfx
