@@ -43,6 +43,10 @@ class User(Base):
     learning_plans: Mapped[list["LearningPlan"]] = relationship(back_populates="user")
     daily_analytics: Mapped[list["DailyAnalytics"]] = relationship(back_populates="user")
     app_state: Mapped[Optional["UserAppState"]] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
+    library_folders: Mapped[list["LibraryFolder"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    library_documents: Mapped[list["LibraryDocument"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    library_notes: Mapped[list["LibraryNote"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    pdf_annotations: Mapped[list["PdfAnnotation"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class UserProfile(Base):
@@ -588,3 +592,64 @@ class AIEvaluationLog(Base):
     response_payload: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
+
+
+class LibraryFolder(Base):
+    __tablename__ = "library_folders"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    parent_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("library_folders.id", ondelete="CASCADE"), nullable=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    color: Mapped[str] = mapped_column(String(20), nullable=False, default="#7c3aed")
+    position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__ = (Index("ix_library_folders_user_parent", "user_id", "parent_id"), UniqueConstraint("user_id", "parent_id", "name", name="uq_library_folder_sibling_name"))
+    user: Mapped["User"] = relationship(back_populates="library_folders")
+    parent: Mapped[Optional["LibraryFolder"]] = relationship(remote_side="LibraryFolder.id")
+
+
+class LibraryDocument(Base):
+    __tablename__ = "library_documents"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    folder_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("library_folders.id", ondelete="SET NULL"), nullable=True)
+    title: Mapped[str] = mapped_column(String(240), nullable=False)
+    original_filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    storage_key: Mapped[str] = mapped_column(String(500), unique=True, nullable=False)
+    mime_type: Mapped[str] = mapped_column(String(100), nullable=False, default="application/pdf")
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
+    page_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__ = (Index("ix_library_documents_user_folder_updated", "user_id", "folder_id", "updated_at"), CheckConstraint("size_bytes > 0", name="ck_library_document_positive_size"))
+    user: Mapped["User"] = relationship(back_populates="library_documents")
+
+
+class LibraryNote(Base):
+    __tablename__ = "library_notes"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    folder_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("library_folders.id", ondelete="SET NULL"), nullable=True)
+    title: Mapped[str] = mapped_column(String(240), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    drawing: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    color: Mapped[str] = mapped_column(String(20), nullable=False, default="#fef3c7")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__ = (Index("ix_library_notes_user_folder_updated", "user_id", "folder_id", "updated_at"),)
+    user: Mapped["User"] = relationship(back_populates="library_notes")
+
+
+class PdfAnnotation(Base):
+    __tablename__ = "pdf_annotations"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    document_id: Mapped[str] = mapped_column(String(36), ForeignKey("library_documents.id", ondelete="CASCADE"), index=True)
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    annotation_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__ = (Index("ix_pdf_annotations_document_page", "document_id", "page_number"), CheckConstraint("page_number >= 1", name="ck_pdf_annotation_page"), CheckConstraint("annotation_type IN ('pen', 'highlight', 'underline', 'strikeout', 'text')", name="ck_pdf_annotation_type"))
+    user: Mapped["User"] = relationship(back_populates="pdf_annotations")

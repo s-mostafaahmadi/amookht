@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 from functools import lru_cache
 
 from pydantic import AliasChoices, Field, field_validator
@@ -75,6 +75,8 @@ class Settings(BaseSettings):
     # Storage
     FILE_STORAGE_PATH: str = Field(default="./data/files", validation_alias=AliasChoices("FILE_STORAGE_PATH"))
     MAX_UPLOAD_SIZE_MB: int = Field(default=50, validation_alias=AliasChoices("MAX_UPLOAD_SIZE_MB"))
+    LIBRARY_USER_QUOTA_MB: int = Field(default=500, ge=10, le=100_000, validation_alias=AliasChoices("LIBRARY_USER_QUOTA_MB"))
+    LIBRARY_MAX_PDF_MB: int = Field(default=50, ge=1, le=500, validation_alias=AliasChoices("LIBRARY_MAX_PDF_MB"))
 
     # Logging
     LOG_LEVEL: str = Field(default="INFO", validation_alias=AliasChoices("LOG_LEVEL"))
@@ -89,3 +91,4 @@ class Settings(BaseSettings):
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+

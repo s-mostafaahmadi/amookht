@@ -1,105 +1,89 @@
-# Amookht
+﻿# Version 21 — Premium Study Workspace and Reliable Learning Progress
 
-Amookht is a German TestDaF learning product documented through an evolving series of educational versions.
+**Release date:** 2026-11-07
 
-## Version 20 — Scalable full-stack learning platform
+Version 21 turns Amookht into a more complete, persistent and scalable learning workspace. It combines the Premium document library, stylus-first study tools, reliable session tracking, compact content analytics and a refined multilingual experience.
 
-This version is an independently viewable product release reconstructed from real application snapshots.
+## Premium library and notes
 
-### Added in this version
+- Private Premium workspace for PDF files, notes and folders
+- Secure PDF upload and authenticated, owner-scoped file access
+- Nested folders plus desktop and mobile drag-and-drop organization
+- Personal notes with typed, handwritten and combined editing modes
+- Glass-style text entry and responsive layouts
+- Localized Premium previews and subscription cards for free users
+- Example Premium plan page with a 499,000 toman price card
 
-- FastAPI application backend
-- PostgreSQL normalized global content bank
-- Redis-ready caching and abuse protection
-- Account synchronization and role-based administration
-- Tree-based live content statistics
-- Refresh-safe session and page restoration
-- Docker, Alembic migrations, and backend test suite
-- Production-minded database pooling and pagination
+## PDF study tools
 
-### Available features at this stage
+- Pen and stylus input for supported phones, tablets and computers
+- Adjustable pen size and immediate color changes
+- Highlight, underline, text and path-aware eraser tools
+- Text editing with tap and movement with press-and-hold
+- Page navigation controls at the top corners of the PDF
+- Improved mobile PDF rendering quality
+- Restoration of the last opened PDF page and position
+- Automatic annotation saving with visible wait feedback
 
-- Topic-based German learning workspace
-- Core TestDaF skill navigation
-- Vocabulary practice cards
-- JSON vocabulary-content import
-- Browser-based local progress persistence
-- Consistent application icon system
-- Clearer visual hierarchy for learning actions
-- Refined navigation and card styling
-- Dedicated TestDaF simulation flow
-- Timed exam-style activities
-- Skill-specific simulation sections
-- Dashboard summary metrics
-- Visible learning totals and activity indicators
-- Improved progress overview
-- Day-by-day study history
-- Historical activity review
-- Persistent daily learning records
-- Daily progress ring
-- At-a-glance completion visualization
-- Clearer daily target feedback
-- Delete and manage recorded mistakes
-- Improved mistake-review controls
-- Cleaner error-learning workflow
-- Mobile-first navigation
-- Responsive controls for small screens
-- Improved touch interaction
-- Daily study-time measurement
-- Time-based progress feedback
-- Study-duration visibility on the dashboard
-- Redesigned error book
-- Structured mistake categorization
-- Faster return from mistakes to practice
-- Simplified content-management workflow
-- Cleaner exercise-generation path
-- Reduced dependency on legacy data-maker controls
-- Save learning items as favorites
-- Dedicated favorites review
-- Persistent saved-item collection
-- Persian, German, and English interface support
-- Runtime language switching
-- Localized labels and learning guidance
-- Email-verification account flow
-- Verification-code interface
-- Clear authentication feedback states
-- Progressive login lockout
-- Remaining-attempt feedback
-- Stronger authentication error handling
-- Refined favorites layout
-- More focused review cards
-- Improved mistake-card direction and readability
-- Four review-quality ratings
-- Adaptive next-review scheduling
-- Twelve-hour handling for difficult material
-- Step-by-step first-run onboarding
-- Learner level and preference setup
-- Guided initial study configuration
-- Multiple structured learning programs
-- Program-specific activities and timing
-- Study-range and plan-preparation workflow
-- FastAPI application backend
-- PostgreSQL normalized global content bank
-- Redis-ready caching and abuse protection
-- Account synchronization and role-based administration
-- Tree-based live content statistics
-- Refresh-safe session and page restoration
-- Docker, Alembic migrations, and backend test suite
-- Production-minded database pooling and pagination
+## Handwriting workspace
 
-### Run this version
+- Extended handwriting canvas with press-and-hold scroll controls
+- Balanced scrolling speed and mobile selection prevention
+- Tight cropping around handwritten content before transfer
+- Movable and resizable handwriting stickers in combined notes
+- Multiple transferred handwriting items without replacing previous work
+- Floating controls for confirm, delete, resize and move actions
+- Optimized stroke compression for faster transfer and saving
+- Clear progress overlays during transfer and persistence operations
 
-Open `index.html` in a modern browser. Account synchronization and server-backed administration become fully available in version 20.
+## Navigation and persistence
 
-### Privacy and security
+- Refresh keeps the user on the current page and activity
+- Browser Back follows the in-app navigation history
+- Safe note and PDF saving before navigation or exit
+- Activity checkpoints on skill exit, browser Back, refresh and page close
+- Automatic learning-state persistence every 10 seconds
+- Background tabs no longer add incorrect learning time
+- Learning time is limited to plan skills, mistakes and favorites
 
-Production credentials, real `.env` files, database contents, user uploads, recordings, logs, and server backups are excluded from every version.
+## Learning plans and interface
 
-### Full-stack development
+- Learning-plan selection and execution are combined into one flow
+- Learners without a selected plan start in plan selection
+- Active plans provide a controlled “change learning plan” action
+- Sidebar navigation was reordered and account settings moved to the profile
+- Responsive language switching no longer overlaps authentication actions
+- Light-theme daily progress styling was aligned with the rest of the UI
+- The TestDaF Premium preview opens directly without a subscription pop-up
 
-```bash
-cp backend/.env.example backend/.env
-docker compose up --build
-```
+## Content progress and administration
 
-Use development-only values and never commit a real `.env`.
+- Compact tree-based content monitoring for administrators
+- Topic, subtopic and skill totals for words, texts and questions
+- Practised-content counters displayed as completed / total in History
+- Live per-user vocabulary progress with stable word identifiers
+- Normalized word matching and duplicate avoidance
+- Prioritization of unseen vocabulary in future sessions
+- Reliable recovery of older activity and vocabulary progress records
+- Scalable content-bank organization for larger datasets and user volumes
+
+## TestDaF and Premium experience
+
+- Premium TestDaF simulation preview with exam-like timing and task coverage
+- Speaking workflow with recording and saved progress
+- Premium feature advertising tailored to each locked feature
+- Localized advertising and subscription content in Persian, English and German
+
+## Architecture and safety
+
+- User state is persisted locally first and synchronized with the server
+- Library metadata and annotations remain scoped to the authenticated user
+- PostgreSQL-backed library and learning-state persistence
+- Sensitive runtime configuration, uploaded documents, backups and private keys are excluded from this public release
+- No production `.env` file or user-generated document is included
+
+## Validation
+
+- Inline JavaScript syntax validation completed
+- Publisher secret and sensitive-filename checks remain enabled
+- Version 21 is prepared for its scheduled Publisher release

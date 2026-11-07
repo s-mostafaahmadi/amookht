@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager
+﻿from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -42,7 +42,7 @@ def create_app() -> FastAPI:
     )
 
     # Routes
-    from app.api.routes import auth, learning, writing, speaking, vocabulary, errors, analytics, health, account, content_bank, testdaf_exams, admin
+    from app.api.routes import auth, learning, writing, speaking, vocabulary, errors, analytics, health, account, content_bank, testdaf_exams, admin, library
     app.include_router(health.router, tags=["Health"])
     app.include_router(auth.router, prefix="/v1/auth", tags=["Authentication"])
     app.include_router(learning.router, prefix="/v1/learning", tags=["Learning"])
@@ -55,8 +55,10 @@ def create_app() -> FastAPI:
     app.include_router(content_bank.router, prefix="/v1/content-bank", tags=["Content Bank"])
     app.include_router(testdaf_exams.router, prefix="/v1/testdaf-exams", tags=["TestDaF Exams"])
     app.include_router(admin.router, prefix="/v1/admin", tags=["Administration"])
+    app.include_router(library.router, prefix="/v1/library", tags=["Premium Library"])
 
     return app
 
 
 app = create_app()
+
