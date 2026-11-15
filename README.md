@@ -1,17 +1,16 @@
-﻿# Version 23 — Immediate Pen Color
+# Version 24 ? Path-aware Eraser
 
-This version fixes color selection latency in the Premium writing tools.
+This version improves handwriting and PDF annotation controls.
 
-## Fixed
+## Changed
 
-- A newly selected PDF pen or highlighter color now applies to the very next stroke.
-- A newly selected handwriting color in personal notes applies immediately.
-- Stroke-width sliders also update continuously while the control is moved.
-- Both `input` and `change` events are handled for compatibility with mobile and desktop color pickers.
+- Removed the strikeout tool from the PDF toolbar.
+- The note eraser now works continuously while the pointer or stylus moves.
+- Touching any segment of a handwritten stroke removes that stroke; the starting point is no longer required.
+- Eraser hit testing now respects canvas scale, stroke thickness, and high-DPI PDF rendering.
+- PDF erasing continues while dragging across annotations.
 
 ## Preserved
 
-- Stylus pressure support
-- Path-aware eraser
-- Stable PDF scroll position while switching tools
-- Persistent PDF annotations and note handwriting
+- Existing strikeout annotations remain readable for backward compatibility.
+- Stylus pressure, selectable pen width, live color changes, and saved annotations remain supported.
