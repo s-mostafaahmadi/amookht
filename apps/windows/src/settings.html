@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Amookht Settings</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="win">
+    <aside class="side">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <div class="brand-text">
+          <strong>Amookht</strong>
+          <span class="muted small" data-i18n="appTagline">تنظیمات ویندوز</span>
+        </div>
+      </div>
+
+      <nav class="nav" role="tablist" aria-label="Settings sections">
+        <button class="nav-item is-active" type="button" data-tab="general" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4a7.9 7.9 0 0 0-.1-1.3l2-1.6-2-3.4-2.4 1a8 8 0 0 0-2.3-1.3L15.8 2h-4l-.4 2.4a8 8 0 0 0-2.3 1.3l-2.4-1-2 3.4 2 1.6a8 8 0 0 0 0 2.6l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 2.3 1.3l.4 2.4h4l.4-2.4a8 8 0 0 0 2.3-1.3l2.4 1 2-3.4-2-1.6c.1-.4.1-.9.1-1.3z"/></svg>
+          <span data-i18n="tabGeneral">عمومی</span>
+        </button>
+        <button class="nav-item" type="button" data-tab="widget" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3zm10 0h8v5h-8zM3 13h8v8H3zm10-3h8v11h-8z"/></svg>
+          <span data-i18n="tabWidget">ویجت رومیزی</span>
+        </button>
+        <button class="nav-item" type="button" data-tab="account" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.7-8 6v2h16v-2c0-3.3-3.6-6-8-6z"/></svg>
+          <span data-i18n="tabAccount">حساب</span>
+        </button>
+        <button class="nav-item" type="button" data-tab="advanced" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4zm0 6h10v4H4zm0 6h16v4H4z"/></svg>
+          <span data-i18n="tabAdvanced">پیشرفته</span>
+        </button>
+        <button class="nav-item" type="button" data-tab="about" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z"/></svg>
+          <span data-i18n="tabAbout">درباره</span>
+        </button>
+      </nav>
+
+      <div class="side-foot">
+        <span class="muted small" id="version-text">Amookht</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- ───────────────────────────── general ───────────────────────────── -->
+      <section class="panel is-active" data-panel="general">
+        <header class="panel-head">
+          <h1 data-i18n="generalTitle">عمومی</h1>
+          <p class="muted" data-i18n="generalSubtitle">نحوهٔ اجرا، زبان و ظاهر برنامهٔ ویندوزی آموخت.</p>
+        </header>
+
+        <h2 class="group-title" data-i18n="startupGroup">شروع و پنجره</h2>
+        <div class="group">
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="startWithWindows">اجرا با روشن شدن ویندوز</p>
+              <p class="row-desc" data-i18n="startWithWindowsHint">برنامه در سینی سیستم بالا می‌آید و ویجت (اگر روشن باشد) نمایش داده می‌شود.</p>
+            </div>
+            <label class="switch"><input id="set-autostart" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="closeToTray">بستن پنجره = ماندن در سینی سیستم</p>
+              <p class="row-desc" data-i18n="closeToTrayHint">خروج کامل از منوی سینی انجام می‌شود.</p>
+            </div>
+            <label class="switch"><input id="set-tray" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+          </div>
+        </div>
+
+        <h2 class="group-title" data-i18n="appearanceGroup">زبان و ظاهر</h2>
+        <div class="group">
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="language">زبان برنامه</p>
+              <p class="row-desc" data-i18n="languageHint">برنامه، ویجت و همین پنجره را تغییر می‌دهد.</p>
+            </div>
+            <select id="set-lang" class="control">
+              <option value="fa">فارسی</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="theme">پوسته</p>
+              <p class="row-desc" data-i18n="themeHint">مطابق ویندوز، تیره یا روشن.</p>
+            </div>
+            <select id="set-theme" class="control">
+              <option value="system" data-i18n="themeSystem">مطابق ویندوز</option>
+              <option value="dark" data-i18n="themeDark">تیره</option>
+              <option value="light" data-i18n="themeLight">روشن</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="accent">رنگ تأکید</p>
+              <p class="row-desc" data-i18n="accentHint">رنگ دکمه‌ها، نمودارها و نور پس‌زمینه.</p>
+            </div>
+            <div class="swatches" id="set-accent">
+              <button type="button" data-accent="indigo" aria-label="indigo"></button>
+              <button type="button" data-accent="violet" aria-label="violet"></button>
+              <button type="button" data-accent="teal" aria-label="teal"></button>
+              <button type="button" data-accent="amber" aria-label="amber"></button>
+              <button type="button" data-accent="rose" aria-label="rose"></button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="uiScale">بزرگ‌نمایی محیط برنامه</p>
+              <p class="row-desc" data-i18n="uiScaleHint">برای نمایش راحت‌تر روی صفحه‌های بزرگ.</p>
+            </div>
+            <select id="set-scale" class="control">
+              <option value="0.8">۸۰٪</option>
+              <option value="0.9">۹۰٪</option>
+              <option value="1">۱۰۰٪</option>
+              <option value="1.1">۱۱۰٪</option>
+              <option value="1.25">۱۲۵٪</option>
+              <option value="1.5">۱۵۰٪</option>
+            </select>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="reduceMotion">کاهش انیمیشن</p>
+              <p class="row-desc" data-i18n="reduceMotionHint">برای سیستم‌های کم‌توان یا تمرکز بیشتر.</p>
+            </div>
+            <label class="switch"><input id="set-reduce-motion" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+          </div>
+        </div>
+
+        <h2 class="group-title" data-i18n="serverGroup">سرور</h2>
+        <div class="group">
+          <div class="row row-stack">
+            <div class="row-text">
+              <p class="row-title" data-i18n="server">آدرس سرور آموخت</p>
+              <p class="row-desc" data-i18n="serverHint">به‌طور پیش‌فرض learn.tah3in.com است.</p>
+            </div>
+            <div class="inline-form">
+              <input id="set-server" type="url" dir="ltr" placeholder="https://learn.tah3in.com" />
+              <button id="btn-save-server" class="btn btn-primary" type="button" data-i18n="save">ذخیره</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── widget ───────────────────────────── -->
+      <section class="panel" data-panel="widget" hidden>
+        <header class="panel-head">
+          <h1 data-i18n="widgetTitle">ویجت رومیزی</h1>
+          <p class="muted" data-i18n="widgetSubtitle">کارهای امروز و یادداشت‌های کتابخانه روی دسکتاپ ویندوز.</p>
+        </header>
+
+        <div class="hero">
+          <div class="hero-text">
+            <p class="hero-title" data-i18n="widgetEnabled">ویجت روی دسکتاپ فعال باشد</p>
+            <p class="hero-desc" data-i18n="widgetEnabledHint">با Ctrl+Alt+W هم می‌توانید پنهان/نمایش کنید.</p>
+            <span class="state-badge" id="widget-state" data-i18n="widgetOff">خاموش</span>
+          </div>
+          <label class="switch switch-lg"><input id="set-widget-enabled" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-show-widget" data-i18n="showWidget">نمایش ویجت</button>
+          <button class="btn btn-ghost" type="button" id="btn-hide-widget" data-i18n="hideWidget">پنهان کردن ویجت</button>
+        </div>
+
+        <h2 class="group-title" data-i18n="widgetOptions">تنظیمات ویجت</h2>
+        <div class="group">
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="widgetOnTop">همیشه روی بقیهٔ پنجره‌ها</p>
+              <p class="row-desc" data-i18n="widgetOnTopHint">ویجت روی همهٔ برنامه‌ها دیده می‌شود.</p>
+            </div>
+            <label class="switch"><input id="set-widget-top" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="widgetCompact">نمایش فشرده</p>
+              <p class="row-desc" data-i18n="widgetCompactHint">اندازهٔ کوچک‌تر برای صفحه‌های کم‌ارتفاع.</p>
+            </div>
+            <label class="switch"><input id="set-widget-compact" type="checkbox" /><span class="track" aria-hidden="true"></span></label>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="autoRefresh">بازخوانی خودکار ویجت</p>
+              <p class="row-desc" data-i18n="autoRefreshHint">کارهای امروز از سرور هم‌گام می‌شوند.</p>
+            </div>
+            <select id="set-refresh" class="control">
+              <option value="30" data-i18n="seconds30">هر ۳۰ ثانیه</option>
+              <option value="60" data-i18n="seconds60">هر ۱ دقیقه</option>
+              <option value="120" data-i18n="seconds120">هر ۲ دقیقه</option>
+              <option value="300" data-i18n="seconds300">هر ۵ دقیقه</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── account ───────────────────────────── -->
+      <section class="panel" data-panel="account" hidden>
+        <header class="panel-head">
+          <h1 data-i18n="accountTitle">حساب</h1>
+          <p class="muted" data-i18n="accountSubtitle">همان حساب آموخت؛ ورود یک‌بار در پنجرهٔ اصلی برنامه.</p>
+        </header>
+
+        <div class="account-card">
+          <div class="avatar" aria-hidden="true" id="account-avatar">A</div>
+          <div class="account-text">
+            <p class="row-title" id="account-status">—</p>
+            <p class="muted small" id="account-email"></p>
+          </div>
+          <span class="state-badge" id="account-badge">—</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" id="btn-show-app" data-i18n="openApp">باز کردن برنامه</button>
+          <button class="btn btn-danger" type="button" id="btn-logout" data-i18n="signOut">خروج از حساب</button>
+        </div>
+
+        <p class="note" data-i18n="accountNote">
+          رمز عبور شما روی دیسک ذخیره نمی‌شود؛ فقط توکن‌های نشست با کلید رمزنگاری ویندوز محافظت می‌شوند.
+        </p>
+      </section>
+
+      <!-- ───────────────────────────── advanced ───────────────────────────── -->
+      <section class="panel" data-panel="advanced" hidden>
+        <header class="panel-head">
+          <h1 data-i18n="advancedTitle">پیشرفته</h1>
+          <p class="muted" data-i18n="advancedSubtitle">داده‌های برنامه، پنجره‌ها و میان‌برهای صفحه‌کلید.</p>
+        </header>
+
+        <h2 class="group-title" data-i18n="dataGroup">داده‌ها</h2>
+        <div class="group">
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="dataFolder">پوشهٔ داده‌های برنامه</p>
+              <p class="row-desc" id="data-folder-path" dir="ltr">—</p>
+            </div>
+            <button class="btn" type="button" id="btn-open-data" data-i18n="open">باز کردن</button>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="resetLayout">بازگردانی چیدمان پنجره‌ها</p>
+              <p class="row-desc" data-i18n="resetLayoutHint">اندازه و جای پنجرهٔ اصلی و ویجت به حالت اولیه برمی‌گردد.</p>
+            </div>
+            <button class="btn" type="button" id="btn-reset-layout" data-i18n="reset">بازنشانی</button>
+          </div>
+          <div class="row">
+            <div class="row-text">
+              <p class="row-title" data-i18n="openWeb">باز کردن نسخهٔ وب</p>
+              <p class="row-desc" data-i18n="openWebHint">برای درس‌نامه‌ها و آزمون‌های آزمایشی.</p>
+            </div>
+            <button class="btn" type="button" id="btn-open-web" data-i18n="open">باز کردن</button>
+          </div>
+        </div>
+
+        <h2 class="group-title" data-i18n="shortcutsGroup">میان‌برهای صفحه‌کلید</h2>
+        <div class="group">
+          <div class="row"><div class="row-text"><p class="row-title">Ctrl + Alt + W</p><p class="row-desc" data-i18n="scWidget">نمایش یا پنهان کردن ویجت</p></div><kbd>Ctrl Alt W</kbd></div>
+          <div class="row"><div class="row-text"><p class="row-title">Ctrl + Alt + A</p><p class="row-desc" data-i18n="scApp">نمایش پنجرهٔ اصلی</p></div><kbd>Ctrl Alt A</kbd></div>
+          <div class="row"><div class="row-text"><p class="row-title">Ctrl + ۱…۸</p><p class="row-desc" data-i18n="scSections">جابه‌جایی بین بخش‌ها</p></div><kbd>Ctrl 1-8</kbd></div>
+          <div class="row"><div class="row-text"><p class="row-title">F5</p><p class="row-desc" data-i18n="scReload">بازخوانی داده‌ها</p></div><kbd>F5</kbd></div>
+          <div class="row"><div class="row-text"><p class="row-title">Ctrl + ,</p><p class="row-desc" data-i18n="scSettings">باز کردن تنظیمات</p></div><kbd>Ctrl ,</kbd></div>
+        </div>
+      </section>
+
+      <!-- ───────────────────────────── about ───────────────────────────── -->
+      <section class="panel" data-panel="about" hidden>
+        <header class="panel-head">
+          <h1 data-i18n="aboutTitle">دربارهٔ Amookht</h1>
+          <p class="muted" data-i18n="aboutSubtitle">برنامهٔ ویندوزی آموخت — برنامهٔ درسی، واژگان، گرامر، مدرس هوشمند و کتابخانه.</p>
+        </header>
+
+        <div class="about-card">
+          <div class="avatar avatar-lg" aria-hidden="true">A</div>
+          <div>
+            <p class="row-title">Amookht Desktop</p>
+            <p class="muted small" id="about-version">—</p>
+          </div>
+        </div>
+
+        <h2 class="group-title" data-i18n="linksGroup">دسترسی سریع</h2>
+        <div class="group">
+          <button class="link-row" type="button" id="link-site">
+            <span data-i18n="openSite">وب‌سایت آموخت</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+          <button class="link-row" type="button" id="link-guide">
+            <span data-i18n="openGuide">راهنمای ویجت</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+          <button class="link-row" type="button" id="link-downloads">
+            <span data-i18n="downloads">دانلودها</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+
+        <p class="note" data-i18n="aboutNote">
+          ویجت: Ctrl+Alt+W — نمایش برنامه: Ctrl+Alt+A — بازخوانی: F5 — تنظیمات: Ctrl+,
+        </p>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" hidden></div>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ Wiederholung)، پاسخ‌ها را با AI تصحیح می‌کند، اشتب
 | بخش | مسیر | توضیح |
 | --- | --- | --- |
 | **وب‌اپ** | این ریپو (`index.html`, `backend/`) | FastAPI + PostgreSQL + Redis + فرانت بدون build |
-| **اپ ویندوز** | [`docs/windows/`](docs/windows/README.md) | Electron 32، موتور بومی، ویجت رومیزی، به‌روزرسانی خودکار |
+| **اپ ویندوز** | [`apps/windows/`](apps/windows/README.md) · [`docs/windows/`](docs/windows/README.md) | Electron 32، موتور بومی، ویجت رومیزی، به‌روزرسانی خودکار |
 | **اندروید** | [`docs/android.md`](docs/android.md) | WebView/PWA روی همان API |
 
 ## مستندات کامل

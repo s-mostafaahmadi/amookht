@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark" data-accent="indigo">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self' amookht://content; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https: amookht:; font-src 'self'; frame-src 'self'; connect-src 'self' https: wss: amookht:;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Amookht</title>
+  <link rel="stylesheet" href="../app.css" />
+  <link rel="stylesheet" href="native.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-blob blob-a"></span>
+    <span class="aurora-blob blob-b"></span>
+    <span class="aurora-blob blob-c"></span>
+    <span class="aurora-grid"></span>
+  </div>
+
+  <div id="app" data-view="boot">
+    <!-- ───────────────────────── boot ───────────────────────── -->
+    <div class="boot" data-pane="boot">
+      <div class="boot-brand"><span class="brand-word">Amookht</span><span class="boot-line"></span></div>
+    </div>
+
+    <!-- ───────────────────────── sign in ───────────────────────── -->
+    <section class="auth" data-pane="auth" hidden>
+      <div class="auth-hero">
+        <div class="auth-hero-top">
+          <span class="brand-word brand-lg">Amookht</span>
+          <span class="brand-pill" data-i18n="desktopApp">Windows App</span>
+        </div>
+
+        <h1 class="auth-title">
+          <span data-i18n="authTitle1">آلمانی را</span>
+          <span class="grad-text" data-i18n="authTitle2">جدی یاد بگیر</span>
+        </h1>
+        <p class="auth-sub" data-i18n="authSub">
+          برنامهٔ روزانه، واژگان با تکرار فاصله‌دار، تمرین گرامر، مدرس هوشمند و کتابخانهٔ شخصی — همه در یک برنامهٔ ویندوزی.
+        </p>
+
+        <ul class="auth-points">
+          <li>
+            <span class="point-ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 6v6c0 5 3.8 9.2 9 10 5.2-.8 9-5 9-10V6z"/></svg>
+            </span>
+            <span><strong data-i18n="point1Title">مسیر آماده تا TestDaF</strong><em data-i18n="point1Text">برنامهٔ روزانه بر اساس سطح و هدف شما</em></span>
+          </li>
+          <li>
+            <span class="point-ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v16H4zM13 4h7v16h-7z"/></svg>
+            </span>
+            <span><strong data-i18n="point2Title">تمرین واقعی، نه تئوری</strong><em data-i18n="point2Text">گرامر، واژگان و ترجمه با بازخورد فوری</em></span>
+          </li>
+          <li>
+            <span class="point-ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm1 13h-2v-5h2zm0-7h-2V7h2z"/></svg>
+            </span>
+            <span><strong data-i18n="point3Title">همیشه همراه دسکتاپ</strong><em data-i18n="point3Text">ویجت رومیزی کارهای امروز، با یک کلید</em></span>
+          </li>
+        </ul>
+
+        <div class="auth-foot">
+          <span data-i18n="authFoot">همان حساب سایت آموخت — بدون نیاز به مرورگر</span>
+        </div>
+      </div>
+
+      <div class="auth-side">
+        <form class="glass auth-card" id="login-form" autocomplete="on" novalidate>
+          <div class="auth-card-head">
+            <h2 data-i18n="signInTitle">ورود به حساب</h2>
+            <p class="muted" data-i18n="signInSub">ایمیل و رمز عبور حساب آموخت خود را وارد کنید.</p>
+          </div>
+
+          <label class="field">
+            <span class="field-label" data-i18n="email">ایمیل</span>
+            <input id="login-email" type="email" dir="ltr" autocomplete="username" placeholder="you@example.com" required />
+          </label>
+
+          <label class="field">
+            <span class="field-label" data-i18n="password">رمز عبور</span>
+            <span class="field-wrap">
+              <input id="login-password" type="password" dir="ltr" autocomplete="current-password" placeholder="••••••••" required />
+              <button class="field-eye" id="toggle-password" type="button" tabindex="-1" aria-label="show password">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.2 8.6 1 12c1.2 3.4 5.5 7 11 7s9.8-3.6 11-7c-1.2-3.4-5.5-7-11-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
+              </button>
+            </span>
+          </label>
+
+          <p class="form-error" id="login-error" hidden></p>
+
+          <button class="btn btn-primary btn-block" id="login-submit" type="submit">
+            <span data-i18n="signIn">ورود</span>
+          </button>
+
+          <div class="auth-card-foot">
+            <span class="muted small" data-i18n="rememberNote">نشست شما با کلید رمزنگاری ویندوز محفوظ می‌ماند.</span>
+            <button class="link-btn" id="open-site-login" type="button" data-i18n="openSite">باز کردن سایت</button>
+          </div>
+        </form>
+
+        <p class="auth-legal muted small" data-i18n="authLegal">
+          با ورود، تمام امکانات حساب و برنامهٔ مطالعاتی شما در همین برنامه در دسترس است.
+        </p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── main: Windows shell around the real site ───────────────────────── -->
+    <div class="shell" data-pane="main" id="shell" hidden>
+      <header class="titlebar">
+        <div class="tb-group">
+          <button class="icon-btn" id="btn-sidebar" type="button" data-cmd="toggle-sidebar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-back" type="button" data-cmd="back" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="flip-rtl"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-forward" type="button" data-cmd="forward" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="flip-rtl"><path d="m12 4-1.4 1.4 5.6 5.6H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-reload" type="button" data-cmd="reload">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg>
+          </button>
+        </div>
+        <div class="tb-brand">
+          <span class="brand-word">Amookht</span>
+          <span class="titlebar-divider"></span>
+          <span class="tb-title" id="tb-title"></span>
+        </div>
+        <button class="tb-search" id="btn-search" type="button" data-cmd="palette">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+          <span id="search-label">جستجوی بخش‌ها و فرمان‌ها</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <div class="tb-tail">
+          <button class="icon-btn" id="btn-theme" type="button" data-cmd="toggle-dark">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.5 0-.9-.1-1.4A5.5 5.5 0 0 1 13.4 3.1 9 9 0 0 0 12 3z"/></svg>
+          </button>
+          <button class="icon-btn lang-btn" id="btn-lang" type="button" data-cmd="lang-menu">فا</button>
+          <button class="chip-btn" id="btn-widget" type="button" data-cmd="toggle-widget">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3zm10 0h8v5h-8zM3 13h8v8H3zm10-3h8v11h-8z"/></svg>
+            <span data-i18n="widget">ویجت</span>
+            <span class="chip-dot" aria-hidden="true"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="shell-body">
+        <aside class="sidebar">
+          <nav class="nav" id="nav" aria-label="Amookht"></nav>
+
+          <div class="side-bottom">
+            <button class="side-row" type="button" data-cmd="toggle-widget" id="side-widget">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h8v8H3zm10 0h8v5h-8zM3 13h8v8H3zm10-3h8v11h-8z"/></svg>
+              <span class="side-text" data-i18n="desktopWidget">ویجت رومیزی</span>
+              <label class="switch switch-sm" onclick="event.preventDefault()">
+                <input id="side-widget-toggle" type="checkbox" tabindex="-1" />
+                <span class="track" aria-hidden="true"></span>
+              </label>
+            </button>
+            <button class="side-row" type="button" data-cmd="windows-settings" id="side-winsettings">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v12H3zm2 2v8h14V6zM8 18h8v2H8z"/></svg>
+              <span class="side-text" data-i18n="windowsSettings">تنظیمات ویندوز</span>
+            </button>
+            <button class="account" type="button" data-cmd="account-menu" id="btn-account">
+              <span class="avatar-btn" id="avatar"><span id="avatar-letter">A</span></span>
+              <span class="account-meta">
+                <b id="account-name">—</b>
+                <small id="account-email" dir="ltr"></small>
+                <span class="role-chip" id="account-role"></span>
+              </span>
+            </button>
+          </div>
+        </aside>
+
+        <main class="stage" id="stage">
+          <div class="stage-progress" id="stage-progress" hidden></div>
+          <div class="view" id="view" tabindex="-1"></div>
+          <div class="stage-cover" id="stage-cover">
+            <div class="boot-brand">
+              <span class="brand-word">Amookht</span><span class="boot-line"></span>
+              <span class="cover-text" id="cover-text" data-i18n="loadingState">در حال دریافت اطلاعات حساب…</span>
+            </div>
+          </div>
+          <div class="stage-error" id="stage-error" hidden>
+            <div class="error-card">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z"/></svg>
+              <h2 data-i18n="offlineTitle">اتصال برقرار نشد</h2>
+              <p data-i18n="offlineText">به سرور آموخت دسترسی نداریم.</p>
+              <button class="btn btn-primary" type="button" data-cmd="reload" data-i18n="retry">تلاش دوباره</button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <footer class="statusbar">
+        <span class="status-item"><span class="status-dot" id="status-dot"></span><span id="status-text">—</span></span>
+        <span class="status-item" id="status-plan"></span>
+        <span class="status-spacer"></span>
+        <span class="status-item" id="status-sync"></span>
+        <span class="status-item"><button type="button" data-cmd="zoom-reset" id="status-zoom" title="Ctrl 0">100%</button></span>
+        <span class="status-item"><button type="button" data-cmd="palette"><kbd>Ctrl K</kbd></button></span>
+        <span class="status-item" id="status-version">Amookht</span>
+        <button class="status-item status-update" id="status-update" type="button" hidden></button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="palette" id="palette" hidden>
+    <div class="palette-backdrop" data-cmd="palette-close"></div>
+    <div class="palette-card" role="dialog" aria-modal="true">
+      <div class="palette-input">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+        <input id="palette-input" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="palette-list" id="palette-list" role="listbox"></div>
+      <div class="palette-foot"><span><kbd>↑</kbd> <kbd>↓</kbd></span><span><kbd>Enter</kbd></span><span><kbd>Esc</kbd></span></div>
+    </div>
+  </div>
+
+  <div class="popover" id="popover" hidden></div>
+  <div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

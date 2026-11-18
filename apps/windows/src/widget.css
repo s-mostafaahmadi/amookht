@@ -1,0 +1,136 @@
+/* Amookht desktop widget v3 — compact navy panel: title + tools, two tabs,
+   a dense list, and a one-line footer. Solid window with real resize edges. */
+
+:root {
+  --bg: #1d2942;
+  --head: #1d2942;
+  --tab: #1d2942;
+  --tab-on: #243354;
+  --row: #22304d;
+  --row-hover: #283859;
+  --line: rgba(255, 255, 255, 0.06);
+  --text: #e9eefb;
+  --text-2: #b4bed6;
+  --text-3: #7d89a6;
+  --ring: #5b7cfa;
+  --ok: #4ade80;
+  --danger: #ff8a96;
+  color-scheme: dark;
+}
+html[data-theme='light'] {
+  --bg: #f3f5fb;
+  --head: #f3f5fb;
+  --tab: #f3f5fb;
+  --tab-on: #e2e8f6;
+  --row: #e8edf8;
+  --row-hover: #dfe6f5;
+  --line: rgba(20, 30, 60, 0.08);
+  --text: #18213a;
+  --text-2: #3e4a68;
+  --text-3: #6d7894;
+  --ring: #3b63f0;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; }
+body {
+  font: 13px/1.5 'Vazirmatn', 'Segoe UI Variable Text', 'Segoe UI', Tahoma, sans-serif;
+  user-select: none; -webkit-user-select: none; cursor: default;
+}
+button, input, textarea { font: inherit; color: inherit; }
+svg { width: 15px; height: 15px; fill: currentColor; display: block; }
+
+.widget { height: 100%; display: grid; grid-template-rows: 42px 40px minmax(0, 1fr) 34px; }
+
+/* header — the whole bar drags the window; buttons stay clickable */
+.w-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 0 12px; background: var(--head); -webkit-app-region: drag;
+}
+.w-title { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-tools { display: flex; align-items: center; gap: 2px; -webkit-app-region: no-drag; direction: ltr; flex-direction: row-reverse; }
+html[dir='ltr'] .w-tools { flex-direction: row; }
+.w-icon {
+  width: 26px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 6px;
+  background: transparent; color: var(--text-3); cursor: pointer;
+}
+.w-icon:hover { background: var(--row-hover); color: var(--text); }
+.w-icon[aria-pressed='true'] { color: var(--ring); }
+#btn-close:hover { background: #c42b3a; color: #fff; }
+.w-icon.is-spinning svg { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* tabs */
+.w-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 0 6px; gap: 0; background: var(--tab); }
+.w-tab {
+  border: 0; background: transparent; color: var(--text-3); cursor: pointer; font-weight: 600; font-size: 13px;
+  border-radius: 6px 6px 0 0;
+}
+.w-tab:hover { color: var(--text-2); }
+.w-tab.is-active { background: var(--tab-on); color: var(--text); font-weight: 700; }
+
+/* body */
+.w-body { overflow-y: auto; overflow-x: hidden; padding: 6px 6px 8px; overscroll-behavior: contain; }
+.w-body::-webkit-scrollbar { width: 6px; }
+.w-body::-webkit-scrollbar-thumb { background: rgba(140, 155, 190, 0.35); border-radius: 6px; }
+.w-body::-webkit-scrollbar-track { background: transparent; }
+
+.w-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.w-row {
+  display: flex; align-items: center; gap: 9px; min-height: 30px; padding: 4px 8px 4px 6px;
+  border-radius: 4px; background: var(--row);
+}
+html[dir='rtl'] .w-row { padding: 4px 6px 4px 8px; }
+.w-row:hover { background: var(--row-hover); }
+.w-check {
+  flex: none; width: 15px; height: 15px; border-radius: 50%; border: 1.6px solid var(--ring);
+  background: transparent; cursor: pointer; padding: 0; display: grid; place-items: center;
+}
+.w-check svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
+.w-row.is-done .w-check { background: var(--ring); }
+.w-row.is-done .w-check svg { opacity: 1; }
+.w-text { flex: 1; min-width: 0; color: var(--text); overflow-wrap: anywhere; cursor: default; }
+.w-row.is-done .w-text { color: var(--text-3); text-decoration: line-through; }
+.w-del {
+  flex: none; width: 20px; height: 20px; border: 0; background: transparent; color: var(--text-3);
+  border-radius: 4px; cursor: pointer; display: grid; place-items: center; opacity: 0.7;
+}
+.w-del svg { width: 11px; height: 11px; }
+.w-del:hover { opacity: 1; color: var(--danger); background: rgba(255, 120, 135, 0.12); }
+.w-row.is-busy { opacity: 0.55; pointer-events: none; }
+
+.w-note { display: grid; gap: 1px; padding: 6px 10px; border-radius: 4px; background: var(--row); cursor: pointer; }
+.w-note:hover { background: var(--row-hover); }
+.w-note b { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w-note small { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.w-empty { padding: 26px 12px; text-align: center; color: var(--text-3); font-size: 12.5px; line-height: 1.9; }
+.w-empty button { margin-top: 8px; }
+
+/* add form */
+.w-add { display: grid; gap: 6px; margin-bottom: 6px; padding: 6px; border-radius: 6px; background: var(--row); }
+.w-add input, .w-add textarea {
+  width: 100%; border: 1px solid transparent; border-radius: 4px; background: var(--bg); color: var(--text);
+  padding: 6px 8px; outline: none; user-select: text; -webkit-user-select: text; resize: vertical;
+}
+.w-add input:focus, .w-add textarea:focus { border-color: var(--ring); }
+.w-add-actions { display: flex; gap: 6px; }
+.w-btn {
+  border: 0; border-radius: 4px; padding: 4px 12px; background: var(--row-hover); color: var(--text-2); cursor: pointer; font-size: 12px;
+}
+.w-btn:hover { color: var(--text); }
+.w-btn-primary { background: var(--ring); color: #fff; }
+.w-btn-primary:hover { filter: brightness(1.08); color: #fff; }
+
+/* footer */
+.w-foot {
+  display: flex; align-items: center; gap: 10px; padding: 0 14px; font-size: 12px; color: var(--text-3);
+  border-top: 1px solid var(--line);
+}
+.w-status { flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.w-status.is-error { color: var(--danger); }
+.w-link { border: 0; background: transparent; color: var(--text-2); cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 4px; }
+.w-link:hover { color: var(--text); background: var(--row-hover); }
+
+[hidden] { display: none !important; }

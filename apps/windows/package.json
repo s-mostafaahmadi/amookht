@@ -1,0 +1,74 @@
+{
+  "name": "amookht-desktop",
+  "productName": "Amookht",
+  "version": "4.1.0",
+  "description": "Amookht for Windows — every part of learn.tah3in.com in a native Windows frame (title bar, sidebar, command palette, tray), plus a resizable desktop widget for tasks and notes.",
+  "main": "electron/main.js",
+  "author": "Amookht",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "start:hidden": "electron . --hidden",
+    "dist": "electron-builder --win nsis --x64",
+    "pack": "electron-builder --win --dir",
+    "test": "electron test/app-smoke.js",
+    "test:live": "electron test/live-check.js",
+    "test:store": "node test/store-test.mjs",
+    "test:widget": "electron test/smoke.js",
+    "test:settings": "electron test/settings-smoke.js"
+  },
+  "devDependencies": {
+    "electron": "^32.2.7",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.amookht.widget",
+    "productName": "Amookht",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Amookht-Setup-${version}.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Amookht",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "uninstallDisplayName": "Amookht"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://learn.tah3in.com/downloads/",
+        "channel": "latest"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  }
+}
