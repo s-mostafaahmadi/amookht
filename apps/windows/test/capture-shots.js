@@ -19,13 +19,14 @@ app.whenReady().then(async () => {
   const js = (code) => win.webContents.executeJavaScript(code);
   const click = (sel) => js(`(() => { const el = document.querySelector(${JSON.stringify(sel)}); if (!el) return false; el.click(); return true; })()`);
   const untilDom = async (code, ms = 30000) => { const end = Date.now() + ms; while (Date.now() < end) { if (await js(code).catch(() => false)) return true; await wait(500); } return false; };
-  const shot = async (name, w = win, width = 1280) => { await wait(900); const img = await w.webContents.capturePage(); fs.writeFileSync(path.join(OUT, name + '.jpg'), img.resize({ width }).toJPEG(82)); console.log('SHOT', name); };
+  const DARK = process.env.SHOT_DARK === '1';
+  const shot = async (name, w = win, width = 1280) => { if (DARK) name += '-dark'; await wait(900); const img = await w.webContents.capturePage(); fs.writeFileSync(path.join(OUT, name + '.jpg'), img.resize({ width }).toJPEG(82)); console.log('SHOT', name); };
 
   const email = await js('__amk.app.account.email');
   if (!/^windows-app-test@/.test(email || '')) { console.log('FAIL not the test account'); app.exit(1); return; }
   win.setSize(1366, 820); win.center(); win.focus();
   // a neutral learner name and the light look for the pictures (test account only)
-  await js(`(() => { const e = __amk.engine; e.S.user.name = 'Sara'; e.save(); const a = JSON.parse(JSON.stringify(__amk.store.get('appSettings') || {})); a.sentColors = true; __amk.store.set('appSettings', a); __amk.store.set('darkMode', false); })()`);
+  await js(`(() => { const e = __amk.engine; e.S.user.name = 'Sara'; e.save(); const a = JSON.parse(JSON.stringify(__amk.store.get('appSettings') || {})); a.sentColors = true; __amk.store.set('appSettings', a); __amk.store.set('darkMode', ${DARK}); })()`);
   await wait(1500);
   const ver = require(path.join(__dirname, '..', 'package.json')).version;
   await js(`(() => { const set = () => { const v = document.querySelector('#status-version'); if (v) v.textContent = 'Amookht ${ver}'; }; set(); setInterval(set, 300); })()`);
@@ -35,6 +36,7 @@ app.whenReady().then(async () => {
   await click('[data-mode="plan"]'); await wait(800);
   await click('[data-act="to-plan"]'); await wait(800);
   await js(`document.querySelector('#view').scrollTop = 0`);
+  if (!(DARK && process.env.SHOT_FROM)) {
   await shot('01-dashboard');
   await js(`document.querySelector('.act-section')?.scrollIntoView({ block: 'start' })`);
   await shot('02-plan');
@@ -43,7 +45,9 @@ app.whenReady().then(async () => {
   await untilDom(`!!document.querySelector('.tdm-player')`);
   await js(`document.querySelector('#view').scrollTop = 0`);
   await shot('03-hoeren');
+  }
 
+  if (!DARK) {
   await click('[data-act="pause"]'); await wait(800);
   await (await click('[data-start="lesen"]') || click('[data-review="lesen"]'));
   await untilDom(`!!document.querySelector('.step-content')`);
@@ -59,6 +63,7 @@ app.whenReady().then(async () => {
   await untilDom(`!!document.querySelector('.tutor-panel .tutor-msg.bot')`, 20000);
   await shot('05-tutor');
   await click('.tutor-panel [data-on-click="Tutor.close"]');
+  }
   await click('[data-act="pause"]'); await wait(800);
 
   await click('[data-mode="free"]');
@@ -76,6 +81,7 @@ app.whenReady().then(async () => {
   await untilDom(`(() => { const d = document.querySelector('#dcoachFrame')?.contentDocument; return !!d && d.querySelectorAll('[data-coach]').length > 0; })()`, 40000);
   await wait(2500); await shot('10-coach');
 
+  if (DARK) { await js(`__amk.store.set('darkMode', false)`); await wait(800); app.exit(0); return; }
   // dark look
   await js(`__amk.store.set('darkMode', true)`); await wait(1200);
   await click('[data-nav="dashboard"]'); await untilDom(`!!document.querySelector('[data-mode]')`); await js(`document.querySelector('#view').scrollTop = 0`);

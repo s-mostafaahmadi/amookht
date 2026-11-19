@@ -17,7 +17,7 @@ export function renderFavorites(page, ctx) {
     const meta = favoriteKindMeta(item.kind);
     const search = [item.title, item.subtitle, item.answer, item.topic, item.explanation, item.context, meta.label].join(' ').toLocaleLowerCase();
     const more = item.explanation || item.context || item.manual;
-    return `<article class="fav-card" data-search-text="${esc(search)}" style="--fc:${meta.color}">
+    return `<article class="fav-card vc" data-search-text="${esc(search)}" style="--fc:${meta.color}">
       <div class="fav-top"><span class="fav-kind"><i>${esc(meta.short)}</i>${esc(meta.label)}</span>${starsHtml(ctx.store.data, item, favCache)}<button type="button" class="qdel" data-del="${esc(item.id)}" title="${esc(L('حذف', 'Delete', 'Löschen'))}" aria-label="${esc(L('حذف', 'Delete', 'Löschen'))}">×</button></div>
       <div class="fav-main"><small>${esc(planName(item.topic))}</small><h2 dir="auto">${esc(item.title)}</h2>${item.subtitle ? `<p class="muted" dir="auto">${esc(item.subtitle)}</p>` : ''}${item.answer ? `<p class="fav-answer" dir="auto">${esc(item.answer)}</p>` : ''}
         ${more ? `<details class="fav-more"><summary>${esc(L('بیشتر', 'More', 'Mehr'))}</summary>${item.explanation ? `<p dir="auto">${esc(item.explanation)}</p>` : ''}${item.context ? `<p class="fav-context" dir="auto">${esc(item.context)}</p>` : ''}${item.manual ? `<div class="row-actions"><button type="button" class="btn" data-edit="${esc(item.id)}">${esc(st('common.edit'))}</button><button type="button" class="btn btn-danger" data-manual-del="${esc(item.id)}">${esc(st('common.delete'))}</button></div>` : ''}</details>` : ''}</div>
@@ -28,17 +28,17 @@ export function renderFavorites(page, ctx) {
     const old = favoritesOf(data).find((x) => x.id === ui.editId) || {};
     const v = (k) => esc(old[k] || '');
     const opt = (value, label) => `<option value="${value}" ${old.kind === value ? 'selected' : ''}>${esc(label)}</option>`;
-    return `<section class="card fav-editor"><div class="panel-head"><div><p>${esc(L('کارت شخصی', 'PERSONAL CARD', 'EIGENE KARTE'))}</p><h2>${esc(ui.editId ? L('ویرایش کارت', 'Edit card', 'Karte bearbeiten') : L('افزودن به کتابخانه', 'Add to your library', 'Zur Bibliothek hinzufügen'))}</h2></div><button type="button" class="icon-btn" data-act="close" aria-label="${esc(st('common.close'))}">×</button></div>
+    return `<div class="nmodal" data-nmodal="fav" role="dialog" aria-modal="true"><section class="card fav-editor nmodal-card"><div class="panel-head"><div><p>${esc(L('کارت شخصی', 'PERSONAL CARD', 'EIGENE KARTE'))}</p><h2>${esc(ui.editId ? L('ویرایش کارت', 'Edit card', 'Karte bearbeiten') : L('افزودن کارت شخصی', 'Add a personal card', 'Eigene Karte hinzufügen'))}</h2></div><button type="button" class="icon-btn" data-act="close" aria-label="${esc(st('common.close'))}">×</button></div>
       <form id="favForm"><div class="form-grid">
         <label class="fld"><span>${esc(L('نوع', 'Type', 'Typ'))}</span><select id="fKind">${opt('vocabulary', st('skill.vocabulary'))}${opt('structure', L('ساختار و عبارت', 'Structure / phrase', 'Struktur / Ausdruck'))}${opt('grammar', st('skill.grammar'))}${opt('other', st('skill.other'))}</select></label>
         <label class="fld grow"><span>${esc(L('موضوع یا مجموعه', 'Topic / collection', 'Thema / Sammlung'))}</span><input id="fTopic" maxlength="240" value="${v('topic')}" placeholder="${esc(L('مثلاً سفر، دانشگاه...', 'e.g. Travel, University...', 'z. B. Reisen, Universität...'))}" /></label>
         <label class="fld full"><span>${esc(L('واژه، ساختار یا پرسش', 'Word, structure or prompt', 'Wort, Struktur oder Frage'))} *</span><input id="fTitle" required maxlength="900" dir="auto" value="${v('title')}" placeholder="z. B. in Betracht ziehen" /></label>
         <label class="fld full"><span>${esc(L('معنی یا پاسخ', 'Meaning or answer', 'Bedeutung oder Antwort'))} *</span><input id="fAnswer" required maxlength="1800" dir="auto" value="${v('answer')}" /></label>
-        <label class="fld grow"><span>${esc(L('برچسب کوتاه', 'Short label', 'Kurzbezeichnung'))}</span><input id="fSubtitle" maxlength="500" value="${v('subtitle')}" placeholder="B2 · Redemittel" /></label>
+        <label class="fld grow"><span>${esc(L('برچسب کوتاه', 'Short label', 'Kurzbezeichnung'))}</span><input id="fSubtitle" maxlength="500" value="${v('subtitle')}" placeholder="" /></label>
         <label class="fld sm"><span>${esc(L('اهمیت', 'Priority', 'Priorität'))}</span><select id="fRating">${[1, 2, 3].map((n) => `<option value="${n}" ${Number(old.rating || 1) === n ? 'selected' : ''}>${'★'.repeat(n)}</option>`).join('')}</select></label>
         <label class="fld full"><span>${esc(L('توضیح یا نکته', 'Explanation or note', 'Erklärung oder Notiz'))}</span><textarea id="fExplanation" maxlength="1800" rows="2" dir="auto">${v('explanation')}</textarea></label>
         <label class="fld full"><span>${esc(L('جمله نمونه یا متن مرتبط', 'Example or context', 'Beispiel oder Kontext'))}</span><textarea id="fContext" maxlength="3200" rows="2" dir="auto">${v('context')}</textarea></label>
-      </div><div class="row-actions end"><button type="button" class="btn" data-act="close">${esc(st('common.cancel'))}</button><button type="submit" class="btn btn-primary">${esc(st('common.save'))}</button></div></form></section>`;
+      </div><div class="row-actions end"><button type="button" class="btn" data-act="close">${esc(st('common.cancel'))}</button><button type="submit" class="btn btn-primary">${esc(st('common.save'))}</button></div></form></section></div>`;
   };
 
   const draw = () => {
@@ -55,7 +55,7 @@ export function renderFavorites(page, ctx) {
     const visible = items.filter((item) => f === 'all' || (f.startsWith('star-') ? item.rating === Number(f.slice(5)) : item.kind === f));
     const kinds = [...new Set(items.map((item) => item.kind))];
     const starLabel = (n) => L(`${n} ستاره`, `${n} star${n > 1 ? 's' : ''}`, `${n} Stern${n > 1 ? 'e' : ''}`);
-    root.innerHTML = `<header class="page-hero"><div class="page-hero-main"><span class="page-hero-icon">${svg(ICONS.heart)}</span><div><p class="kicker">${esc(st('favorite.kicker'))}</p><h1>${esc(st('favorite.title'))}</h1><small>${esc(st('favorite.description'))}</small></div></div>
+    root.innerHTML = `<header class="page-hero fav-hero"><div class="page-hero-main"><span class="page-hero-icon">${svg(ICONS.heart)}</span><div><p class="kicker">${esc(st('favorite.kicker'))}</p><h1>${esc(st('favorite.title'))}</h1><small>${esc(st('favorite.description'))}</small></div></div>
         <div class="hero-side"><div class="big-count"><strong>${num(items.length)}</strong><small>${esc(st('favorite.saved'))}</small></div><button type="button" class="btn btn-primary" data-act="new">＋ ${esc(L('افزودن کارت شخصی', 'Add a personal card', 'Eigene Karte hinzufügen'))}</button></div></header>
       ${ui.formOpen ? form(data) : ''}
       <section class="toolbar card-flat"><label class="search">${svg(ICONS.search)}<input type="search" data-search="1" value="${esc(ui.search)}" placeholder="${esc(st('favorite.search'))}" /></label>
@@ -109,6 +109,9 @@ export function renderFavorites(page, ctx) {
     save();
   });
 
+  // FAV-MODAL: a click on the dark backdrop or Esc closes the window
+  root.addEventListener('click', (event) => { if (event.target.matches && event.target.matches('[data-nmodal="fav"]')) { ui.formOpen = false; ui.editId = null; draw(); } }, true);
+  root.addEventListener('keydown', (event) => { if (event.key === 'Escape' && ui.formOpen) { event.preventDefault(); ui.formOpen = false; ui.editId = null; draw(); } });
   root.addEventListener('click', async (event) => {
     if (handleStarClick(event, ctx.store, favCache)) return;
     const el = event.target.closest('button');

@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = Field(default="HS256", validation_alias=AliasChoices("JWT_ALGORITHM"))
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, validation_alias=AliasChoices("JWT_ACCESS_TOKEN_EXPIRE_MINUTES"))
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=30, validation_alias=AliasChoices("JWT_REFRESH_TOKEN_EXPIRE_DAYS"))
+    TRUSTED_DEVICE_TOKEN: str = Field(default="", validation_alias=AliasChoices("TRUSTED_DEVICE_TOKEN", "AMOOKHT_TRUSTED_DEVICE_TOKEN"))
+    TRUSTED_DEVICE_OWNER_EMAIL: str = Field(default="", validation_alias=AliasChoices("TRUSTED_DEVICE_OWNER_EMAIL", "AMOOKHT_TRUSTED_DEVICE_OWNER_EMAIL"))
+    GOOGLE_CLIENT_ID: str = Field(default="", validation_alias=AliasChoices("GOOGLE_CLIENT_ID", "AMOOKHT_GOOGLE_CLIENT_ID"))
 
     # Transactional email
     SMTP_HOST: str = ""
@@ -64,6 +67,13 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = Field(default="claude-sonnet-4-20250514", validation_alias=AliasChoices("ANTHROPIC_MODEL"))
     DEEPSEEK_API_KEY: str = Field(default="", validation_alias=AliasChoices("DEEPSEEK_API_KEY", "AMOOKHT_DEEPSEEK_API_KEY"))
     DEEPSEEK_MODEL: str = Field(default="deepseek-chat", validation_alias=AliasChoices("DEEPSEEK_MODEL"))
+    GROQ_API_KEY: str = Field(default="", validation_alias=AliasChoices("GROQ_API_KEY", "AMOOKHT_GROQ_API_KEY"))
+    GROQ_MODEL: str = Field(default="llama-3.3-70b-versatile", validation_alias=AliasChoices("GROQ_MODEL"))
+    NVIDIA_API_KEY: str = Field(default="", validation_alias=AliasChoices("NVIDIA_API_KEY", "AMOOKHT_NVIDIA_API_KEY"))
+    NVIDIA_MODEL: str = Field(default="meta/llama-3.1-70b-instruct", validation_alias=AliasChoices("NVIDIA_MODEL"))
+    AI_KEYS_FILE: str = Field(default="", validation_alias=AliasChoices("AI_KEYS_FILE", "AMOOKHT_AI_KEYS_FILE"))
+    OWNER_AI_MAX_HISTORY_MESSAGES: int = Field(default=200, ge=10, le=1000)
+    OWNER_AI_MAX_MESSAGE_CHARS: int = Field(default=20_000, ge=1000, le=100_000)
     # Local LLM
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "qwen2.5:7b"
@@ -80,6 +90,14 @@ class Settings(BaseSettings):
 
     # Logging
     LOG_LEVEL: str = Field(default="INFO", validation_alias=AliasChoices("LOG_LEVEL"))
+
+    # Telegram operations and support bot
+    TELEGRAM_BOT_TOKEN: str = Field(default="", validation_alias=AliasChoices("TELEGRAM_BOT_TOKEN"))
+    TELEGRAM_ADMIN_CHAT_ID: str = Field(default="", validation_alias=AliasChoices("TELEGRAM_ADMIN_CHAT_ID"))
+    TELEGRAM_REQUEST_WINDOW_SECONDS: int = Field(default=60, ge=10, le=3600)
+    TELEGRAM_REQUEST_ALERT_THRESHOLD: int = Field(default=120, ge=10, le=100_000)
+    TELEGRAM_ALERT_COOLDOWN_SECONDS: int = Field(default=300, ge=30, le=86_400)
+    TELEGRAM_SLOW_REQUEST_MS: int = Field(default=5000, ge=500, le=120_000)
 
     model_config = SettingsConfigDict(
         env_file=(".env", _BACKEND_DIR / ".env"),

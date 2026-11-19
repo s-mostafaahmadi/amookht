@@ -337,7 +337,7 @@ export function recordWordStore(store, item, rating, source, timing = {}) {
 
 export const SRS_STEPS = [1, 3, 7, 14, 30];
 /** Site PROG(): ÖSD learners keep their method state in oesdMethod. */
-export const methodKey = (data) => ((data.user && data.user.examPlan) === 'oesd' ? 'oesdMethod' : 'testdafMethod');
+export const methodKey = () => 'testdafMethod'; // UNIFIED-PLAN
 export const deckOf = (data) => {
   const m = data[methodKey(data)];
   return m && m.srs && typeof m.srs === 'object' ? m.srs : {};

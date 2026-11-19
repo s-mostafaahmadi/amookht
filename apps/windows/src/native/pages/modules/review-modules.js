@@ -151,7 +151,7 @@ export function makeReviewModules(env) {
         ${rtl(`<h4>معیار موفقیت</h4><p class="muted">${E(eng.ST().success)}</p>`)}${kit.ta('success', ML('این هفته توانستم … که هفته قبل برایم سخت بود.', 'Diese Woche konnte ich …', 'This week I could …'), 2)}
         <button type="button" class="btn btn-primary wide" data-save-report="1">💾 ${E(ML('ذخیره گزارش هفتگی', 'Bericht speichern', 'Save the weekly report'))}</button>`)
       + card(`${rtl('<h4>مقایسه با هفته قبل</h4>')}${compareTable(cur, prev)}`)
-      + (adv ? card(`<h4>Phase ${faNum(M().phase)} · ${E(ML('توصیه برای هفته بعد', 'Empfehlung', 'Recommendation'))}</h4>${rtl(`<p>${E(adv.text)}</p>`)}${adv.to ? `<button type="button" class="btn btn-primary" data-phase-to="${adv.to}">${E(ML('ورود به', 'Wechsel zu', 'Switch to'))} Phase ${faNum(adv.to)}</button>` : ''}`) : '');
+      + ''; // BATCH2: no Phase advice any more
     return { body };
   }
 

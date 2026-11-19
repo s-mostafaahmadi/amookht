@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.connection import get_db
 from app.domain.models.models import ErrorRecord
+from app.domain.models.models import User
+from app.api.middleware.auth import get_current_user
 
 router = APIRouter()
 
@@ -16,9 +18,9 @@ async def list_errors(
     category: str | None = None,
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
-    query = select(ErrorRecord).where(ErrorRecord.user_id == user_id)
+    query = select(ErrorRecord).where(ErrorRecord.user_id == user.id)
 
     if error_type:
         query = query.where(ErrorRecord.error_type == error_type)
@@ -51,8 +53,9 @@ async def list_errors(
 @router.get("/analysis")
 async def get_error_analysis(
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     # Total errors
     total_result = await db.execute(
         select(func.count(ErrorRecord.id)).where(ErrorRecord.user_id == user_id)
@@ -104,7 +107,7 @@ async def get_error_analysis(
 async def get_due_reviews(
     limit: int = 20,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
     # TODO: Implement error review scheduling
     return {"due_count": 0, "items": []}

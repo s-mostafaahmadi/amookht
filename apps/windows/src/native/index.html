@@ -8,6 +8,8 @@
   <title>Amookht</title>
   <link rel="stylesheet" href="../app.css" />
   <link rel="stylesheet" href="native.css" />
+  <link rel="stylesheet" href="vendor/amk-osd-sim.css" />
+  <link rel="stylesheet" href="vendor/amk-word-hl.css" />
 </head>
 <body>
   <div class="aurora" aria-hidden="true">
@@ -162,6 +164,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v12H3zm2 2v8h14V6zM8 18h8v2H8z"/></svg>
               <span class="side-text" data-i18n="windowsSettings">تنظیمات ویندوز</span>
             </button>
+            <div class="account-row">
             <button class="account" type="button" data-cmd="account-menu" id="btn-account">
               <span class="avatar-btn" id="avatar"><span id="avatar-letter">A</span></span>
               <span class="account-meta">
@@ -170,6 +173,8 @@
                 <span class="role-chip" id="account-role"></span>
               </span>
             </button>
+            <button class="theme-mini" type="button" data-cmd="toggle-dark" id="btn-theme-mini" aria-label="Dark mode" title="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+            </div>
           </div>
         </aside>
 
@@ -221,6 +226,10 @@
   <div class="popover" id="popover" hidden></div>
   <div class="toast-stack" id="toasts" aria-live="polite"></div>
 
+  <script src="vendor/osd-sim-data.js"></script>
+  <script src="vendor/amk-osd-sim.js"></script>
+  <script src="vendor/amk-word-hl.js" defer></script>
+  <script src="vendor/amk-box-scroll.js" defer></script>
   <script type="module" src="main.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ import re
 import secrets
 import smtplib
 import ssl
+import time
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 from email.utils import formataddr
@@ -17,9 +18,9 @@ from email.utils import formataddr
 import jwt
 from email_validator import EmailNotValidError, validate_email
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from passlib.context import CryptContext
+from app.api.passwords import pwd_context  # NO-PASSLIB
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,9 +28,9 @@ from app.config import get_settings
 from app.domain.models.models import User, UserProfile
 from app.infrastructure.cache.redis import get_redis
 from app.infrastructure.database.connection import get_db
+from app.infrastructure.telegram.bot import telegram_notify, telegram_bot, schedule as tg_schedule  # TGBOT2
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 logger = logging.getLogger(__name__)
 
 
@@ -58,6 +59,16 @@ class RegistrationStartedResponse(BaseModel):
 class LoginRequest(BaseModel):
     email: str = Field(min_length=3, max_length=255)
     password: str = Field(min_length=1, max_length=128)
+
+
+class PasswordResetRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=255)
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    verification_id: str = Field(min_length=20, max_length=200)
+    code: str = Field(max_length=20)
+    new_password: str = Field(max_length=128)
 
 
 class TokenResponse(BaseModel):
@@ -122,6 +133,7 @@ def create_access_token(user_id: str) -> str:
     settings = get_settings()
     payload = {
         "sub": user_id,
+        "issued_ns": time.time_ns(),
         "exp": datetime.utcnow() + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES),
         "type": "access",
     }
@@ -132,6 +144,7 @@ def create_refresh_token(user_id: str) -> str:
     settings = get_settings()
     payload = {
         "sub": user_id,
+        "issued_ns": time.time_ns(),
         "exp": datetime.utcnow() + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS),
         "type": "refresh",
     }
@@ -198,7 +211,7 @@ def email_service_ready() -> bool:
     return bool(settings.SMTP_HOST and settings.SMTP_FROM_EMAIL)
 
 
-async def send_verification_email(email: str, display_name: str, code: str) -> None:
+async def send_verification_email(email: str, display_name: str, code: str, *, purpose: str = "signup") -> None:
     settings = get_settings()
     if not email_service_ready():
         raise auth_error(
@@ -208,24 +221,26 @@ async def send_verification_email(email: str, display_name: str, code: str) -> N
         )
 
     message = EmailMessage()
-    message["Subject"] = f"{code} - Amookht email verification"
+    resetting = purpose == "reset"
+    deleting = purpose == "delete"  # ACCOUNT-DELETE
+    message["Subject"] = f"{code} - Amookht account deletion" if deleting else f"{code} - Amookht password reset" if resetting else f"{code} - Amookht email verification"
     message["From"] = formataddr((settings.SMTP_FROM_NAME, settings.SMTP_FROM_EMAIL))
     message["To"] = email
     safe_name = display_name.strip() or "Learner"
     safe_html_name = html.escape(safe_name)
+    action = "confirm deleting your account" if deleting else "reset your password" if resetting else "finish creating your account"
     message.set_content(
-        f"Hello {safe_name},\n\n"
-        f"Your Amookht verification code is: {code}\n\n"
-        f"The code expires in {settings.EMAIL_VERIFICATION_TTL_SECONDS // 60} minutes. "
-        "If you did not request this account, you can ignore this email.\n"
+        f"Hello {safe_name},\n\nYour Amookht code to {action} is: {code}\n\n"
+        f"This code expires in {settings.EMAIL_VERIFICATION_TTL_SECONDS // 60} minutes. "
+        "If you did not request this, you can ignore this email.\n"
     )
     message.add_alternative(
         f"""<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f4f5fb;padding:28px">
         <div style="max-width:520px;margin:auto;background:#fff;border-radius:20px;padding:30px;color:#202235">
         <h1 style="margin:0 0 12px;color:#6657dc">Amookht</h1>
-        <p>Hello {safe_html_name},</p><p>Use this five-digit code to finish creating your account:</p>
+        <p>Hello {safe_html_name},</p><p>Use this five-digit code to {action}:</p>
         <div style="font-size:36px;font-weight:800;letter-spacing:12px;padding:20px;text-align:center;background:#f1efff;border-radius:14px">{code}</div>
-        <p style="color:#6b7280">This code expires in {settings.EMAIL_VERIFICATION_TTL_SECONDS // 60} minutes.</p>
+        <p style="color:#6b7280">This code expires in {settings.EMAIL_VERIFICATION_TTL_SECONDS // 60} minutes. If you did not request it, ignore this message.</p>
         </div></body></html>""",
         subtype="html",
     )
@@ -283,6 +298,18 @@ async def request_registration(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
+    email = await asyncio.to_thread(
+        normalize_and_validate_email,
+        payload.email,
+        check_deliverability=False,
+    )
+    # Return the useful duplicate-account message before password or mail checks.
+    existing = await db.execute(select(User).where(func.lower(User.email) == email))
+    existing_user = existing.scalar_one_or_none()
+    if existing_user:
+        if not existing_user.is_active and existing_user.deleted_at is None:
+            raise auth_error(status.HTTP_403_FORBIDDEN, "email_blocked", "This email is blocked from registration.")
+        raise auth_error(status.HTTP_409_CONFLICT, "email_exists", "This email is already registered.")
     validate_password_strength(payload.password)
     email = await asyncio.to_thread(
         normalize_and_validate_email,
@@ -290,17 +317,12 @@ async def request_registration(
         check_deliverability=True,
     )
     display_name = (payload.display_name or "").strip()
-
     if not email_service_ready():
         raise auth_error(
             status.HTTP_503_SERVICE_UNAVAILABLE,
             "email_service_unavailable",
             "Email verification is temporarily unavailable. The mail service is not configured.",
         )
-
-    existing = await db.execute(select(User).where(User.email == email))
-    if existing.scalar_one_or_none():
-        raise auth_error(status.HTTP_409_CONFLICT, "email_exists", "This email is already registered.")
 
     redis = get_redis()
     client_ip = request.client.host if request.client else "unknown"
@@ -333,6 +355,82 @@ async def request_registration(
     )
 
 
+@router.post("/password/reset/request", response_model=RegistrationStartedResponse, status_code=status.HTTP_202_ACCEPTED)
+async def request_password_reset(payload: PasswordResetRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    email = await asyncio.to_thread(normalize_and_validate_email, payload.email, check_deliverability=False)
+    redis = get_redis()
+    identity = login_identity(email)
+    client_ip = request.client.host if request.client else "unknown"
+    await enforce_rate_limit(f"reset-rate:email:{identity}", 3, 900)
+    await enforce_rate_limit(f"reset-rate:ip:{client_ip}", 10, 3600)
+    result = await db.execute(select(User).where(func.lower(User.email) == email))
+    user = result.scalar_one_or_none()
+    if not user or user.deleted_at is not None:
+        raise auth_error(status.HTTP_404_NOT_FOUND, "email_not_registered", "No registered account was found for this email.")
+    if not user.is_active:
+        raise auth_error(status.HTTP_403_FORBIDDEN, "account_disabled", "This account is disabled.")
+    if not user.is_verified:
+        raise auth_error(status.HTTP_403_FORBIDDEN, "email_not_verified", "Verify this email before resetting the password.")
+    if not email_service_ready():
+        raise auth_error(status.HTTP_503_SERVICE_UNAVAILABLE, "email_service_unavailable", "Email service is temporarily unavailable.")
+    verification_id = secrets.token_urlsafe(32)
+    ttl = get_settings().EMAIL_VERIFICATION_TTL_SECONDS
+    code = f"{secrets.randbelow(90000) + 10000:05d}"
+    key = f"password-reset:{verification_id}"
+    pending = {"user_id": str(user.id), "code_hash": verification_code_hash(verification_id, code), "attempts": 0}
+    await redis.set(key, json.dumps(pending), ex=ttl)
+    try:
+        await send_verification_email(email, user.display_name or "", code, purpose="reset")
+    except Exception:
+        await redis.delete(key)
+        raise
+    return RegistrationStartedResponse(
+        verification_id=verification_id,
+        email=email,
+        expires_in=ttl,
+        message="A password-reset code was sent to the registered email.",
+    )
+
+
+@router.post("/password/reset/confirm")
+async def confirm_password_reset(payload: PasswordResetConfirmRequest, db: AsyncSession = Depends(get_db)):
+    if not re.fullmatch(r"\d{5}", payload.code):
+        raise auth_error(status.HTTP_422_UNPROCESSABLE_ENTITY, "invalid_verification_code", "Enter the five-digit code.")
+    validate_password_strength(payload.new_password)
+    redis = get_redis()
+    key = f"password-reset:{payload.verification_id}"
+    raw = await redis.get(key)
+    if not raw:
+        raise auth_error(status.HTTP_410_GONE, "verification_expired", "The reset code has expired. Request a new one.")
+    pending = json.loads(raw)
+    supplied = verification_code_hash(payload.verification_id, payload.code)
+    if not hmac.compare_digest(pending.get("code_hash", ""), supplied):
+        pending["attempts"] = int(pending.get("attempts", 0)) + 1
+        ttl = max(1, await redis.ttl(key))
+        if pending["attempts"] >= 5:
+            await redis.delete(key)
+            raise auth_error(status.HTTP_429_TOO_MANY_REQUESTS, "verification_locked", "Too many incorrect codes. Request a new one.")
+        await redis.set(key, json.dumps(pending), ex=ttl)
+        raise auth_error(status.HTTP_422_UNPROCESSABLE_ENTITY, "invalid_verification_code", "The reset code is incorrect.", attempts_remaining=5 - pending["attempts"])
+    lock_key = f"password-reset-lock:{payload.verification_id}"
+    if not await redis.set(lock_key, "1", ex=30, nx=True):
+        raise auth_error(status.HTTP_409_CONFLICT, "verification_in_progress", "This reset is already being processed.")
+    try:
+        result = await db.execute(select(User).where(User.id == pending["user_id"]))
+        user = result.scalar_one_or_none()
+        if not user or not user.is_active or not user.is_verified:
+            raise auth_error(status.HTTP_410_GONE, "verification_expired", "The reset request is no longer valid.")
+        user.password_hash = pwd_context.hash(payload.new_password)
+        user.preferences = {**(user.preferences or {}), "auth_revoked_ns": time.time_ns()}
+        await db.commit()
+        await redis.delete(key)
+        identity = login_identity(user.email)
+        await redis.delete(f"login-failures:{identity}", f"login-lock:{identity}")
+        return {"message": "Password updated. Sign in with your new password."}
+    finally:
+        await redis.delete(lock_key)
+
+
 @router.post("/register/resend", response_model=RegistrationStartedResponse)
 async def resend_registration_code(payload: RegistrationResendRequest):
     if not email_service_ready():
@@ -359,7 +457,7 @@ async def resend_registration_code(payload: RegistrationResendRequest):
 
 
 @router.post("/register/verify", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def verify_registration(payload: RegistrationVerifyRequest, db: AsyncSession = Depends(get_db)):
+async def verify_registration(payload: RegistrationVerifyRequest, request: Request, db: AsyncSession = Depends(get_db)):
     if not re.fullmatch(r"\d{5}", payload.code):
         raise auth_error(status.HTTP_422_UNPROCESSABLE_ENTITY, "invalid_verification_code", "Enter the five-digit verification code.")
     redis = get_redis()
@@ -388,9 +486,12 @@ async def verify_registration(payload: RegistrationVerifyRequest, db: AsyncSessi
     if not await redis.set(lock_key, "1", ex=30, nx=True):
         raise auth_error(status.HTTP_409_CONFLICT, "verification_in_progress", "This verification is already being processed.")
     try:
-        existing = await db.execute(select(User).where(User.email == pending["email"]))
-        if existing.scalar_one_or_none():
+        existing = await db.execute(select(User).where(func.lower(User.email) == pending["email"]))
+        existing_user = existing.scalar_one_or_none()
+        if existing_user:
             await redis.delete(key)
+            if not existing_user.is_active and existing_user.deleted_at is None:
+                raise auth_error(status.HTTP_403_FORBIDDEN, "email_blocked", "This email is blocked from registration.")
             raise auth_error(status.HTTP_409_CONFLICT, "email_exists", "This email is already registered.")
         user = User(
             email=pending["email"],
@@ -403,6 +504,8 @@ async def verify_registration(payload: RegistrationVerifyRequest, db: AsyncSessi
         db.add(UserProfile(user_id=user.id))
         await db.commit()
         await redis.delete(key)
+        tg_schedule(telegram_bot.signup_notify(user, "email", request.headers.get("user-agent"),
+                                               request.headers.get("accept-language")))
         return token_response(user.id)
     except IntegrityError as exc:
         await db.rollback()
@@ -452,6 +555,14 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not password_matches:
         outcome = await record_login_failure(redis, identity)
         if outcome["locked"]:
+            await telegram_notify(
+                "قفل امنیتی ورود",
+                (
+                        f"سطح قفل: {outcome['lock_level']}\n"
+                    f"مدت قفل: {outcome['retry_after']} ثانیه"
+                ),
+                "warning",
+            )
             raise auth_error(
                 status.HTTP_429_TOO_MANY_REQUESTS,
                 "login_locked",
@@ -475,6 +586,25 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     await db.commit()
     return token_response(user.id)
 
+
+@router.post("/trusted-device", response_model=TokenResponse)
+async def trusted_device_login(request: Request, db: AsyncSession = Depends(get_db)):
+    """Exchange one revocable device secret for the configured owner session."""
+    settings = get_settings()
+    configured_token = settings.TRUSTED_DEVICE_TOKEN.strip()
+    supplied_token = request.headers.get("x-amookht-device-token", "").strip()
+    owner_email = settings.TRUSTED_DEVICE_OWNER_EMAIL.strip().lower()
+    if not configured_token or not owner_email or not supplied_token or not hmac.compare_digest(supplied_token, configured_token):
+        raise auth_error(status.HTTP_401_UNAUTHORIZED, "untrusted_device", "This device is not trusted.")
+    result = await db.execute(select(User).where(User.email == owner_email))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active or not user.is_verified or user.access_role != "owner":
+        raise auth_error(status.HTTP_403_FORBIDDEN, "owner_unavailable", "The configured owner account is unavailable.")
+    user.last_login_at = datetime.utcnow()
+    await db.commit()
+    logger.info("Trusted device login accepted for owner account")
+    return token_response(user.id)
+
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     settings = get_settings()
@@ -492,4 +622,188 @@ async def refresh_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if not user or not user.is_active or not user.is_verified:
         raise auth_error(status.HTTP_401_UNAUTHORIZED, "user_unavailable", "User not found or not verified.")
+    if int(payload.get("issued_ns") or 0) <= int((user.preferences or {}).get("auth_revoked_ns") or 0) and (user.preferences or {}).get("auth_revoked_ns"):
+        raise auth_error(status.HTTP_401_UNAUTHORIZED, "token_revoked", "This session was revoked after a password reset.")
     return token_response(user.id)
+
+
+# --- Sign in with Google (Google Identity Services, ID-token flow) -----------------------------
+# Only the public OAuth Web Client ID is needed (GOOGLE_CLIENT_ID in backend/.env); no client secret.
+# The browser receives a Google-signed ID token, the server verifies signature, aud, iss, exp and
+# email_verified, then issues the app's normal access/refresh tokens exactly like password login.
+GOOGLE_ISSUERS = ("accounts.google.com", "https://accounts.google.com")
+GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v3/certs"
+# Google is the authority for these mailboxes (plus Workspace domains announced with the `hd` claim),
+# so a verified Google login may be linked to an existing account with the same address.
+GOOGLE_AUTHORITATIVE_DOMAINS = ("gmail.com", "googlemail.com")
+_google_jwk_client = None
+
+
+class GoogleLoginRequest(BaseModel):
+    credential: str = Field(min_length=20, max_length=8192)
+
+
+class GoogleConfigResponse(BaseModel):
+    enabled: bool
+    client_id: str
+
+
+class GoogleTokenResponse(TokenResponse):
+    email: str
+    display_name: str | None = None
+    created: bool = False
+    linked: bool = False
+
+
+def google_client_id() -> str:
+    return str(getattr(get_settings(), "GOOGLE_CLIENT_ID", "") or "").strip()
+
+
+def _google_signing_key(credential: str):
+    """Public key for this token's `kid`, from Google's JWKS (cached for an hour, refetched on unknown kid)."""
+    global _google_jwk_client
+    if _google_jwk_client is None:
+        _google_jwk_client = jwt.PyJWKClient(GOOGLE_CERTS_URL, cache_jwk_set=True, lifespan=3600, timeout=10)
+    return _google_jwk_client.get_signing_key_from_jwt(credential).key
+
+
+def google_token_error() -> HTTPException:
+    return auth_error(status.HTTP_401_UNAUTHORIZED, "google_token_invalid", "The Google sign-in could not be verified. Try again.")
+
+
+def verify_google_id_token(credential: str, client_id: str) -> dict:
+    """Verify a Google ID token and return its claims; `email` is normalized to lower case."""
+    if not client_id:
+        raise auth_error(status.HTTP_503_SERVICE_UNAVAILABLE, "google_not_configured", "Google sign-in is not configured.")
+    try:
+        key = _google_signing_key(credential)
+    except jwt.PyJWKClientConnectionError as exc:
+        logger.warning("Google JWKS could not be fetched: %s", exc)
+        raise auth_error(status.HTTP_503_SERVICE_UNAVAILABLE, "google_unavailable", "Google sign-in is temporarily unavailable.") from exc
+    except (jwt.PyJWKClientError, jwt.InvalidTokenError) as exc:
+        raise google_token_error() from exc
+    try:
+        claims = jwt.decode(
+            credential,
+            key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer=GOOGLE_ISSUERS,
+            leeway=60,
+            options={"require": ["exp", "iat", "iss", "aud", "sub"]},
+        )
+    except jwt.InvalidTokenError as exc:
+        raise google_token_error() from exc
+    if not str(claims.get("sub") or "").strip():
+        raise google_token_error()
+    verified = claims.get("email_verified")
+    if not (verified is True or str(verified).lower() == "true"):
+        raise auth_error(status.HTTP_403_FORBIDDEN, "google_email_unverified", "The email address of this Google account is not verified.")
+    try:
+        claims["email"] = normalize_and_validate_email(str(claims.get("email") or ""), check_deliverability=False)
+    except HTTPException as exc:
+        raise google_token_error() from exc
+    return claims
+
+
+def google_is_authoritative(claims: dict) -> bool:
+    domain = claims["email"].rsplit("@", 1)[-1]
+    hosted_domain = str(claims.get("hd") or "").strip().lower()
+    return domain in GOOGLE_AUTHORITATIVE_DOMAINS or (bool(hosted_domain) and hosted_domain == domain)
+
+
+def google_token_response(user: User, *, created: bool, linked: bool) -> GoogleTokenResponse:
+    return GoogleTokenResponse(
+        **token_response(user.id).model_dump(),
+        email=user.email,
+        display_name=user.display_name,
+        created=created,
+        linked=linked,
+    )
+
+
+async def _google_sign_in_existing(db: AsyncSession, user: User, claims: dict) -> GoogleTokenResponse:
+    if user.deleted_at is not None or not user.is_active:
+        raise auth_error(status.HTTP_403_FORBIDDEN, "account_disabled", "This account is disabled.")
+    subject = str(claims["sub"])
+    preferences = dict(user.preferences or {})
+    linked_subject = str(preferences.get("google_sub") or "")
+    linked_now = False
+    if linked_subject and not hmac.compare_digest(linked_subject, subject):
+        raise auth_error(status.HTTP_409_CONFLICT, "google_account_mismatch", "This email is linked to a different Google account.")
+    if not linked_subject:
+        if not google_is_authoritative(claims):
+            raise auth_error(
+                status.HTTP_409_CONFLICT,
+                "google_link_requires_password",
+                "An account with this email already exists. Sign in with your password.",
+            )
+        preferences["google_sub"] = subject
+        preferences["google_linked_at"] = datetime.utcnow().isoformat() + "Z"
+        linked_now = True
+        if not user.is_verified:
+            # Nobody proved ownership of this mailbox when the old password was set; Google just did.
+            # Drop that password and its sessions so a pre-registered account cannot be hijacked.
+            user.password_hash = await asyncio.to_thread(pwd_context.hash, secrets.token_urlsafe(32))
+            user.is_verified = True
+            preferences["auth_revoked_ns"] = time.time_ns()
+        user.preferences = preferences
+    user.last_login_at = datetime.utcnow()
+    await db.commit()
+    logger.info("Google sign-in accepted for user %s (linked_now=%s)", user.id, linked_now)
+    return google_token_response(user, created=False, linked=linked_now)
+
+
+async def _google_create_user(db: AsyncSession, claims: dict, request: Request | None = None) -> GoogleTokenResponse:
+    email = claims["email"]
+    display_name = str(claims.get("name") or "").strip()[:100] or None
+    user = User(
+        email=email,
+        # Unusable random password: the account signs in with Google; "forgot password" can set one later.
+        password_hash=await asyncio.to_thread(pwd_context.hash, secrets.token_urlsafe(32)),
+        display_name=display_name,
+        is_verified=True,
+        last_login_at=datetime.utcnow(),
+        preferences={
+            "google_sub": str(claims["sub"]),
+            "google_linked_at": datetime.utcnow().isoformat() + "Z",
+            "signup_method": "google",
+        },
+    )
+    try:
+        db.add(user)
+        await db.flush()
+        db.add(UserProfile(user_id=user.id))
+        await db.commit()
+    except IntegrityError:
+        # A parallel request created this email a moment ago: sign in to that account instead.
+        await db.rollback()
+        existing = (await db.execute(select(User).where(func.lower(User.email) == email))).scalar_one_or_none()
+        if existing is None:
+            raise auth_error(status.HTTP_409_CONFLICT, "email_exists", "This email is already registered.")
+        return await _google_sign_in_existing(db, existing, claims)
+    headers = getattr(request, "headers", None) or {}
+    tg_schedule(telegram_bot.signup_notify(user, "google", headers.get("user-agent"), headers.get("accept-language")))  # TGBOT2
+    logger.info("Google sign-up created user %s", user.id)
+    return google_token_response(user, created=True, linked=True)
+
+
+@router.get("/google/config", response_model=GoogleConfigResponse)
+async def google_config():
+    client_id = google_client_id()
+    return GoogleConfigResponse(enabled=bool(client_id), client_id=client_id)
+
+
+@router.post("/google", response_model=GoogleTokenResponse)
+async def google_login(payload: GoogleLoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
+    client_id = google_client_id()
+    if not client_id:
+        raise auth_error(status.HTTP_503_SERVICE_UNAVAILABLE, "google_not_configured", "Google sign-in is not configured.")
+    client_ip = request.client.host if request.client else "unknown"
+    await enforce_rate_limit(f"google-rate:ip:{client_ip}", 40, 600)
+    claims = await asyncio.to_thread(verify_google_id_token, payload.credential, client_id)
+    result = await db.execute(select(User).where(func.lower(User.email) == claims["email"]))
+    user = result.scalar_one_or_none()
+    if user is None:
+        return await _google_create_user(db, claims, request)
+    return await _google_sign_in_existing(db, user, claims)

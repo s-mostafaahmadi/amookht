@@ -52,8 +52,10 @@ export function renderAccount(page, ctx) {
       <section class="card"><div class="panel-head"><div><h2>${esc(L('امنیت', 'Security', 'Sicherheit'))}</h2><p class="muted small">${esc(L('رمز جدید: حداقل ۸ کاراکتر، با حرف کوچک، حرف بزرگ و عدد.', 'New password: at least 8 characters with a lowercase letter, an uppercase letter and a number.', 'Neues Passwort: mindestens 8 Zeichen mit Klein-, Großbuchstaben und Zahl.'))}</p></div></div>
         <form class="form-grid" id="pwForm" autocomplete="off">${fld(L('رمز فعلی', 'Current password', 'Aktuelles Passwort'), '<input id="aCurrent" type="password" autocomplete="current-password" />')}${fld(L('رمز جدید', 'New password', 'Neues Passwort'), '<input id="aNew" type="password" autocomplete="new-password" />')}</form>
         <div class="row-actions end"><button type="button" class="btn" data-act="password">${esc(L('تغییر رمز', 'Change password', 'Passwort ändern'))}</button></div></section>
-      <section class="card danger-card"><h2>${esc(L('منطقه خطر', 'Danger zone', 'Gefahrenbereich'))}</h2><p class="small">${esc(L('حذف حساب قابل بازگشت نیست؛ تاریخچه و داده‌های SQL نیز غیرفعال می‌شوند.', 'Deleting the account cannot be undone; history and stored data are deactivated too.', 'Das Löschen kann nicht rückgängig gemacht werden; Verlauf und Daten werden ebenfalls deaktiviert.'))}</p>
-        <div class="row-actions">${ui.deleteArmed ? `<button type="button" class="btn" data-act="delete-cancel">${esc(st('common.cancel'))}</button><button type="button" class="btn btn-danger" data-act="delete-confirm">${esc(L('تأیید حذف حساب', 'Confirm account deletion', 'Löschen bestätigen'))}</button>` : `<button type="button" class="btn btn-danger" data-act="delete-arm">${esc(L('حذف حساب', 'Delete account', 'Konto löschen'))}</button>`}</div></section>`;
+      <section class="card danger-card"><h2>${esc(L('حذف حساب کاربری', 'Delete account', 'Konto löschen'))}</h2><p class="small">${esc(L('حذف حساب قابل بازگشت نیست. برای امنیت، باید نام کاربری و عبارت تأیید را بنویسید و کدی را که به ایمیل‌تان فرستاده می‌شود وارد کنید.', 'Deleting the account cannot be undone. For safety, type your username and the confirmation phrase, then enter the code sent to your e-mail.', 'Das Löschen kann nicht rückgängig gemacht werden. Zur Sicherheit Benutzername und Bestätigungssatz eingeben und den per E-Mail gesendeten Code bestätigen.'))}</p>
+        ${!ui.deleteArmed ? `<div class="row-actions"><button type="button" class="btn btn-danger" data-act="delete-arm">${esc(L('شروع حذف حساب', 'Start account deletion', 'Kontolöschung starten'))}</button></div>` : ui.delStep === 2
+          ? `<p class="small">${esc(L('کد پنج‌رقمی به این ایمیل فرستاده شد:', 'A 5-digit code was sent to:', 'Ein 5-stelliger Code wurde gesendet an:'))} <b dir="ltr">${esc(ui.delEmail || '')}</b></p><label class="fld"><span>${esc(L('کد تأیید', 'Code', 'Code'))}</span><input id="aDelCode" dir="ltr" inputmode="numeric" maxlength="5" autocomplete="one-time-code" /></label>${ui.delErr ? `<p class="small" style="color:#dc2626">${esc(ui.delErr)}</p>` : ''}<div class="row-actions"><button type="button" class="btn" data-act="delete-cancel">${esc(st('common.cancel'))}</button><button type="button" class="btn" data-act="delete-send">${esc(L('ارسال دوباره', 'Resend', 'Erneut senden'))}</button><button type="button" class="btn btn-danger" data-act="delete-confirm">${esc(L('حذف نهایی حساب', 'Delete for good', 'Endgültig löschen'))}</button></div>`
+          : `<label class="fld"><span>${esc(L('ایمیل یا نام کاربری حساب', 'Account e-mail or username', 'E-Mail oder Benutzername'))}</span><input id="aDelUser" dir="ltr" autocomplete="off" value="${esc(ui.delUser || '')}" /></label><label class="fld"><span>${esc(L('برای تأیید بنویسید: delete my account', 'Type to confirm: delete my account', 'Zur Bestätigung eingeben: delete my account'))}</span><input id="aDelPhrase" dir="ltr" autocomplete="off" placeholder="delete my account" /></label>${ui.delErr ? `<p class="small" style="color:#dc2626">${esc(ui.delErr)}</p>` : ''}<div class="row-actions"><button type="button" class="btn" data-act="delete-cancel">${esc(st('common.cancel'))}</button><button type="button" class="btn btn-danger" data-act="delete-send">${esc(L('ارسال کد به ایمیل', 'Send code by e-mail', 'Code per E-Mail senden'))}</button></div>`}</section>`;
   };
 
   const val = (id) => (root.querySelector('#' + id)?.value || '').trim();
@@ -63,7 +65,7 @@ export function renderAccount(page, ctx) {
   async function syncProfile() {
     const data = ctx.store.data;
     const user = data.user || {};
-    const plan = user.examPlan === 'oesd' ? 'ÖSD' : L('برنامه یادگیری', 'Learning program', 'Lernprogramm');
+    const plan = L('برنامه یادگیری', 'Learning program', 'Lernprogramm');
     await ctx.bridge.api('/v1/account/profile', {
       method: 'PATCH',
       body: {
@@ -198,14 +200,25 @@ export function renderAccount(page, ctx) {
         draw();
         break;
       }
-      case 'delete-arm': ui.deleteArmed = true; draw(); break;
-      case 'delete-cancel': ui.deleteArmed = false; draw(); break;
+      case 'delete-arm': ui.deleteArmed = true; ui.delStep = 1; ui.delErr = ''; draw(); break;
+      case 'delete-cancel': ui.deleteArmed = false; ui.delStep = 1; ui.delErr = ''; draw(); break;
+      case 'delete-send': { // ACCOUNT-DELETE: typed confirmation, then a 5-digit e-mail code
+        const u = ui.delStep === 2 ? (ui.delUser || '') : (root.querySelector('#aDelUser')?.value || '').trim();
+        const ph = ui.delStep === 2 ? 'delete my account' : (root.querySelector('#aDelPhrase')?.value || '').trim().toLowerCase();
+        if (!u || ph !== 'delete my account') { ui.delErr = L('ایمیل/نام کاربری و عبارت delete my account را دقیق بنویسید.', 'Type your e-mail/username and “delete my account” exactly.', 'E-Mail/Benutzername und „delete my account“ genau eingeben.'); draw(); return; }
+        ui.delUser = u;
+        const r = await ctx.bridge.api('/v1/account/delete/request', { method: 'POST', body: { username: u, phrase: ph } });
+        if (r.ok) { ui.delStep = 2; ui.delVid = r.data.verification_id; ui.delEmail = r.data.email; ui.delErr = ''; }
+        else ui.delErr = r.error?.message || L('درخواست انجام نشد.', 'The request failed.', 'Anfrage fehlgeschlagen.');
+        draw();
+        break;
+      }
       case 'delete-confirm': {
-        if (!(await confirmDialog(L('حساب شما برای همیشه حذف شود؟', 'Delete your account for good?', 'Konto endgültig löschen?')))) return;
-        const r = await ctx.bridge.api('/v1/account', { method: 'DELETE' });
-        ui.deleteArmed = false;
-        if (r.ok) ctx.signOut();
-        else toast(r.error?.message || L('حذف حساب انجام نشد.', 'Could not delete the account.', 'Konto konnte nicht gelöscht werden.'), 'warn');
+        const code = (root.querySelector('#aDelCode')?.value || '').replace(/\D/g, '');
+        if (code.length !== 5) { ui.delErr = L('کد پنج‌رقمی را وارد کنید.', 'Enter the 5-digit code.', 'Den 5-stelligen Code eingeben.'); draw(); return; }
+        const r = await ctx.bridge.api('/v1/account/delete/confirm', { method: 'POST', body: { verification_id: ui.delVid, code } });
+        if (r.ok) { ui.deleteArmed = false; ctx.signOut(); }
+        else { ui.delErr = r.error?.message || L('کد درست نیست یا منقضی شده است.', 'The code is wrong or expired.', 'Der Code ist falsch oder abgelaufen.'); draw(); }
         break;
       }
       default:

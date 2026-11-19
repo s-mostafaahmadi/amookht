@@ -30,6 +30,8 @@ async def get_current_user(
             settings.SECRET_KEY,
             algorithms=[settings.JWT_ALGORITHM],
         )
+        if payload.get("type") != "access":
+            raise HTTPException(status_code=401, detail="Invalid token type")
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -38,13 +40,18 @@ async def get_current_user(
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    result = await db.execute(select(User).where(User.id == user_id))
+    result = await db.execute(select(User).where(User.id == user_id, User.deleted_at.is_(None)))
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="User deactivated")
+    revoked_ns = int((user.preferences or {}).get("auth_revoked_ns") or 0)
+    if revoked_ns and int(payload.get("issued_ns") or 0) <= revoked_ns:
+        raise HTTPException(status_code=401, detail="Session revoked after password reset")
 
+    from app.api import last_seen  # LAST-SEEN
+    last_seen.touch(user)
     return user
 
 

@@ -416,6 +416,202 @@ export const TDM_STATIC = {
    ],
    "mistakes": "اشتباه رایج: فعل نامناسب برای اسم (eine Entscheidung machen ✗ → treffen ✓).",
    "task": "سه جمله با Funktionsverbgefüge و یک جمله با حرف اضافه Genitiv بنویس."
+  },
+  {
+   "week": 9,
+   "title": "Infinitivkonstruktionen",
+   "fa": "ساختارهای مصدری: zu، um … zu، ohne … zu، (an)statt … zu",
+   "rule": "Nach vielen Verben und Ausdrücken folgt „zu + Infinitiv“ (Es ist wichtig, … zu …). Ziel: „um … zu“. Fehlende Handlung: „ohne … zu“. Alternative: „(an)statt … zu“. Nur möglich, wenn das Subjekt in beiden Teilen gleich ist.",
+   "forms": [
+    "Es ist schwierig, in München eine Wohnung zu finden.",
+    "Viele jobben, um ihr Studium zu finanzieren.",
+    "Er gibt die Arbeit ab, ohne sie noch einmal zu lesen.",
+    "Statt Bus zu fahren, nehmen viele das Fahrrad."
+   ],
+   "mistakes": "اشتباه رایج: گذاشتن zu قبل از فعل وجهی (zu können ✓ ولی um zu studieren können ✗). در فعل‌های جداشدنی zu وسط می‌آید: anzufangen.",
+   "task": "یک جمله با um … zu، یک جمله با ohne … zu و یک جمله با Es ist + صفت + zu بساز."
+  },
+  {
+   "week": 10,
+   "title": "Temporale Nebensätze und Zeitenfolge",
+   "fa": "جمله‌های زمانی: als، wenn، nachdem، bevor، während، seitdem، bis",
+   "rule": "„als“ für ein einmaliges Ereignis in der Vergangenheit, „wenn“ für Wiederholung oder Zukunft. „nachdem“ verlangt Vorzeitigkeit: Nebensatz im Plusquamperfekt (Hauptsatz Präteritum) bzw. Perfekt (Hauptsatz Präsens). „während“ = gleichzeitig, „bevor“ = vorher, „seitdem“ = ab einem Zeitpunkt bis jetzt.",
+   "forms": [
+    "Als ich nach Deutschland kam, sprach ich kaum Deutsch.",
+    "Nachdem die Studie veröffentlicht worden war, begann eine Debatte.",
+    "Bevor man sich einschreibt, muss man die Unterlagen einreichen.",
+    "Seitdem die Mieten steigen, ziehen viele ins Umland."
+   ],
+   "mistakes": "اشتباه رایج: wenn به‌جای als برای یک اتفاق یک‌باره در گذشته؛ استفاده از زمان یکسان بعد از nachdem.",
+   "task": "دو جمله با nachdem (با زمان درست) و یک جمله با als یا seitdem درباره تجربه خودت بنویس."
+  },
+  {
+   "week": 11,
+   "title": "Modalverben zur Vermutung und Distanz",
+   "fa": "فعل‌های وجهی در معنای حدس و نقل قول (muss، dürfte، könnte، soll، will)",
+   "rule": "Modalverben können eine Einschätzung des Sprechers ausdrücken: „muss“ (fast sicher), „dürfte“ (wahrscheinlich), „kann/könnte“ (möglich). „soll“ = andere behaupten es, „will“ = die Person selbst behauptet es. Vergangenheit: Modalverb + Partizip II + haben/sein.",
+   "forms": [
+    "Die Zahl dürfte weiter steigen.",
+    "Der Professor muss die Mail übersehen haben.",
+    "Die neue Regel soll ab Oktober gelten.",
+    "Er will die Arbeit allein geschrieben haben."
+   ],
+   "mistakes": "اشتباه رایج: قاطی کردن soll (به گفته دیگران) و will (ادعای خود شخص). در گذشته: muss … gemacht haben، نه musste machen.",
+   "task": "برای یک نمودار یا خبر امروز دو حدس با dürfte/könnte و یک نقل قول با soll بنویس."
+  },
+  {
+   "week": 12,
+   "title": "Feste Präpositionen und Präpositionaladverbien",
+   "fa": "فعل/اسم/صفت با حرف اضافه ثابت و da(r)- / wo(r)-",
+   "rule": "Viele Verben, Nomen und Adjektive haben eine feste Präposition mit festem Kasus: sich interessieren für + Akk., abhängen von + Dat., teilnehmen an + Dat., die Kritik an + Dat., zufrieden mit + Dat. Bei Sachen ersetzt „da(r) + Präposition“ die Ergänzung, Fragen mit „wo(r) + Präposition“.",
+   "forms": [
+    "Der Erfolg hängt stark von der Motivation ab.",
+    "Viele Studierende beschweren sich über die hohen Mieten.",
+    "Worüber diskutiert ihr? – Darüber, ob die Mensa länger öffnen soll.",
+    "Ich bin davon überzeugt, dass …"
+   ],
+   "mistakes": "اشتباه رایج: حرف اضافه فارسی را ترجمه کردن (warten für ✗ → warten auf ✓). برای اشخاص da- استفاده نمی‌شود: an ihn، نه daran.",
+   "task": "پنج فعل با حرف اضافه ثابت از متن امروز پیدا کن و با دو تا از آن‌ها جمله با da(r)-…, dass بساز."
+  },
+  {
+   "week": 13,
+   "title": "Finale und konsekutive Sätze",
+   "fa": "جمله‌های هدف و نتیجه: damit، um … zu، sodass، so … dass، folglich",
+   "rule": "Ziel: „damit“ (verschiedene Subjekte möglich) oder „um … zu“ (gleiches Subjekt). Folge: „sodass“, „so + Adjektiv + dass“, „solch- … dass“; im Hauptsatz „folglich, daher, infolgedessen“ (Verb auf Position 2).",
+   "forms": [
+    "Die Uni bietet Kurse an, damit internationale Studierende sich schneller integrieren.",
+    "Die Mieten stiegen stark, sodass viele Studierende pendeln mussten.",
+    "Der Text war so komplex, dass kaum jemand ihn verstand.",
+    "Die Nachfrage sank. Folglich wurde das Angebot reduziert."
+   ],
+   "mistakes": "اشتباه رایج: um … zu وقتی فاعل دو جمله فرق دارد (باید damit باشد). بعد از folglich فعل بلافاصله می‌آید.",
+   "task": "یک جمله با damit، یک جمله با sodass و یک جمله با folglich درباره موضوع امروز بنویس."
+  },
+  {
+   "week": 14,
+   "title": "Vergleiche und Grafikbeschreibung",
+   "fa": "مقایسه: صفت تفضیلی و عالی، je … desto، im Vergleich zu",
+   "rule": "Komparativ + „als“, Gleichheit mit „(genau)so … wie“. Proportional: „je + Komparativ …, desto/umso + Komparativ …“ (Verb im je-Teil am Ende). Grafik: „im Vergleich zu + Dat.“, „gegenüber + Dat.“, „doppelt so hoch wie“, „um 5 Prozent steigen“, „auf 20 Prozent sinken“.",
+   "forms": [
+    "Je mehr Studierende jobben, desto weniger Zeit bleibt zum Lernen.",
+    "Im Vergleich zu 2015 ist der Anteil um 12 Prozentpunkte gestiegen.",
+    "Die Kosten sind fast doppelt so hoch wie in Leipzig.",
+    "Den höchsten Wert erreicht Berlin mit 38 Prozent."
+   ],
+   "mistakes": "اشتباه رایج: wie به‌جای als بعد از صفت تفضیلی؛ قاطی کردن um (مقدار تغییر) و auf (مقدار نهایی).",
+   "task": "سه جمله برای توصیف یک نمودار بنویس: یکی با je … desto، یکی با um/auf و یکی با im Vergleich zu."
+  },
+  {
+   "week": 15,
+   "title": "Modale Nebensätze",
+   "fa": "جمله‌های شیوه و روش: indem، dadurch dass، ohne dass، (an)statt dass",
+   "rule": "„indem“ und „dadurch, dass“ beschreiben das Mittel/den Weg (Frage: Wie?). „ohne dass“ nennt eine ausbleibende Folge, „(an)statt dass“ eine nicht gewählte Alternative. Verb am Ende des Nebensatzes. Nominal: „durch + Akk.“.",
+   "forms": [
+    "Man kann Energie sparen, indem man die Heizung herunterdreht.",
+    "Die Stadt senkte die Emissionen dadurch, dass sie den Nahverkehr ausbaute.",
+    "Die Regel wurde geändert, ohne dass die Studierenden gefragt wurden.",
+    "Durch den Ausbau des Nahverkehrs sanken die Emissionen."
+   ],
+   "mistakes": "اشتباه رایج: استفاده از damit یا wenn به‌جای indem برای «با … کردن».",
+   "task": "دو راه‌حل برای مسئله امروز با indem و یکی با dadurch, dass بنویس؛ یکی را به سبک اسمی با durch تبدیل کن."
+  },
+  {
+   "week": 16,
+   "title": "Bedingungen ohne „wenn“",
+   "fa": "شرط بدون wenn: falls، sofern، فعل در ابتدای جمله، bei/im Falle",
+   "rule": "Neben „wenn“: „falls“ (für den Fall), „sofern“ (unter der Bedingung). Gehoben: Verb an Position 1 („Steigen die Kosten, …“). Nominal: „bei + Dat.“, „im Falle + Gen.“, „ohne + Akk.“ (negative Bedingung), „unter der Bedingung, dass …“.",
+   "forms": [
+    "Falls du Hilfe brauchst, melde dich.",
+    "Sofern die Finanzierung gesichert ist, beginnt das Projekt im März.",
+    "Steigen die Mieten weiter, ziehen noch mehr Menschen aufs Land.",
+    "Bei schlechtem Wetter findet die Exkursion nicht statt."
+   ],
+   "mistakes": "اشتباه رایج: در ساختار بدون wenn، فعل اول می‌آید و جمله اصلی با فعل شروع می‌شود (Steigen die Kosten, so/dann sinkt …).",
+   "task": "یک جمله با falls، یک جمله با sofern و یک جمله شرطی که با فعل شروع می‌شود بنویس."
+  },
+  {
+   "week": 17,
+   "title": "Gegensätze ausdrücken",
+   "fa": "تقابل و تضاد: während، wohingegen، jedoch، dagegen، hingegen، zwar … aber",
+   "rule": "Nebensatz: „während“ und „wohingegen“ (Verb am Ende). Hauptsatz: „jedoch, dagegen, hingegen“ auf Position 1 oder im Mittelfeld. „zwar … aber“ räumt etwas ein und setzt einen Kontrast. Nominal: „im Gegensatz zu + Dat.“.",
+   "forms": [
+    "Während in Städten die Mieten steigen, stehen auf dem Land Häuser leer.",
+    "Die Befürworter betonen die Kosten, die Gegner hingegen die Umwelt.",
+    "Das Angebot ist zwar teuer, aber es lohnt sich.",
+    "Im Gegensatz zu früher studieren heute viele in Teilzeit."
+   ],
+   "mistakes": "اشتباه رایج: پس از jedoch در جایگاه اول، فعل بلافاصله می‌آید (Jedoch ist …). während هم «در حالی که» است هم «در طول»؛ از ساختار جمله معلوم می‌شود.",
+   "task": "دو دیدگاه متضاد از موضوع امروز را با während/wohingegen و hingegen در سه جمله مقایسه کن."
+  },
+  {
+   "week": 18,
+   "title": "Konjunktiv II der Vergangenheit",
+   "fa": "وجه التزامی دوم گذشته: hätte/wäre + Partizip II، hätte … sollen",
+   "rule": "Irreale Vergangenheit: „hätte/wäre + Partizip II“. Mit Modalverb: „hätte + Infinitiv + Modalverb im Infinitiv“ (hätte machen sollen). Typisch für Kritik und Bedauern: „Man hätte … sollen“, „Es wäre besser gewesen, …“.",
+   "forms": [
+    "Wenn ich früher angefangen hätte, wäre ich fertig geworden.",
+    "Die Stadt hätte die Bürger früher informieren sollen.",
+    "Es wäre besser gewesen, die Maßnahme zu testen.",
+    "Ohne das Stipendium hätte sie nicht studieren können."
+   ],
+   "mistakes": "اشتباه رایج: استفاده از würde برای گذشته (würde gemacht haben ✗ → hätte gemacht ✓)؛ ترتیب فعل‌ها: hätte … machen sollen.",
+   "task": "یک تصمیم یا اقدام از موضوع امروز را با دو جمله hätte … sollen و یک جمله Es wäre besser gewesen نقد کن."
+  },
+  {
+   "week": 19,
+   "title": "Futur I und II: Prognosen und Vermutungen",
+   "fa": "آینده اول و دوم: پیش‌بینی، برنامه و حدس درباره گذشته",
+   "rule": "Futur I (werden + Infinitiv): Prognose, Versprechen oder Vermutung über die Gegenwart. Futur II (werden + Partizip II + haben/sein): etwas wird zu einem Zeitpunkt abgeschlossen sein oder Vermutung über Vergangenes. In Grafik-Texten: „Es ist zu erwarten, dass …“, „voraussichtlich“.",
+   "forms": [
+    "Bis 2030 wird der Anteil voraussichtlich auf 50 Prozent steigen.",
+    "Er wird jetzt in der Bibliothek sein.",
+    "Bis Ende Mai werde ich die Arbeit abgegeben haben.",
+    "Sie wird den Termin wohl vergessen haben."
+   ],
+   "mistakes": "اشتباه رایج: استفاده از werden + فعل صرف‌شده (wird steigt ✗)؛ فراموش کردن haben/sein در آینده دوم.",
+   "task": "سه پیش‌بینی برای روند یک نمودار با Futur I و voraussichtlich بنویس و یک حدس با Futur II."
+  },
+  {
+   "week": 20,
+   "title": "Wortbildung in Fachtexten",
+   "fa": "واژه‌سازی: پیشوندها و پسوندها (‑ung، ‑heit، ‑keit، ‑bar، ‑los، ver‑، ent‑، miss‑)",
+   "rule": "Nomen aus Verben: -ung (die Entwicklung), aus Adjektiven: -heit/-keit (die Sicherheit, die Möglichkeit) – alle feminin. Adjektive: -bar (= kann man …), -los (= ohne), -reich, -arm. Präfixe ändern die Bedeutung: ver- (falsch/weg), ent- (weg/Gegenteil), miss- (schlecht/falsch).",
+   "forms": [
+    "messen → die Messung → messbar",
+    "die Arbeit → arbeitslos; die Hilfe → hilfreich",
+    "trauen → misstrauen; laden → entladen",
+    "Die Umsetzbarkeit des Plans ist fraglich."
+   ],
+   "mistakes": "اشتباه رایج: آرتیکل اشتباه برای اسم‌های ‑ung/‑heit/‑keit (همه die هستند). ‑bar را با ‑lich قاطی نکن.",
+   "task": "از متن Lesen امروز شش کلمه مشتق‌شده پیدا کن، ریشه هر کدام را بنویس و با دو تا جمله بساز."
+  },
+  {
+   "week": 21,
+   "title": "Textverweise und Kohärenz",
+   "fa": "ارجاع در متن: dies، derjenige، ersterer/letzterer، solch-، ebenso",
+   "rule": "Gute Texte verweisen klar zurück: „dies/das“ auf ganze Aussagen, „dieser/diese“ auf Nomen, „ersterer/letzterer“ bei zwei Elementen, „derjenige, der …“ für Hervorhebung, „Ein solcher Ansatz …“. Wiederholung vermeiden durch Synonyme und Oberbegriffe.",
+   "forms": [
+    "Die Mieten steigen. Dies führt dazu, dass viele pendeln.",
+    "Es gibt Bus und Bahn; letztere ist schneller.",
+    "Diejenigen, die früh anfangen, haben weniger Stress.",
+    "Ein solches Modell wäre auch in Deutschland denkbar."
+   ],
+   "mistakes": "اشتباه رایج: ارجاع مبهم با es یا das وقتی معلوم نیست به کدام اسم برمی‌گردد؛ صرف نکردن ersterer/letzterer.",
+   "task": "یک پاراگراف چهار جمله‌ای درباره موضوع امروز بنویس و در آن از dies، ein solch- و letzterer استفاده کن."
+  },
+  {
+   "week": 22,
+   "title": "Satzbau im Mittelfeld und Negation",
+   "fa": "ترتیب اجزای جمله (TeKaMoLo) و جایگاه nicht",
+   "rule": "Im Mittelfeld gilt meist: Pronomen vor Nomen, Dativ vor Akkusativ (bei Nomen), Angaben in der Reihenfolge temporal – kausal – modal – lokal (TeKaMoLo). „nicht“ steht vor dem Teil, der verneint wird; bei Satznegation möglichst weit hinten, aber vor Präpositionalergänzung, Adjektiv und zweitem Verbteil.",
+   "forms": [
+    "Sie hat ihm das Buch gestern wegen der Prüfung schnell in der Bibliothek gegeben.",
+    "Ich habe es ihr nicht gesagt.",
+    "Er interessiert sich nicht für Politik.",
+    "Nicht die Kosten, sondern die Zeit ist das Problem."
+   ],
+   "mistakes": "اشتباه رایج: گذاشتن مکان قبل از زمان (in Berlin gestern ✗)؛ nicht در انتهای جمله بعد از حرف اضافه (für Politik nicht ✗).",
+   "task": "سه جمله طولانی با دست‌کم سه قید (زمان، علت، مکان) بنویس و یکی از آن‌ها را منفی کن."
   }
  ]
 };

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+import json
+import logging
 import os
 import re
 import uuid
@@ -7,22 +10,53 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.access import require_premium, user_access_role
+from app.api.access import has_premium_access, require_premium, user_access_role
 from app.api.middleware.auth import get_current_user
 from app.config import get_settings
 from app.domain.models.models import LibraryDocument, LibraryFolder, LibraryNote, PdfAnnotation, User
 from app.infrastructure.database.connection import get_db
+from app.infrastructure.cache.redis import get_redis
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 current_user = get_current_user
 COLORS = re.compile(r"^#[0-9a-fA-F]{6}$")
 ANNOTATION_TYPES = {"pen", "highlight", "underline", "strikeout", "text"}
+
+
+def library_channel(user_id: str) -> str:
+    return f"library-events:{user_id}"
+
+
+async def publish_library_event(
+    user_id: str,
+    action: str,
+    item_kind: str,
+    item_id: str,
+    folder_id: str | None = None,
+    **details,
+) -> None:
+    """Publish after commit so other devices never observe uncommitted state."""
+    event = {
+        "event_id": uuid.uuid4().hex,
+        "action": action,
+        "item_kind": item_kind,
+        "item_id": item_id,
+        "folder_id": folder_id,
+        "at": datetime.now(timezone.utc).isoformat(),
+        **details,
+    }
+    try:
+        await get_redis().publish(library_channel(user_id), json.dumps(event, separators=(",", ":")))
+    except Exception:
+        # Saving library data must remain available during a temporary Redis outage.
+        logger.exception("Could not publish library realtime event")
 
 
 class FolderCreate(BaseModel):
@@ -109,6 +143,18 @@ async def owned_folder(folder_id: str | None, user: User, db: AsyncSession) -> L
     return item
 
 
+async def ensure_folder_move_has_no_cycle(folder: LibraryFolder, parent_id: str | None, user: User, db: AsyncSession) -> None:
+    """Reject moving a folder into any of its descendants."""
+    seen = {folder.id}
+    cursor = parent_id
+    while cursor is not None:
+        if cursor in seen:
+            raise HTTPException(400, "A folder cannot be moved inside itself or one of its descendants")
+        seen.add(cursor)
+        parent = await owned_folder(cursor, user, db)
+        cursor = parent.parent_id if parent else None
+
+
 async def owned_document(document_id: str, user: User, db: AsyncSession) -> LibraryDocument:
     item = (await db.execute(select(LibraryDocument).where(LibraryDocument.id == document_id, LibraryDocument.user_id == user.id))).scalar_one_or_none()
     if item is None:
@@ -118,10 +164,43 @@ async def owned_document(document_id: str, user: User, db: AsyncSession) -> Libr
 
 @router.get("/status")
 async def status(user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
-    premium = user_access_role(user) in {"premium", "admin", "owner"}
+    premium = has_premium_access(user)  # AMK-TRIAL
     used = (await db.execute(select(func.coalesce(func.sum(LibraryDocument.size_bytes), 0)).where(LibraryDocument.user_id == user.id))).scalar_one() if premium else 0
     settings = get_settings()
-    return {"premium": premium, "role": user_access_role(user), "used_bytes": int(used), "quota_bytes": settings.LIBRARY_USER_QUOTA_MB * 1024 * 1024, "max_pdf_bytes": settings.LIBRARY_MAX_PDF_MB * 1024 * 1024}
+    return {"premium": premium, "can_upload": has_premium_access(user, allow_trial=False), "role": user_access_role(user), "used_bytes": int(used), "quota_bytes": settings.LIBRARY_USER_QUOTA_MB * 1024 * 1024, "max_pdf_bytes": settings.LIBRARY_MAX_PDF_MB * 1024 * 1024}
+
+
+@router.get("/events")
+async def realtime_events(request: Request, user: User = Depends(current_user)):
+    """Authenticated account-scoped event stream for cross-device library updates."""
+    require_premium(user)
+    channel = library_channel(user.id)
+
+    async def stream():
+        pubsub = get_redis().pubsub()
+        await pubsub.subscribe(channel)
+        try:
+            yield "retry: 2000\nevent: ready\ndata: {}\n\n"
+            while not await request.is_disconnected():
+                message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=15.0)
+                if message and message.get("type") == "message":
+                    yield f"event: library\ndata: {message['data']}\n\n"
+                else:
+                    yield ": keep-alive\n\n"
+                await asyncio.sleep(0)
+        finally:
+            await pubsub.unsubscribe(channel)
+            await pubsub.aclose()
+
+    return StreamingResponse(
+        stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @router.get("")
@@ -150,6 +229,7 @@ async def create_folder(payload: FolderCreate, user: User = Depends(current_user
         await db.rollback()
         raise HTTPException(409, "A folder with this name already exists here")
     await db.refresh(item)
+    await publish_library_event(user.id, "created", "folder", item.id, item.parent_id)
     return folder_out(item)
 
 
@@ -159,14 +239,13 @@ async def update_folder(folder_id: str, payload: FolderUpdate, user: User = Depe
     item = await owned_folder(folder_id, user, db)
     values = payload.model_dump(exclude_unset=True)
     if "parent_id" in values:
-        if values["parent_id"] == folder_id:
-            raise HTTPException(400, "A folder cannot contain itself")
-        await owned_folder(values["parent_id"], user, db)
+        await ensure_folder_move_has_no_cycle(item, values["parent_id"], user, db)
     if "color" in values and values["color"] and not COLORS.fullmatch(values["color"]):
         raise HTTPException(422, "Invalid color")
     for key, value in values.items():
         setattr(item, key, value.strip() if key == "name" else value)
     await db.commit(); await db.refresh(item)
+    await publish_library_event(user.id, "updated", "folder", item.id, item.parent_id)
     return folder_out(item)
 
 
@@ -174,12 +253,14 @@ async def update_folder(folder_id: str, payload: FolderUpdate, user: User = Depe
 async def delete_folder(folder_id: str, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     require_premium(user)
     item = await owned_folder(folder_id, user, db)
+    parent_id = item.parent_id
     await db.delete(item); await db.commit()
+    await publish_library_event(user.id, "deleted", "folder", folder_id, parent_id)
 
 
 @router.post("/documents", status_code=201)
 async def upload_document(file: UploadFile = File(...), title: str | None = Form(default=None), folder_id: str | None = Form(default=None), user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
-    require_premium(user)
+    require_premium(user, allow_trial=False)  # AMK-TRIAL: no uploads during the trial
     await owned_folder(folder_id, user, db)
     settings = get_settings()
     max_bytes = settings.LIBRARY_MAX_PDF_MB * 1024 * 1024
@@ -208,6 +289,7 @@ async def upload_document(file: UploadFile = File(...), title: str | None = Form
         original = Path(file.filename or "document.pdf").name[:255]
         item = LibraryDocument(id=document_id, user_id=user.id, folder_id=folder_id, title=(title or Path(original).stem or "PDF")[:240], original_filename=original, storage_key=relative, size_bytes=size)
         db.add(item); await db.commit(); await db.refresh(item)
+        await publish_library_event(user.id, "created", "document", item.id, item.folder_id)
         return document_out(item)
     except Exception:
         temp.unlink(missing_ok=True); path.unlink(missing_ok=True); await db.rollback(); raise
@@ -229,20 +311,26 @@ async def update_document(document_id: str, payload: DocumentUpdate, user: User 
     values = payload.model_dump(exclude_unset=True)
     if "folder_id" in values: await owned_folder(values["folder_id"], user, db)
     for key, value in values.items(): setattr(item, key, value.strip() if key == "title" else value)
-    await db.commit(); await db.refresh(item); return document_out(item)
+    await db.commit(); await db.refresh(item)
+    await publish_library_event(user.id, "updated", "document", item.id, item.folder_id)
+    return document_out(item)
 
 
 @router.delete("/documents/{document_id}", status_code=204)
 async def delete_document(document_id: str, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     require_premium(user); item = await owned_document(document_id, user, db); path = storage_root() / item.storage_key
+    folder_id = item.folder_id
     await db.delete(item); await db.commit(); path.unlink(missing_ok=True)
+    await publish_library_event(user.id, "deleted", "document", document_id, folder_id)
 
 
 @router.post("/notes", status_code=201)
 async def create_note(payload: NoteCreate, user: User = Depends(current_user), db: AsyncSession = Depends(get_db)):
     require_premium(user); await owned_folder(payload.folder_id, user, db)
     if not COLORS.fullmatch(payload.color): raise HTTPException(422, "Invalid color")
-    item = LibraryNote(user_id=user.id, **payload.model_dump()); db.add(item); await db.commit(); await db.refresh(item); return note_out(item)
+    item = LibraryNote(user_id=user.id, **payload.model_dump()); db.add(item); await db.commit(); await db.refresh(item)
+    await publish_library_event(user.id, "created", "note", item.id, item.folder_id)
+    return note_out(item)
 
 
 @router.patch("/notes/{note_id}")
@@ -254,7 +342,9 @@ async def update_note(note_id: str, payload: NoteUpdate, user: User = Depends(cu
     if "folder_id" in values: await owned_folder(values["folder_id"], user, db)
     if values.get("color") and not COLORS.fullmatch(values["color"]): raise HTTPException(422, "Invalid color")
     for key, value in values.items(): setattr(item, key, value.strip() if key == "title" else value)
-    await db.commit(); await db.refresh(item); return note_out(item)
+    await db.commit(); await db.refresh(item)
+    await publish_library_event(user.id, "updated", "note", item.id, item.folder_id)
+    return note_out(item)
 
 
 @router.delete("/notes/{note_id}", status_code=204)
@@ -262,7 +352,9 @@ async def delete_note(note_id: str, user: User = Depends(current_user), db: Asyn
     require_premium(user)
     item = (await db.execute(select(LibraryNote).where(LibraryNote.id == note_id, LibraryNote.user_id == user.id))).scalar_one_or_none()
     if item is None: raise HTTPException(404, "Note not found")
+    folder_id = item.folder_id
     await db.delete(item); await db.commit()
+    await publish_library_event(user.id, "deleted", "note", note_id, folder_id)
 
 
 @router.get("/documents/{document_id}/annotations")
@@ -282,5 +374,5 @@ async def replace_annotations(document_id: str, page_number: int, payload: Annot
     for annotation in payload.annotations:
         db.add(PdfAnnotation(user_id=user.id, document_id=document_id, page_number=page_number, annotation_type=annotation.annotation_type, payload=annotation.payload))
     await db.commit()
+    await publish_library_event(user.id, "annotations", "document", document_id, page=page_number)
     return {"saved": len(payload.annotations), "page_number": page_number}
-

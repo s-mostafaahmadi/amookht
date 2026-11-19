@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.connection import get_db
 from app.domain.models.models import (
-    WritingSubmission, WritingVersion, WritingEvaluation, Module
+    WritingSubmission, WritingVersion, WritingEvaluation, Module, User
 )
+from app.api.middleware.auth import get_current_user
 from app.dependencies import get_ai_engine
 from app.ai_engine.engine import AIEngine
 
@@ -59,7 +60,7 @@ class EvaluationResponse(BaseModel):
 async def create_submission(
     request: CreateSubmissionRequest,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",  # TODO: Get from auth
+    user: User = Depends(get_current_user),
 ):
     # Get module
     result = await db.execute(select(Module).where(Module.slug == request.module))
@@ -68,7 +69,7 @@ async def create_submission(
         raise HTTPException(status_code=404, detail=f"Module '{request.module}' not found")
 
     submission = WritingSubmission(
-        user_id=user_id,
+        user_id=user.id,
         module_id=module.id,
         topic_id=request.topic_id,
         prompt=request.prompt,
@@ -92,10 +93,11 @@ async def submit_version(
     submission_id: str,
     request: SubmitVersionRequest,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
     # Get submission
     result = await db.execute(
-        select(WritingSubmission).where(WritingSubmission.id == submission_id)
+        select(WritingSubmission).where(WritingSubmission.id == submission_id, WritingSubmission.user_id == user.id)
     )
     submission = result.scalar_one_or_none()
     if not submission:
@@ -134,10 +136,11 @@ async def evaluate_writing(
     version_id: str,
     db: AsyncSession = Depends(get_db),
     ai_engine: AIEngine = Depends(get_ai_engine),
+    user: User = Depends(get_current_user),
 ):
     # Get version
     result = await db.execute(
-        select(WritingVersion).where(WritingVersion.id == version_id)
+        select(WritingVersion).join(WritingSubmission).where(WritingVersion.id == version_id, WritingSubmission.user_id == user.id)
     )
     version = result.scalar_one_or_none()
     if not version:
@@ -181,7 +184,7 @@ async def evaluate_writing(
     # Store evaluation
     db_eval = WritingEvaluation(
         version_id=version_id,
-        user_id="demo-user",
+        user_id=user.id,
         overall_score=evaluation.overall_score,
         grammar_score=evaluation.grammar_score,
         vocabulary_score=evaluation.vocabulary_score,
@@ -214,11 +217,11 @@ async def evaluate_writing(
 @router.get("/submissions")
 async def list_submissions(
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
     result = await db.execute(
         select(WritingSubmission)
-        .where(WritingSubmission.user_id == user_id)
+        .where(WritingSubmission.user_id == user.id)
         .order_by(WritingSubmission.created_at.desc())
     )
     submissions = result.scalars().all()

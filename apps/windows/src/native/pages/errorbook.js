@@ -21,6 +21,7 @@ const ui = {
   review: null, // { queue, total, current, reveal, attempt, startedAt }
   deckFilter: 'all', deckSearch: '', deckAdd: false, deckType: 'wort', deckMsg: '', deckBusy: false,
   deckReview: false, deckFlip: false, deckSession: null,
+  wrOpen: {}, // «نوشته‌های من»: which texts show their corrections
 };
 
 export function renderErrorbook(page, ctx) {
@@ -29,13 +30,46 @@ export function renderErrorbook(page, ctx) {
   const favCache = new Map();
   // NB-DECK-FIRST: the menu opens the plan notebook first.
   if (!ctx.keepTab) ui.tab = 'deck';
+  // LEAN4 (owner/admin): no «اشتباهات» tab — the mistakes were merged into the notebook; «نوشته‌های من» shows the own Schreiben texts
+  const eng = (() => { try { return ctx.engine; } catch { return null; } })();
+  const lean = () => { try { return !!(eng && eng.lean && eng.lean()); } catch { return false; } };
+  if (lean()) {
+    if (ui.tab === 'mistakes') ui.tab = 'deck';
+    try { eng.save(); eng.reload(); if (eng.leanMergeErrors() > 0) toast(L('اشتباهات قبلی به دفتر عبارات منتقل شدند.', 'Your earlier mistakes were moved into the notebook.', 'Deine bisherigen Fehler sind jetzt im Vokabelheft.'), 'ok'); } catch (e) { console.warn(e); }
+  }
 
   const draw = () => {
     favCache.clear();
     const data = ctx.store.data;
-    root.innerHTML = tabsBar(data) + (ui.tab === 'deck' ? deckView(data) : mistakesView(data));
+    if (lean() && ui.tab === 'mistakes') ui.tab = 'deck';
+    root.innerHTML = tabsBar(data) + (ui.tab === 'texts' && lean() ? textsView() : ui.tab === 'deck' ? deckView(data) : mistakesView(data));
     applySearch();
   };
+
+  /* ───────── «نوشته‌های من» (owner/admin) ───────── */
+  const wrMark = (text, errors) => {
+    let html = esc(text);
+    (errors || []).forEach((e) => { const wr = esc(e.wrong || '').trim(); if (!wr || wr.length < 2) return; const i = html.indexOf(wr); if (i < 0) return; html = html.slice(0, i) + `<del>${wr}</del><ins>${esc(e.right || '')}</ins>` + html.slice(i + wr.length); });
+    return html.split(/\n+/).map((p) => `<p>${p}</p>`).join('');
+  };
+  function textsView() {
+    let days = [];
+    try { days = eng.writings(); } catch (e) { console.warn(e); }
+    const rows = days.map((d) => {
+      const r = d.results.schreiben; const it = eng.item(r.kind, r.itemId); const fb = r.fb; const on = !!ui.wrOpen[d.date];
+      const fix = !fb ? '' : `<div class="wr-text" dir="ltr" lang="de">${wrMark(r.text, fb.errors)}</div>`
+        + (fb.errors.length ? `<ol class="wr-errs">${fb.errors.map((e) => `<li><span dir="ltr"><del>${esc(e.wrong)}</del> → <ins>${esc(e.right)}</ins></span>${e.why ? `<small dir="rtl">${esc(e.why)}</small>` : ''}</li>`).join('')}</ol>` : '')
+        + (fb.improved.length ? `<div class="wr-better"><b>${esc(L('جمله‌های بهتر', 'Better sentences', 'Bessere Sätze'))}</b>${fb.improved.map((x) => `<p dir="ltr"><span class="muted">${esc(x.original)}</span><br>✓ ${esc(x.better)}</p>`).join('')}</div>` : '')
+        + (fb.summary || fb.tip ? `<p class="muted small">${esc(fb.summary)}${fb.tdn ? ` · TDN ${esc(fb.tdn)}` : ''}${fb.tip ? ` · 💡 ${esc(fb.tip)}` : ''}</p>` : '')
+        + (fb.src === 'self' ? `<p class="muted small">${esc(L('اصلاحات از Fehlerprotokoll خودت', 'Corrections from your own error log', 'Aus deinem Fehlerprotokoll'))}</p>` : '');
+      const plain = `<div class="wr-text" dir="ltr" lang="de">${String(r.text).split(/\n+/).map((p) => `<p>${esc(p)}</p>`).join('')}</div>`;
+      const words = r.words || String(r.text).split(/\s+/).filter(Boolean).length;
+      return `<details class="hx-day wr-item"${on ? ' open' : ''}><summary class="hx-day-main"><span class="hx-day-date"><b>${esc(d.date)}</b><small>${esc(r.kind === 'grafik' ? 'Grafik' : 'Argumentation')} · ${num(words)} ${esc(L('کلمه', 'words', 'Wörter'))}${r.score != null ? ' · ' + num(r.score) + '%' : ''}${fb ? ` · ✎ ${num(fb.errors.length)}` : ''}</small></span></summary>
+        <div class="hx-day-detail"><p dir="ltr"><b>${esc(it?.title || '')}</b></p>${on && fb ? fix : plain}
+        <button type="button" class="btn ${on ? '' : 'btn-primary'}" ${fb ? '' : `disabled title="${esc(L('برای این نوشته اصلاحی ثبت نشده است', 'No corrections were saved for this text', 'Für diesen Text gibt es keine Korrekturen'))}"`} data-wr-toggle="${esc(d.date)}">${esc(on ? L('نمایش متن اصلی', 'Show original text', 'Originaltext') : L('نمایش اصلاحات', 'Show corrections', 'Korrekturen zeigen'))}</button></div></details>`;
+    }).join('');
+    return `<section class="card"><h3>✍️ ${esc(L('نوشته‌های من', 'My texts', 'Meine Texte'))}</h3><p class="muted small">${esc(L('متن Schreiben هر روز همان‌طور که ثبت کردی اینجا می‌ماند. با «نمایش اصلاحات» اشتباه‌ها در متن خط می‌خورند و شکل درست کنارشان می‌آید.', 'Your Schreiben texts as you submitted them. “Show corrections” marks the mistakes right in the text.', 'Deine Schreiben-Texte, wie du sie abgegeben hast; „Korrekturen zeigen“ markiert Fehler direkt im Text.'))}</p>${rows || `<p class="muted">${esc(L('هنوز نوشته‌ای ثبت نشده است.', 'No texts yet.', 'Noch keine Texte.'))}</p>`}</section>`;
+  }
 
   /* ───────── tabs ───────── */
   const tabsBar = (data) => {
@@ -44,8 +78,9 @@ export function renderErrorbook(page, ctx) {
     return `<header class="nb-head">
       <h1>📒 ${esc(L('دفتر عبارات', 'Vocabulary notebook', 'Vokabelheft'))}</h1>
       <div class="segmented nb-tabs" role="tablist">
-        <button type="button" role="tab" data-tab="mistakes" aria-selected="${ui.tab === 'mistakes'}" class="${ui.tab === 'mistakes' ? 'is-on' : ''}">${esc(L('اشتباهات', 'Mistakes', 'Fehler'))} <em>${num(errorsOf(data).length)}</em></button>
+        ${lean() ? '' : `<button type="button" role="tab" data-tab="mistakes" aria-selected="${ui.tab === 'mistakes'}" class="${ui.tab === 'mistakes' ? 'is-on' : ''}">${esc(L('اشتباهات', 'Mistakes', 'Fehler'))} <em>${num(errorsOf(data).length)}</em></button>`}
         <button type="button" role="tab" data-tab="deck" aria-selected="${ui.tab === 'deck'}" class="${ui.tab === 'deck' ? 'is-on' : ''}">${esc(L('دفتر عبارات برنامه', 'Plan vocabulary', 'Plan-Wortschatz'))} <em>${num(deck.length)}</em>${due ? `<b class="nb-due" title="${esc(L('سررسید امروز', 'due today', 'heute fällig'))}">${num(due)}</b>` : ''}</button>
+        ${lean() ? `<button type="button" role="tab" data-tab="texts" aria-selected="${ui.tab === 'texts'}" class="${ui.tab === 'texts' ? 'is-on' : ''}">${esc(L('نوشته‌های من', 'My texts', 'Meine Texte'))} <em>${num((() => { try { return eng.writings().length; } catch { return 0; } })())}</em></button>` : ''}
       </div>
     </header>`;
   };
@@ -75,7 +110,7 @@ export function renderErrorbook(page, ctx) {
     const ai = ctx.account.premium;
     const mean = ai ? L('معنی (خالی = هوش مصنوعی)', 'Meaning (empty = AI)', 'Bedeutung (leer = KI)') : L('معنی (اختیاری)', 'Meaning (optional)', 'Bedeutung (optional)');
     const fld = (id, label, ph, cls = '', dir = 'ltr') => `<label class="fld ${cls}"><span>${esc(label)}</span><input id="${id}" dir="${dir}" placeholder="${esc(ph)}" autocomplete="off" spellcheck="false" /></label>`;
-    return `<section class="card deckform" data-type="${ui.deckType}">
+    return `<div class="nmodal" data-nmodal="deck" role="dialog" aria-modal="true"><section class="card deckform nmodal-card" data-type="${ui.deckType}">
       <div class="deckform-head"><h3>${esc(L('افزودن به دفتر عبارات', 'Add to notebook', 'Neuer Eintrag'))}</h3>
         <div class="segmented"><button type="button" data-dtype="wort" class="${ui.deckType === 'wort' ? 'is-on' : ''}">${esc(L('لغت', 'Word', 'Wort'))}</button><button type="button" data-dtype="redemittel" class="${ui.deckType === 'redemittel' ? 'is-on' : ''}">${esc(L('عبارت / Redemittel', 'Phrase', 'Redemittel'))}</button></div></div>
       ${ui.deckType === 'wort' ? `<div class="form-grid">
@@ -93,7 +128,7 @@ export function renderErrorbook(page, ctx) {
       </div>`}
       <div class="deckform-foot"><p class="form-msg ${ui.deckMsg ? 'is-ok' : ''}" id="deckMsg" role="status">${ui.deckMsg ? '✓ ' + esc(ui.deckMsg) : esc(L('موارد ستاره‌دار (*) لازم هستند. با Enter هم ذخیره می‌شود.', 'Fields marked * are required. Enter saves.', 'Pflichtfelder sind mit * markiert. Enter speichert.'))}</p>
         <div class="row-actions"><button type="button" class="btn" data-act="deck-close">${esc(L('بستن', 'Close', 'Schließen'))}</button><button type="button" class="btn btn-primary" data-act="deck-save">＋ ${esc(L('ذخیره در دفتر', 'Save', 'Speichern'))}</button></div></div>
-    </section>`;
+    </section></div>`;
   };
 
   const deckReviewView = (data) => {
@@ -390,11 +425,15 @@ export function renderErrorbook(page, ctx) {
     draw();
   }
 
+  // DECK-MODAL: a click on the dark backdrop or Esc closes the window
+  root.addEventListener('click', (event) => { if (event.target.matches && event.target.matches('[data-nmodal="deck"]')) { ui.deckAdd = false; ui.deckMsg = ''; draw(); } }, true);
+  root.addEventListener('keydown', (event) => { if (event.key === 'Escape' && ui.deckAdd && root.querySelector('[data-nmodal="deck"]')) { event.preventDefault(); ui.deckAdd = false; ui.deckMsg = ''; draw(); } });
   root.addEventListener('click', (event) => {
     if (handleStarClick(event, ctx.store, favCache)) return;
     const el = event.target.closest('button');
     if (!el || el.disabled) return;
     const d = el.dataset;
+    if (d.wrToggle) { ui.wrOpen[d.wrToggle] = !ui.wrOpen[d.wrToggle]; draw(); return; }
     if (d.tab) {
       ui.tab = d.tab;
       ui.review = null;
@@ -430,7 +469,7 @@ export function renderErrorbook(page, ctx) {
     else if (d.rate !== undefined) finishReview(Number(d.rate));
     else {
       switch (d.act) {
-        case 'deck-add': ui.deckAdd = true; ui.deckMsg = ''; draw(); root.querySelector('.deckform')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); break;
+        case 'deck-add': ui.deckAdd = true; ui.deckMsg = ''; draw(); setTimeout(() => root.querySelector(ui.deckType === 'wort' ? '#nWord' : '#nDe')?.focus(), 30); break;
         case 'deck-close': ui.deckAdd = false; ui.deckMsg = ''; draw(); break;
         case 'deck-save': saveDeckEntry(); break;
         case 'deck-review': ui.deckReview = true; ui.deckFlip = false; ui.deckSession = { ok: 0, no: 0, total: Object.values(deckOf(ctx.store.data)).filter((x) => x.due <= today()).length }; draw(); break;

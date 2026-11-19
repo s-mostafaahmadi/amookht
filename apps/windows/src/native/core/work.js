@@ -91,6 +91,7 @@ export function createWork(eng, { bridge, account, onChange }) {
   function rememberLearningError(err) {
     const st = S();
     if (!err || !worthReview(err)) return false;
+    try { if (eng.lean && eng.lean()) eng.leanErrToDeck(err); } catch (e) { console.warn(e); } // LEAN4: owner/admin → phrase notebook
     st.errors = Array.isArray(st.errors) ? st.errors : [];
     const sourceKey = err.sourceKey || [err.type, err.category, err.userAnswer, err.correctAnswer, err.question].join('|');
     const existing = st.errors.find((x) => (x.sourceKey || '') === sourceKey);

@@ -28,9 +28,22 @@ export function ownerPackReasonLabel(reason) {
   return fa() ? row.fa : en() ? row.en : row.de;
 }
 
-export function createOwnerPacks({ store, engine, account, api }) {
+export function createOwnerPacks({ store, engine, account, api, files }) {
   const state = { list: null, loading: false, error: '' };
   const isOwner = () => !!(account() || {}).owner;
+
+  /** The IPC bridge answers { ok, data, error }; unwrap it and surface server errors. */
+  async function request(path, opts) {
+    const res = await api(path, opts || {});
+    if (res && res.ok === false) {
+      const info = res.error || {};
+      const error = new Error(info.message || L('درخواست انجام نشد.', 'The request failed.', 'Die Anfrage ist fehlgeschlagen.'));
+      error.status = Number(info.status) || 0;
+      error.code = info.code || '';
+      throw error;
+    }
+    return res && res.data !== undefined ? res.data : res;
+  }
 
   /** The site's ownerPackSnapshot(reason), against the live engine state. */
   function snapshot(reason) {
@@ -76,7 +89,7 @@ export function createOwnerPacks({ store, engine, account, api }) {
     try { snap = snapshot(reason); } catch (error) { console.warn('owner pack snapshot failed', error); return null; }
     if (!snap || !snap.plan || !(snap.plan.activities || []).length) return null;
     try {
-      const saved = await api('/v1/owner-packs', { method: 'POST', body: { label: label(snap), reason: snap.reason, source_date: snap.source_date, payload: snap } });
+      const saved = await request('/v1/owner-packs', { method: 'POST', body: { label: label(snap), reason: snap.reason, source_date: snap.source_date, payload: snap } });
       state.list = null;
       return saved;
     } catch (error) { console.warn('owner pack save failed', error); return null; }
@@ -87,7 +100,7 @@ export function createOwnerPacks({ store, engine, account, api }) {
     if (state.list && !force) return state.list;
     state.loading = true; state.error = '';
     try {
-      const data = await api('/v1/owner-packs', { method: 'GET' });
+      const data = await request('/v1/owner-packs', { method: 'GET' });
       state.list = Array.isArray(data?.packs) ? data.packs : [];
     } catch (error) {
       state.error = String(error?.message || error);
@@ -99,7 +112,7 @@ export function createOwnerPacks({ store, engine, account, api }) {
 
   async function remove(packId) {
     if (!isOwner() || !packId) return false;
-    await api('/v1/owner-packs/' + encodeURIComponent(packId), { method: 'DELETE' });
+    await request('/v1/owner-packs/' + encodeURIComponent(packId), { method: 'DELETE' });
     state.list = (state.list || []).filter((pack) => pack.id !== packId);
     return true;
   }
@@ -145,11 +158,72 @@ export function createOwnerPacks({ store, engine, account, api }) {
 
   async function load(packId) {
     if (!isOwner() || !packId) return false;
-    const data = await api('/v1/owner-packs/' + encodeURIComponent(packId), { method: 'GET' });
+    const data = await request('/v1/owner-packs/' + encodeURIComponent(packId), { method: 'GET' });
     return applyPayload(data?.payload || {}, packId);
   }
 
-  return { isOwner, state, snapshot, label, save, list, remove, load, applyPayload };
+  /* ── files on disk: save a stored pack, or add one from a file ── */
+
+  const FILE_FORMAT = 'amookht-pack';
+
+  function fileText(pack) {
+    return JSON.stringify({
+      format: FILE_FORMAT,
+      version: OWNER_PACK_SCHEMA,
+      label: pack.label || '',
+      reason: pack.reason || '',
+      source_date: pack.source_date || '',
+      created_at: pack.created_at || new Date().toISOString(),
+      payload: pack.payload || pack,
+    }, null, 2);
+  }
+
+  /** Write one stored pack to a .json file the owner picks. */
+  async function download(packId) {
+    if (!isOwner() || !packId) return null;
+    const data = await request('/v1/owner-packs/' + encodeURIComponent(packId), { method: 'GET' });
+    if (!data || !data.payload) throw new Error(L('پک خوانده نشد.', 'The pack could not be read.', 'Der Pack konnte nicht gelesen werden.'));
+    const name = 'amookht-pack-' + (data.source_date || data.payload.source_date || today()) + '-' + String(packId).slice(0, 8) + '.json';
+    const saved = await files.save({ name, text: fileText(data) });
+    return saved && saved.ok ? saved.path : null;
+  }
+
+  /** Accept both a bare payload and a file written by download(). */
+  function importedPayload(raw) {
+    const candidate = raw && raw.payload && typeof raw.payload === 'object' && !Array.isArray(raw.payload) ? raw.payload : raw;
+    if (!candidate || typeof candidate !== 'object') return null;
+    if (!candidate.plan || !Array.isArray(candidate.plan.activities) || !candidate.plan.activities.length) return null;
+    return candidate;
+  }
+
+  /** Add a pack the owner picks from disk (a .json file). Returns the saved summary. */
+  async function importFromFile() {
+    if (!isOwner()) return null;
+    if (!files || !files.open) return null;
+    const picked = await files.open();
+    if (!picked || picked.canceled) return null;
+    if (picked.ok === false) throw new Error((picked.error && picked.error.message) || L('فایل خوانده نشد.', 'The file could not be read.', 'Die Datei konnte nicht gelesen werden.'));
+    let raw = null;
+    try { raw = JSON.parse(picked.text); } catch {
+      throw new Error(L('این فایل یک پک معتبر نیست (JSON خراب است).', 'This file is not a valid pack (broken JSON).', 'Die Datei ist kein gültiger Pack (defektes JSON).'));
+    }
+    const payload = importedPayload(raw);
+    if (!payload) throw new Error(L('این فایل پک آموخت نیست یا هیچ تمرینی ندارد.', 'This is not an Amookht pack, or it contains no exercises.', 'Das ist kein Amookht-Pack oder er enthält keine Übungen.'));
+    const label = String(raw.label || '').trim() || label({ ...payload, reason: raw.reason || payload.reason || 'imported' });
+    const saved = await request('/v1/owner-packs', {
+      method: 'POST',
+      body: {
+        label: label.slice(0, 200),
+        reason: String(raw.reason || payload.reason || 'imported').slice(0, 40),
+        source_date: String(raw.source_date || payload.source_date || today()).slice(0, 20),
+        payload,
+      },
+    });
+    state.list = null;
+    return saved;
+  }
+
+  return { isOwner, state, snapshot, label, save, list, remove, load, applyPayload, download, importFromFile };
 }
 
 /* ───────────── the page: «افزودن دستی محتوا» ───────────── */
@@ -170,11 +244,13 @@ export function renderOwnerPacks(packs, { loading, error } = {}) {
       </div>
       <div class="row-actions">
         <button type="button" class="btn btn-primary" data-pack-load="${safeText(pack.id)}">${safeText(L('بارگذاری در اجرای برنامه', 'Load into the run', 'In den Durchlauf laden'))}</button>
+        <button type="button" class="btn" data-pack-download="${safeText(pack.id)}" title="${safeText(L('ذخیره روی کامپیوتر', 'Save to this computer', 'Auf diesem Computer speichern'))}">⭳ ${safeText(L('دانلود', 'Download', 'Herunterladen'))}</button>
         <button type="button" class="btn btn-danger" data-pack-del="${safeText(pack.id)}">🗑</button>
       </div></div></article>`;
   }).join('');
   return `<header class="page-hero"><div class="page-hero-main"><span class="page-hero-icon">🗂</span><div><p class="kicker">${safeText(L('فقط مالک', 'OWNER ONLY', 'NUR INHABER'))}</p><h1>${safeText(L('افزودن دستی محتوا', 'Add content manually', 'Inhalte manuell hinzufügen'))}</h1><small>${safeText(L('پک‌های کامل ثبت‌شده از شش دسته تمرین (همراه صوت و پاسخ‌ها). یکی را انتخاب کنید تا اجرای برنامه با همان محتوا بارگذاری شود.', 'Stored complete packs of the six exercise categories, with audio and answers. Pick one to load it into the run.', 'Gespeicherte komplette Packs der sechs Übungsbereiche inklusive Audio und Antworten. Auswählen, um sie in den Durchlauf zu laden.'))}</small></div></div></header>
-    <div class="row-actions" style="margin:0 0 14px"><button type="button" class="btn" data-act="packs-refresh">↻ ${safeText(L('به‌روزرسانی', 'Refresh', 'Aktualisieren'))}</button><button type="button" class="btn btn-ghost" data-act="packs-back">${safeText(L('بازگشت به برنامه', 'Back to the plan', 'Zurück zum Plan'))}</button></div>
+    <div class="row-actions" style="margin:0 0 14px"><button type="button" class="btn btn-primary" data-act="pack-import">📂 ${safeText(L('افزودن پک از فایل', 'Add a pack from a file', 'Pack aus einer Datei hinzufügen'))}</button><button type="button" class="btn" data-act="packs-refresh">↻ ${safeText(L('به‌روزرسانی', 'Refresh', 'Aktualisieren'))}</button><button type="button" class="btn btn-ghost" data-act="packs-back">${safeText(L('بازگشت به برنامه', 'Back to the plan', 'Zurück zum Plan'))}</button></div>
+    <p class="muted small" style="margin:0 0 14px">${safeText(L('پک‌های ذخیره‌شده روی سرور با «دانلود» روی کامپیوتر ذخیره می‌شوند؛ فایل ذخیره‌شده را می‌توانید با «افزودن پک از فایل» روی هر دستگاهی ثبت کنید.', 'Stored packs can be saved to this computer with “Download”; a saved file is added on any machine with “Add a pack from a file”.', 'Gespeicherte Packs lassen sich mit „Herunterladen“ sichern; eine gesicherte Datei wird auf jedem Gerät mit „Pack aus einer Datei hinzufügen“ hinzugefügt.'))}</p>
     ${error ? `<p class="error-line">${safeText(error)}</p>` : ''}
     ${loading ? `<section class="card"><p class="muted">${safeText(L('در حال خواندن پک‌ها…', 'Loading packs…', 'Packs werden geladen…'))}</p></section>`
       : (rows || `<section class="card"><p class="muted">${safeText(L('هنوز پکی ثبت نشده است. با «ثبت نتیجه و تمرین تازه» یا پایان روز، پک بعدی خودکار ثبت می‌شود.', 'No pack stored yet. The next pack is stored automatically on “save & renew” or at the day end.', 'Noch kein Pack gespeichert. Der nächste Pack wird bei „Speichern & erneuern“ oder am Tagesende automatisch abgelegt.'))}</p></section>`)}`;

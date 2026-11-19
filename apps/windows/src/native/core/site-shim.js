@@ -82,7 +82,7 @@ export function createSiteShim(app) {
   const isGlobalContentAdmin = () => ['admin', 'owner'].includes(role());
   const appConfirm = (text) => confirmDialog(String(text || ''), { ok: lang() === 'fa' ? 'تأیید' : lang() === 'en' ? 'OK' : 'OK', danger: false });
   /** site rememberLearningError: into «اشتباهات» with the site's review-worthiness rules */
-  function rememberLearningError(err) { const e = eng(); if (e) e.save(); rememberErrorStore(app.store, err); }
+  function rememberLearningError(err) { const e = eng(); if (e) e.save(); const r = rememberErrorStore(app.store, err); try { if (r && e && e.lean && e.lean()) e.leanErrToDeck(err); } catch (x) { console.warn(x); } return r; }
   const safeText = (v) => esc(v == null ? '' : v);
   const ownerAIClientMessageId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
   const authTokens = () => ({ access_token: 'app' }); // the main process adds the real token

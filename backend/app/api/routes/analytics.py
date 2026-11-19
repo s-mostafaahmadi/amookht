@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.connection import get_db
 from app.domain.models.models import (
-    LearningSession, ErrorRecord, DailyAnalytics, UserProfile
+    LearningSession, ErrorRecord, DailyAnalytics, UserProfile, User
 )
+from app.api.middleware.auth import get_current_user
 
 router = APIRouter()
 
@@ -15,8 +16,9 @@ router = APIRouter()
 @router.get("/overview")
 async def get_analytics_overview(
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     # Get profile
     profile_result = await db.execute(
         select(UserProfile).where(UserProfile.user_id == user_id)
@@ -61,8 +63,9 @@ async def get_analytics_overview(
 async def get_progress(
     period: str = "7d",
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     # Calculate date range
     days = {"7d": 7, "30d": 30, "90d": 90}.get(period, 7)
     start_date = date.today() - timedelta(days=days)
@@ -91,8 +94,9 @@ async def get_progress(
 @router.get("/weaknesses")
 async def get_weaknesses(
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     # Get unresolved errors grouped by category
     result = await db.execute(
         select(ErrorRecord.error_category, func.count(ErrorRecord.id))

@@ -102,10 +102,6 @@ export function renderAppSettings(page, ctx) {
           <span class="sp-sample"><span class="sp-s">Ich</span> <span class="sp-v">lese</span> <span class="sp-o">das Buch</span> <span class="sp-p">morgen</span> <span class="sp-v">vor</span>.</span>`)}
 
         <section class="card tg-card span-2" id="tgCard">${telegramCard()}</section>
-        <section class="card link-card span-2">
-          <div class="card-title" style="margin:0"><span>${svg(ICONS.account)}</span><div><h2>${esc(t('navAccount'))}</h2><p>${esc(L('پروفایل، یادگیری، امنیت، رمز و داده‌های حساب', 'Profile, learning, security, password and account data', 'Profil, Lernen, Sicherheit, Passwort und Kontodaten'))}</p></div></div>
-          <button class="btn" type="button" data-act="account">${esc(L('بازکردن تنظیمات حساب', 'Open account settings', 'Kontoeinstellungen öffnen'))}</button>
-        </section>
       </div>`;
   };
 

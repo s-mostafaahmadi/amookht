@@ -1,0 +1,5 @@
+/* Amookht — WORD-HL (2026-11-19): toggled by double-click on a word */
+.amk-word-hl{background:rgba(250,204,21,.45);border-radius:5px;padding:0 1px;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;-webkit-tap-highlight-color:transparent}
+.amk-word-hl:hover{background:rgba(250,204,21,.62)}
+:is(.dark,[data-theme=dark]) .amk-word-hl{background:rgba(250,204,21,.32);color:inherit}
+:is(.dark,[data-theme=dark]) .amk-word-hl:hover{background:rgba(250,204,21,.46)}

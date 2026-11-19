@@ -1,12 +1,13 @@
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.connection import get_db
-from app.domain.models.models import VocabularyItem, VocabularyProgress
+from app.domain.models.models import User, VocabularyItem, VocabularyProgress
+from app.api.middleware.auth import get_current_user
 from app.domain.services.spaced_repetition import SpacedRepetitionEngine, ReviewQuality
 
 router = APIRouter()
@@ -24,7 +25,7 @@ class VocabularyItemResponse(BaseModel):
 
 
 class ReviewRequest(BaseModel):
-    quality: int  # 0-5
+    quality: int = Field(ge=0, le=5)
 
 
 @router.get("")
@@ -33,7 +34,7 @@ async def list_vocabulary(
     review_due: bool = False,
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
     query = select(VocabularyItem)
     if topic:
@@ -60,8 +61,9 @@ async def list_vocabulary(
 async def get_review_items(
     limit: int = 20,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     today = date.today()
     result = await db.execute(
         select(VocabularyProgress)
@@ -98,8 +100,9 @@ async def review_vocabulary(
     vocab_id: str,
     request: ReviewRequest,
     db: AsyncSession = Depends(get_db),
-    user_id: str = "demo-user",
+    user: User = Depends(get_current_user),
 ):
+    user_id = user.id
     # Get or create progress
     result = await db.execute(
         select(VocabularyProgress)

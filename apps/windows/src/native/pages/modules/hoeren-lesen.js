@@ -94,7 +94,7 @@ export function makeHoerenLesen(env) {
     } else if (key === 'aufgaben' || key === 'pruefung') {
       const exam = key === 'pruefung'; const checked = !!w.checked.l;
       body = (exam ? '' : card(`<h4 dir="auto">${E(ML('روش پاسخ‌گویی به هر سؤال', 'Lösungsstrategie', 'Strategy'))}</h4>${strategy}`, 'compact'))
-        + `<div class="tdm-split"><div class="tdm-split-text">${card(lesenText(it))}</div><div class="tdm-split-q">${card(`<h4>${E(it.formatLabel)}</h4>${it.format === 'jnt' ? rtl('<p class="muted">Ja = متن همین را می‌گوید · Nein = متن خلاف آن را می‌گوید · Text sagt dazu nichts = متن درباره‌اش چیزی نمی‌گوید.</p>') : ''}${kit.renderQuestions('l', qs, { explain: true })}`)}</div></div>`;
+        + `<div class="tdm-readstack"><div class="tdm-split-text">${card(lesenText(it))}</div><div class="tdm-split-q">${card(`<h4>${E(it.formatLabel)}</h4>${it.format === 'jnt' ? rtl('<p class="muted">Ja = متن همین را می‌گوید · Nein = متن خلاف آن را می‌گوید · Text sagt dazu nichts = متن درباره‌اش چیزی نمی‌گوید.</p>') : ''}${kit.renderQuestions('l', qs, { explain: true })}`)}</div></div>`;
       if (exam && !checked) opts = { countdown: { auto: 'l' } };
     } else if (key === 'fehler') {
       const checked = !!w.checked.l; const wrong = checked ? wk.wrongQuestions('l', qs) : []; const sc = checked ? wk.qScore('l', qs) : null;

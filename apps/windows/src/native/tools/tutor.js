@@ -88,7 +88,7 @@ export function install(shim) {
     }
 
     // ───────── context of the current study screen ─────────
-    const SCREEN_NAMES = { dashboard: 'Tagesplan', errorbook: 'Fehlerbuch', favorites: 'Favoriten', history: 'Verlauf', testdafSim: 'TestDaF-Prüfungssimulation', library: 'Bibliothek', methodHub: 'Lernplan-Methode (Übersicht)', settings: 'Konto', appSettings: 'Einstellungen', freeStudy: 'Freies Lernen' };
+    const SCREEN_NAMES = { dashboard: 'Tagesplan', errorbook: 'Fehlerbuch', favorites: 'Favoriten', history: 'Verlauf', testdafSim: 'Prüfungssimulation (TestDaF / ÖSD)', library: 'Bibliothek', methodHub: 'Lernplan-Methode (Übersicht)', settings: 'Konto', appSettings: 'Einstellungen', freeStudy: 'Freies Lernen' };
     function gatherContext() {
       const S_ = appS() || {}, info = (window.TDM && S_.screen === 'methodActivity' && TDM.contextInfo && TDM.contextInfo()) || null;
       const ctx = { screen: SCREEN_NAMES[S_.screen] || S_.screen || '', module: '', step: '', title: '', material: '', user_text: '', selection: '', exam: false };

@@ -15,6 +15,7 @@ import { TOPIC_TREE, EXAM_PLANS } from '../data/topics.js';
 
 /* ───────────── constants (identical to the site) ───────────── */
 export const BASE = 240;
+export const DEFAULT_DAILY = 120; // DAILY-120 (site 2026-11-20): default daily plan time; BASE stays the content scale
 export const SRS_STEPS = [1, 3, 7, 14, 30];
 export const DAILY_CHOICES = [60, 90, 120, 150, 180, 240, 300];
 export const EXTRA_CHOICES = [0, 15, 30, 45, 60];
@@ -156,7 +157,8 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
   }
 
   /* ───────────── content and program ───────────── */
-  const program = () => ((S.user?.examPlan || '') === 'oesd' ? 'oesd' : (S.user?.examPlan || '') === 'testdaf' ? 'testdaf' : '');
+  // UNIFIED-PLAN: one learning plan for everyone; examPlan ('testdaf' | 'oesd') only picks the simulated exam
+  const program = () => ((S.user?.examPlan || '') === 'oesd' || (S.user?.examPlan || '') === 'testdaf' ? 'testdaf' : '');
   // site PROG(): the ÖSD profile answers while the program is ÖSD
   const OSD = createOesd(() => S);
   const PROG = () => (program() === 'oesd' ? OSD : null);
@@ -190,6 +192,10 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
   const enrolled = () => program() === 'testdaf' || program() === 'oesd';
   const curMode = () => (S.studyMode === 'free' ? 'free' : 'plan');
   const active = () => enrolled() && curMode() !== 'free';
+  // LEAN4 (site 2026-11-19): owner/admin accounts only — days have Hören/Lesen/Schreiben/Sprechen only, mistakes go to the
+  // phrase notebook, day packs run in sequence (content control). Normal users keep the old behaviour.
+  const lean = () => { try { return ['admin', 'owner'].includes(account()?.role); } catch { return false; } };
+  const LEAN_DROP = ['wortschatz', 'wiederholung', 'fehleranalyse', 'wochenbericht', 'extra'];
 
   /* ───────────── state M() ───────────── */
   function M() {
@@ -207,7 +213,7 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
   const dayDef = (k) => {
     const base = DDEF()[wdOf(k)];
     const chosen = M().weekFocus?.[wdOf(k)];
-    return Array.isArray(chosen) && chosen.length && !base.exam && !base.evaluation ? { ...base, focus: chosen.filter((id) => ['hoeren', 'lesen', 'schreiben', 'sprechen'].includes(id)).slice(0, 2) } : base;
+    return Array.isArray(chosen) && chosen.length && !base.evaluation /* FOCUS-MERGE: Friday stays the evaluation day */ ? { ...base, focus: chosen.filter((id) => ['hoeren', 'lesen', 'schreiben', 'sprechen'].includes(id)).slice(0, 2) } : base;
   };
   function firstSaturday() { const m = M(); const start = m.startDate || todayKey(); let first = satOf(start); if (wdOf(start) === 5) first = addDays(first, 7); return first; }
   function weekOf(k) { const d = diffDays(firstSaturday(), k); return d < 0 ? 0 : Math.floor(d / 7) + 1; }
@@ -215,9 +221,9 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
   const dayMode = (k) => { const def = dayDef(k); return def.evaluation ? 'eval' : def.exam ? 'exam' : 'normal'; };
   function moduleOrder(k) {
     const def = dayDef(k); const mode = dayMode(k);
-    const base = mode === 'eval' ? ['hoeren', 'lesen', 'schreiben', 'sprechen', 'fehleranalyse', 'wochenbericht'] : ['hoeren', 'lesen', 'schreiben', 'sprechen', 'wortschatz', 'wiederholung'];
+    const base = lean() ? ['hoeren', 'lesen', 'schreiben', 'sprechen'] : mode === 'eval' ? ['hoeren', 'lesen', 'schreiben', 'sprechen', 'fehleranalyse', 'wochenbericht'] : ['hoeren', 'lesen', 'schreiben', 'sprechen', 'wortschatz', 'wiederholung'];
     const suggested = mode === 'eval' ? base : [...def.focus.filter((x) => base.includes(x)), ...base.filter((x) => !def.focus.includes(x))];
-    const saved = M().dayOrder?.[k];
+    const saved = M().dayOrder?.[k] || M().weekOrder?.[wdOf(k)]; // WEEK-DESIGN
     return Array.isArray(saved) ? [...saved.filter((x) => suggested.includes(x)), ...suggested.filter((x) => !saved.includes(x))] : suggested;
   }
   const focusLabel = (def) => (def.evaluation ? ML('ارزیابی', 'Bewertung', 'Evaluation') : def.focus.length === 4 ? ML('چهار مهارت', 'Alle vier Fertigkeiten', 'All four skills') : ML('تمرکز بیشتر: ', 'Schwerpunkt: ', 'More focus: ') + def.focus.map((f) => ML(MODS[f].fa, MODS[f].de)).join(' + '));
@@ -229,11 +235,12 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     const f = mode === 'normal' ? FOCUS_MIN[wdOf(k)] : null;
     return f && f[id] != null ? f[id] : BASE_MIN[mode]?.[id];
   }
-  const dailyMin = () => { const v = Number(M().dailyMin); return DAILY_CHOICES.includes(v) ? v : BASE; };
+  const dailyMin = () => { const v = Number(M().dailyMin); return DAILY_CHOICES.includes(v) ? v : DEFAULT_DAILY; };
   const scaleOf = () => dailyMin() / BASE;
   function dayModules(k) {
     const mode = dayMode(k); const def = dayDef(k); const order = moduleOrder(k);
     if (dailyMin() >= 120) return order;
+    if (lean()) { const f = mode === 'eval' ? ['hoeren', 'lesen'] : mode === 'exam' ? (weekOf(k) % 2 ? ['hoeren', 'lesen'] : ['schreiben', 'sprechen']) : def.focus.filter((x) => order.includes(x)); return f.length ? f : order; }
     if (mode === 'eval') return ['hoeren', 'lesen', 'fehleranalyse', 'wochenbericht'];
     if (mode === 'exam') return weekOf(k) % 2 ? ['hoeren', 'lesen', 'wortschatz'] : ['schreiben', 'sprechen', 'wortschatz'];
     return [...def.focus, 'wortschatz'];
@@ -252,6 +259,8 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
       const step = up ? 5 : -5;
       out[id] += step; err[id] -= step; acc += step;
     }
+    const cm = M().weekMin?.[wdOf(k)]; // WEEK-DESIGN: own minutes for this weekday
+    if (cm) ids.forEach((id) => { const v = Number(cm[id]); if (v >= 5) out[id] = Math.round(v / 5) * 5; });
     return out;
   }
   function spList(d) {
@@ -329,7 +338,7 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     const list = (c[kind] || []).filter((x) => !filter || filter(x));
     if (!list.length) return null;
     const used = m.used[kind];
-    let it = lvRank(kind, list.filter((x) => !used.includes(x.id)))[0];
+    let it = lvRank(kind, list.filter((x) => !used.includes(x.id) && !x.tw))[0]; // THEMED-DAYS: themed items only via their own day
     if (!it) it = list.slice().sort((a, b) => used.lastIndexOf(a.id) - used.lastIndexOf(b.id))[0];
     used.push(it.id);
     return it.id;
@@ -351,6 +360,54 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     m.redemittelSeen = [...seen];
     return out;
   }
+  /* LEAN4-PACKS: ordered day packs (content bundle c.packs); this account's own order lives in M().packOrder */
+  function packSeq() {
+    const c = CT(); const all = c && Array.isArray(c.packs) ? c.packs.map((x) => x.day) : [];
+    const own = Array.isArray(M().packOrder) ? M().packOrder.map(Number).filter((x) => x > 0) : [];
+    const seen = new Set(own);
+    const base = [...own, ...all.filter((x) => !seen.has(x)).sort((a, b) => a - b)];
+    return M().packOrderFri ? base : friFill(base);   // FRI-FILL (site 2026-11-19)
+  }
+  /* FRI-FILL: ids 7, 14, 21 … (the old Fridays) fill the first packs that are not ready yet; unready ones go last */
+  function friFill(list) {
+    const c = CT(); const by = new Map((c?.packs || []).map((p) => [p.day, p])); const fri = (d) => ((Number(d) - 1) % 7) === 6;
+    const ready = (d) => { const pk = by.get(d); if (!pk) return false; const ids = packIds(pk); return ids.length > 0 && ids.every(([kd, id]) => item(kd, id)); };
+    const fr = list.filter(fri); const fReady = fr.filter(ready); const fLater = fr.filter((d) => !ready(d));
+    let out = []; let wait = [];
+    list.filter((d) => !fri(d)).forEach((d) => {
+      if (!ready(d) && fReady.length) { out.push(fReady.shift()); wait.push(d); return; }
+      if (wait.length && !fReady.length) { out = out.concat(wait); wait = []; }
+      out.push(d);
+    });
+    return out.concat(fReady, wait, fLater);
+  }
+  const packIds = (pk) => [['hoeren', pk.hoeren], ['lesen', pk.lesen], [pk.schreiben?.kind, pk.schreiben?.id], ...(pk.sprechen || []).map((x) => ['sprechen', x])].filter((x) => x[0] && x[1]);
+  /** A new day (or «renew») takes the pack after the current one; null = pack not published yet (normal picks). */
+  function leanNextPack(k) {
+    const c = CT();
+    if (!lean() || PROG() || !c || !Array.isArray(c.packs) || !c.packs.length) return null;
+    if (k !== todayKey() && k !== S.plan?.date) return null;
+    const m = M(); const cur = Number(m.packCur) || 0; const seq = packSeq();
+    const pos = [6, 0, 1, 2, 3, 4, 5].indexOf(wdOf(k)); const at = cur ? seq.indexOf(cur) : -1;
+    const want = cur && at >= 0 ? seq[at + 1] : seq[Math.max(0, (Math.max(1, weekOf(k)) - 1) * 6 + Math.min(pos, 5))];
+    const pk = c.packs.find((x) => x.day === want);
+    if (!pk) return null;
+    const ids = packIds(pk);
+    if (!ids.length || ids.some(([kd, id]) => !item(kd, id))) return null;
+    return { pk, ids };
+  }
+  /* THEMED-DAYS: from plan week 9 on, a TestDaF day takes the items tagged with its week + weekday */
+  function themedDay(week, wd) {
+    const c = CT();
+    if (!c || PROG() || !(week >= 9)) return null;
+    const pick = (kd) => (c[kd] || []).filter((x) => x.tw === week && x.twd === wd);
+    const r = { hoeren: pick('hoeren'), lesen: pick('lesen'), argumentation: pick('argumentation'), grafik: pick('grafik'), sprechen: pick('sprechen') };
+    const any = Object.values(r).find((a) => a.length);
+    if (!any) return null;
+    r.theme = any[0].dayTheme || '';
+    return r;
+  }
+  function thTake(kind, it) { if (!it) return null; const u = M().used[kind]; if (u.includes(it.id)) return null; u.push(it.id); return it.id; }
   function ensureDay(k) {
     const m = M();
     if (!m.startDate) m.startDate = k;
@@ -360,14 +417,33 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     if (!d.picks && CT()) {
       d.level = userLevel();
       const def = dayDef(k); const p = {};
-      p.hoeren = nextFrom('hoeren');
-      p.lesen = (PROG() && OSD.lesenFilter(def) && nextFrom('lesen', OSD.lesenFilter(def))) || nextFrom('lesen');
+      const LP = leanNextPack(k);
+      if (LP) {
+        const pk = LP.pk;
+        d.picks = { hoeren: pk.hoeren, lesen: pk.lesen, schreiben: { kind: pk.schreiben.kind, id: pk.schreiben.id }, sprechen: (pk.sprechen || []).slice(), spBase: (pk.sprechen || []).length || 1 };
+        LP.ids.forEach(([kd, id]) => { const u = m.used[kd] || (m.used[kd] = []); if (!u.includes(id)) u.push(id); });
+        d.packDay = pk.day; d.theme = pk.theme || ''; m.packCur = pk.day;
+        d.redemittel = pickRedemittel(d);
+        save();
+        return d;
+      }
+      delete d.packDay; delete d.theme;
+      const TH = themedDay(d.week, d.wd);
+      if (TH) d.theme = TH.theme;
+      p.hoeren = thTake('hoeren', TH && TH.hoeren[0]) || nextFrom('hoeren');
+      p.lesen = thTake('lesen', TH && TH.lesen[0]) || (PROG() && OSD.lesenFilter(def) && nextFrom('lesen', OSD.lesenFilter(def))) || nextFrom('lesen');
       let sk = def.schreiben;
       if (sk === 'auto') sk = d.week % 2 === 1 ? 'grafik' : 'argumentation';
-      p.schreiben = { kind: sk, id: (PROG() && OSD.schreibenFilter(def) && nextFrom(sk, OSD.schreibenFilter(def))) || nextFrom(sk) };
-      let types = def.sprechen;
-      if (typeof types === 'number') { types = []; for (let i = 0; i < def.sprechen; i += 1) { types.push(SPO()[m.cursor.sprechen % SPO().length]); m.cursor.sprechen += 1; } }
-      p.sprechen = types.map((t) => nextFrom('sprechen', (x) => x.type === t)).filter(Boolean);
+      p.schreiben = { kind: sk, id: thTake(sk, TH && TH[sk][0]) || (PROG() && OSD.schreibenFilter(def) && nextFrom(sk, OSD.schreibenFilter(def))) || nextFrom(sk) };
+      let types = def.sprechen; const spTh = [];
+      if (TH && TH.sprechen.length) {
+        const pool = TH.sprechen.filter((x) => !m.used.sprechen.includes(x.id)); const want = Array.isArray(types) ? types.length : types;
+        if (Array.isArray(types)) types.forEach((t) => { const i = pool.findIndex((x) => x.type === t); if (i >= 0) spTh.push(thTake('sprechen', pool.splice(i, 1)[0])); });
+        else pool.slice(0, want).forEach((x) => spTh.push(thTake('sprechen', x)));
+        if (Array.isArray(types)) types = types.filter((t) => !spTh.some((id) => item('sprechen', id)?.type === t)); else types = Math.max(0, types - spTh.length);
+      }
+      if (typeof types === 'number') { const cnt = types; types = []; for (let i = 0; i < cnt; i += 1) { types.push(SPO()[m.cursor.sprechen % SPO().length]); m.cursor.sprechen += 1; } }
+      p.sprechen = [...spTh.filter(Boolean), ...types.map((t) => nextFrom('sprechen', (x) => x.type === t)).filter(Boolean)];
       d.picks = p;
       d.redemittel = pickRedemittel(d);
       save();
@@ -400,7 +476,7 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
       id, icon: MODS[id].icon, title: mode === 'eval' && ['hoeren', 'lesen', 'schreiben', 'sprechen'].includes(id) ? `${MODS[id].de}-Test` : MODS[id].de,
       desc: activityDesc(id, k), dur: mins[id], questionTarget: 0, type: 'method', content_ref: id, priority: def.focus.includes(id) ? 'high' : 'medium', method: { module: id, mode },
     }));
-    const extra = Number(d.extraMin) || 0;
+    const extra = lean() ? 0 : Number(d.extraMin) || 0;
     if (extra > 0) activities.push(extraActivity(k, extra));
     return { activities, totalMinutes: activities.reduce((s, a) => s + a.dur, 0), availableMinutes: dailyMin() + extra };
   }
@@ -556,7 +632,7 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     const k = S.plan.date || todayKey(); const want = minutesFor(k); const ids = Object.keys(want); const done = new Set(S.completedActivities || []); const timers = S.activityTimers || {};
     const built = buildActivities(k).activities; const order = built.map((a) => a.id);
     let changed = false;
-    const keep = S.plan.activities.filter((a) => a.id === 'extra' || ids.includes(a.id) || done.has(a.id) || (Number(timers[a.id]) || 0) > 0 || V.activeId === a.id);
+    const keep = S.plan.activities.filter((a) => !(lean() && LEAN_DROP.includes(a.id)) && (a.id === 'extra' || ids.includes(a.id) || done.has(a.id) || (Number(timers[a.id]) || 0) > 0 || V.activeId === a.id));
     if (keep.length !== S.plan.activities.length) changed = true;
     for (const id of ids) if (!keep.some((a) => a.id === id)) { const b = built.find((x) => x.id === id); if (b) { keep.push(b); changed = true; } }
     keep.forEach((a) => { const v = want[a.id]; if (v && Number(a.dur) !== v) { a.dur = v; changed = true; } });
@@ -761,8 +837,8 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
   }
   function setWeekFocus(wd, skill) {
     wd = Number(wd);
-    if (![6, 0, 1, 2, 3].includes(wd) || !['hoeren', 'lesen', 'schreiben', 'sprechen'].includes(skill)) return;
-    const m = M(); const base = DDEF()[wd].focus; const current = Array.isArray(m.weekFocus?.[wd]) ? [...m.weekFocus[wd]] : [...base];
+    if (![6, 0, 1, 2, 3, 4].includes(wd) || !['hoeren', 'lesen', 'schreiben', 'sprechen'].includes(skill)) return;
+    const m = M(); const base = DDEF()[wd].focus; const current = Array.isArray(m.weekFocus?.[wd]) ? [...m.weekFocus[wd]] : base.length <= 2 ? [...base] : [];
     const next = current.includes(skill) ? current.filter((x) => x !== skill) : current.length >= 2 ? [current[1], skill] : [...current, skill];
     if (!next.length) return;
     m.weekFocus = m.weekFocus || {}; m.weekFocus[wd] = next;
@@ -778,11 +854,50 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     if (active() && S.plan) syncPlan(true);
     save();
   }
+  /* WEEK-DESIGN (site 2026-11-19): each weekday has its own order, focus and minutes */
+  function wdKey(wd) { const m = M(); const tk = S.plan?.date || todayKey(); if (wdOf(tk) === wd) return tk; return Object.keys(m.days || {}).filter((k) => wdOf(k) === wd).sort().pop() || addDays(satOf(todayKey()), (wd + 1) % 7); }
+  function moveWeekdaySkill(wd, src, target) {
+    wd = Number(wd); const tk = S.plan?.date || todayKey(); const ids = moduleOrder(wdKey(wd)).filter((x) => x !== 'extra'); const a = ids.indexOf(src); const b = ids.indexOf(target);
+    if (a < 0 || b < 0 || a === b) return;
+    ids.splice(a, 1); ids.splice(b, 0, src);
+    const m = M(); m.weekOrder = m.weekOrder || {}; m.weekOrder[wd] = ids;
+    if (wdOf(tk) === wd) { if (m.dayOrder) delete m.dayOrder[tk]; if (active() && S.plan) syncPlan(true); }
+    save();
+  }
+  /* DRAG-SWAP (site 2026-11-20): a weekday's whole order (swap / nearest slot are computed by the page) */
+  function setWeekOrder(wd, ids) {
+    wd = Number(wd); if (![6, 0, 1, 2, 3, 4].includes(wd) || !Array.isArray(ids) || !ids.length) return;
+    const m = M(); const tk = S.plan?.date || todayKey(); m.weekOrder = m.weekOrder || {}; m.weekOrder[wd] = ids.slice();
+    if (wdOf(tk) === wd) { if (m.dayOrder) delete m.dayOrder[tk]; if (active() && S.plan) syncPlan(true); }
+    save();
+  }
+  function resetWeekOrder(wd) {
+    wd = Number(wd); const m = M(); const tk = S.plan?.date || todayKey();
+    if (m.weekOrder) delete m.weekOrder[wd]; if (wdOf(tk) === wd && m.dayOrder) delete m.dayOrder[tk];
+    if (wdOf(tk) === wd && active() && S.plan) syncPlan(true); save();
+  }
+  function resetWeekMin(wd) { wd = Number(wd); const m = M(); if (m.weekMin) delete m.weekMin[wd]; if (wdOf(S.plan?.date || todayKey()) === wd && active() && S.plan) syncPlan(true); save(); }
+  function setWeekMin(wd, id, v) {
+    wd = Number(wd); v = Math.round(Number(v) / 5) * 5; if (![6, 0, 1, 2, 3, 4].includes(wd) || !Number.isFinite(v)) return;
+    v = Math.max(5, Math.min(240, v)); const m = M(); const cur = { ...minutesFor(wdKey(wd)) }; cur[id] = v;
+    m.weekMin = m.weekMin || {}; m.weekMin[wd] = cur;
+    if (active() && S.plan && wdOf(S.plan.date || todayKey()) === wd) syncPlan(true);
+    save();
+  }
+  function resetWeekDay(wd) {
+    wd = Number(wd); const m = M(); const tk = S.plan?.date || todayKey();
+    ['weekFocus', 'weekOrder', 'weekMin'].forEach((f) => { if (m[f]) delete m[f][wd]; });
+    if (wdOf(tk) === wd && m.dayOrder) delete m.dayOrder[tk];
+    if (active() && S.plan && wdOf(tk) === wd) syncPlan(true);
+    save();
+  }
+  const focusToday = () => { try { const f = dayDef(S.plan?.date || todayKey()).focus || []; return f.length <= 2 ? f : []; } catch (e) { return []; } };
+  const weekdayInfo = (wd) => { const k = wdKey(wd); return { key: k, def: dayDef(k), order: moduleOrder(k).filter((x) => x !== 'extra'), minutes: minutesFor(k), custom: !!(M().weekFocus?.[wd] || M().weekOrder?.[wd] || M().weekMin?.[wd]) }; };
   function resetDayOrder() { const m = M(); const k = S.plan?.date || todayKey(); if (m.dayOrder) delete m.dayOrder[k]; if (active() && S.plan) syncPlan(true); save(); }
   function setExamDate(value) { if (value && !/^\d{4}-\d{2}-\d{2}$/.test(value)) return; S.user.examDate = value || ''; save(); }
   function setPhase(p) { const m = M(); m.phase = p; (m.phaseHistory = m.phaseHistory || []).push({ phase: p, date: todayKey() }); save(); }
   function setExtra(min) {
-    if (!active() || !S.plan) return;
+    if (!active() || !S.plan || lean()) return;
     min = EXTRA_CHOICES.includes(Number(min)) ? Number(min) : 0;
     if ((S.completedActivities || []).includes('extra')) return;
     if (!min && (Number(S.activityTimers?.extra) || 0) > 0) return;
@@ -809,7 +924,7 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     save();
     return S.user.profileCompleted ? 'generate' : 'onboarding';
   }
-  function requestPlanChange() { S.user.examPlan = ''; save(); }
+  function requestPlanChange() { /* UNIFIED-PLAN: the exam is chosen in the simulation now */ }
   function setStudyMode(mode) {
     mode = mode === 'free' ? 'free' : 'plan';
     if (!enrolled() || V.preparing) return 'noop';
@@ -861,6 +976,126 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     return 'ok';
   }
 
+  /* ───────────── LEAN4: packs, notebook merge (owner/admin only) ───────────── */
+  const deckNormE = (v) => String(v || '').toLowerCase().replace(/^(der|die|das)\s+/, '').replace(/[.,;:!?„“"'()«»]/g, '').replace(/\s+/g, ' ').trim();
+  const wordDataE = (v) => ({ wort: v.wort, artikel: v.artikel || '', plural: v.plural || '', wortart: v.wortart || '', bedeutung_fa: v.bedeutung_fa || '', beispiel: v.beispiel || '', koll: arr(v.kollokationen).slice(0, 5), perfekt: v.perfekt || '' });
+  function srsAddE(type, ref, data, k, dueToday) {
+    const m = M(); const key = type + ':' + ref;
+    if (m.srs[key]) return false;
+    m.srs[key] = { key, type, ref, data, added: k, stage: 0, due: dueToday ? k : addDays(k, 1), reps: 0, lapses: 0 };
+    return true;
+  }
+  /** site TDM.deckAddEntry on the draft (own entry, due today, no duplicates) */
+  function deckAddE(type, data) {
+    type = type === 'redemittel' ? 'redemittel' : 'wort';
+    const n = deckNormE(type === 'wort' ? data.wort : data.de);
+    if (!n) return false;
+    if (Object.values(M().srs).some((x) => x.type === type && deckNormE(x.type === 'wort' ? x.data?.wort : x.data?.de) === n)) return false;
+    const ref = 'my-' + (n.replace(/[^a-zäöüß0-9]+/g, '-').replace(/^-|-$/g, '') || uid()) + '-' + uid().slice(0, 4);
+    const clean = type === 'wort' ? { wort: String(data.wort).trim(), artikel: '', plural: '', wortart: '', bedeutung_fa: data.bedeutung_fa || '', beispiel: data.beispiel || '', koll: [], perfekt: '', custom: true } : { de: String(data.de).trim(), fa: data.fa || '', beispiel: data.beispiel || '', custom: true };
+    return srsAddE(type, ref, clean, todayKey(), true);
+  }
+  /** a review-worthy mistake becomes a notebook entry (correct form, Persian note, the wrong form as example) */
+  function leanErrToDeck(e) {
+    if (!e || !lean()) return false;
+    const de = String(e.correctAnswer || '').trim();
+    if (!de || de.length > 220) return false;
+    const fa = String(e.explanation || '').trim(); const wrong = String(e.userAnswer || '').trim();
+    const ex = wrong ? '✗ ' + wrong : String(e.context || e.question || '').trim().slice(0, 200);
+    const ok = /\s/.test(de) ? deckAddE('redemittel', { de, fa, beispiel: ex }) : deckAddE('wort', { wort: de, bedeutung_fa: fa, beispiel: ex });
+    if (ok) save();
+    return ok;
+  }
+  /** once per account: the old «اشتباهات» move into the notebook */
+  function leanMergeErrors() {
+    if (!lean()) return 0;
+    const m = M();
+    if (m.errorsMerged || !Array.isArray(S.errors)) return 0;
+    let n = 0;
+    S.errors.forEach((e) => { if (leanErrToDeck(e)) n += 1; });
+    m.errorsMerged = new Date().toISOString(); m.errorsMergedCount = n;
+    save();
+    return n;
+  }
+  /** the day's words and Redemittel go to the notebook (the removed Wortschatz module used to add them) */
+  function leanSeedDay() {
+    if (!lean() || !active() || !CT()) return;
+    const d = M().days[dayKey()];
+    if (!d || !d.picks || d.deckSeeded) return;
+    const words = item('lesen', d.picks.lesen)?.vocab || []; const k = d.date;
+    words.forEach((v) => srsAddE('wort', (v.artikel ? v.artikel + ' ' : '') + v.wort, wordDataE(v), k));
+    if (!d.redemittel) d.redemittel = pickRedemittel(d);
+    (d.redemittel || []).forEach((r) => srsAddE('redemittel', r.de, { de: r.de, fa: r.fa, beispiel: r.beispiel || '' }, k));
+    d.deckSeeded = true;
+    save();
+  }
+  /** «نوشته‌های من»: the AI writing feedback (or the own Fehlerprotokoll) is kept with the text (day work is pruned after 21 days) */
+  function wrSync(d) {
+    const r = d?.results?.schreiben;
+    if (!r || !r.text) return false;
+    const w = d.work?.schreiben; const a = w?.ai?.writing;
+    let fb = null;
+    if (a && !a.error && Array.isArray(a.errors)) fb = { src: 'ai', errors: a.errors.map((e) => ({ wrong: e.wrong || '', right: e.right || '', why: e.reason_fa || '' })), improved: (a.improved || []).map((x) => ({ original: x.original || '', better: x.better || '' })), summary: a.summary_fa || '', tdn: a.tdn || '', tip: a.tip_fa || '' };
+    else if (w?.f) { const errs = [0, 1, 2].map((n) => ({ wrong: w.f['fp_wrong_' + n] || '', right: w.f['fp_right_' + n] || '', why: w.f['fp_why_' + n] || '' })).filter((e) => e.wrong || e.right); if (errs.length) fb = { src: 'self', errors: errs, improved: [], summary: '', tdn: '', tip: '' }; }
+    if (!fb || JSON.stringify(r.fb || null) === JSON.stringify(fb)) return false;
+    r.fb = fb;
+    return true;
+  }
+  function writings() {
+    const days = Object.values(M().days || {}).filter((d) => d.results?.schreiben?.text).sort((a, b) => b.date.localeCompare(a.date));
+    let changed = false; days.forEach((d) => { if (wrSync(d)) changed = true; }); if (changed) save();
+    return days;
+  }
+  /** ▶ in content control: today's exercises become that pack; today's progress starts over */
+  async function playPack(pk) {
+    if (!lean() || !pk) return 'noop';
+    if (!active()) return 'inactive';
+    await ensureContent();
+    const ids = packIds(pk);
+    if (!ids.length || ids.some(([kd, id]) => !item(kd, id))) return 'missing';
+    const m = M(); const k = S.plan?.date || todayKey(); const d = ensureDay(k); const old = d.picks || {};
+    d.picks = { hoeren: pk.hoeren || old.hoeren, lesen: pk.lesen || old.lesen, schreiben: pk.schreiben?.id ? { kind: pk.schreiben.kind, id: pk.schreiben.id } : old.schreiben, sprechen: (pk.sprechen || []).length ? pk.sprechen.slice() : (old.sprechen || []) };
+    d.picks.spBase = d.picks.sprechen.length || 1;
+    ids.forEach(([kd, id]) => { const u = m.used[kd] || (m.used[kd] = []); if (!u.includes(id)) u.push(id); });
+    d.work = {}; d.results = {}; d.redemittel = pickRedemittel(d); d.theme = pk.theme || ''; d.packDay = pk.day; d.deckSeeded = false; d.packAt = new Date().toISOString();
+    m.packCur = pk.day;
+    if (m.packIgnore && m.packIgnore[pk.day]) m.packIgnore[pk.day] = m.packIgnore[pk.day].filter((x) => x !== k);
+    stopTimers();
+    S.completedActivities = []; S.activityProgress = {}; S.activityTimers = {}; V.activeId = null; V.screen = 'dashboard';
+    syncPlan(true); refreshPlanDescriptions();
+    save();
+    return 'ok';
+  }
+  function setPackOrder(list, fri) { if (!lean() || !Array.isArray(list)) return false; M().packOrder = list.map(Number).filter((x) => x > 0); if (fri) M().packOrderFri = 1; save(); return true; }
+  const packOrderFri = () => !!M().packOrderFri;
+  const packOrder = () => (Array.isArray(M().packOrder) ? M().packOrder.slice() : null);
+  const packIgnore = () => M().packIgnore || {};
+  const SK4 = ['hoeren', 'lesen', 'schreiben', 'sprechen'];
+  /** true when ↺ on this pack would also reset started work of today's plan (the page asks first) */
+  function resetPackTouchesToday(dates) {
+    const k = S.plan?.date || todayKey();
+    if (!(dates || []).includes(k) || !active()) return false;
+    const d = M().days[k];
+    return SK4.some((x) => (S.completedActivities || []).includes(x) || (d && d.results && d.results[x]) || (Number(S.activityTimers?.[x]) || 0) > 0);
+  }
+  /** PACK-RESET: marks of past days are hidden; today's pack also resets today's 4 skills, so finishing again strikes again */
+  function resetPackDay(pk, dates) {
+    if (!lean()) return false;
+    const m = M(); const k = S.plan?.date || todayKey(); const list = (dates || []).filter(Boolean);
+    if (list.includes(k) && active()) {
+      const d = m.days[k];
+      if (d) SK4.forEach((x) => { if (d.results) delete d.results[x]; if (d.work) delete d.work[x]; });
+      S.completedActivities = (S.completedActivities || []).filter((x) => !SK4.includes(x));
+      SK4.forEach((x) => { if (S.activityProgress) delete S.activityProgress[x]; if (S.activityTimers) delete S.activityTimers[x]; });
+      if (V.activeId && SK4.includes(V.activeId)) { stopTimers(); V.activeId = null; V.screen = 'dashboard'; }
+      if (m.packIgnore && m.packIgnore[pk]) m.packIgnore[pk] = m.packIgnore[pk].filter((x) => x !== k);
+    }
+    const others = list.filter((x) => x !== k || !active());
+    if (others.length) { m.packIgnore = m.packIgnore || {}; m.packIgnore[pk] = Array.from(new Set([...(m.packIgnore[pk] || []), ...others])); }
+    save();
+    return true;
+  }
+
   /* ───────────── read models for the pages ───────────── */
   function srsDueCount() { return Object.values(M().srs).filter((x) => x.due <= todayKey()).length; }
   function streak() {
@@ -892,7 +1127,9 @@ export function createEngine({ store, account, loadPack, bridge, onDayFile }) {
     program, enrolled, active, curMode, ensureContent, dayDef, dayMode, weekOf, weekRange, moduleOrder, focusLabel, minFor, minutesFor, dailyMin, dailyHint,
     dayModules, ensureDay, curDay, work, act, stepsFor, volNeed, loadRatio, spList, trimQs, mwOf, userLevel, lowLevel, srsDueCount, buildActivities, applyLevelChange, syncPlan,
     ensureToday, generatePlan, startActivity, review, pauseActivity, go, completeActivity, startNext, stopTimers, setDaily, setWeekFocus, resetWeekFocus,
-    moveDayActivity, resetDayOrder, setExamDate, setPhase, setExtra, selectExamPlan, requestPlanChange, setStudyMode, renewDay, dashboard, upsertHistory,
+    moveDayActivity, resetDayOrder, moveWeekdaySkill, setWeekOrder, resetWeekOrder, resetWeekMin, setWeekMin, resetWeekDay, focusToday, weekdayInfo, wdKey, setExamDate, setPhase, setExtra, selectExamPlan, requestPlanChange, setStudyMode, renewDay, dashboard, upsertHistory,
     ensureDailyStudyPreference, syncProfile, refreshPlanDescriptions, dayKey, weekErrors, prevPracticeDay,
+    lean, packSeq, playPack, setPackOrder, packOrder, packOrderFri, packIgnore, resetPackDay, resetPackTouchesToday, leanSeedDay, leanMergeErrors, leanErrToDeck, writings,
+    get packCur() { return Number(M().packCur) || 0; },
   };
 }

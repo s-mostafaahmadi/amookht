@@ -6,6 +6,7 @@
 
 import { esc as E, toast } from '../core/ui.js';
 import { lang } from '../core/i18n.js';
+import * as ss from './sim-score.js'; // SIM-SCORE
 import { today } from '../core/learning.js';
 import { confirmDialog, saveTextFile } from './widgets.js';
 
@@ -141,6 +142,8 @@ export function renderTestdafSim(page, ctx) {
     const parts = []; let cur = '';
     chunks.forEach((c) => { if ((cur + c).length > 480 && cur) { parts.push(cur); cur = ''; } cur += c; });
     if (cur.trim()) parts.push(cur);
+    if (await ss.playSimAudio(ctx, text, (a) => { audio = a; })) return; // SIM-AUDIO: multi-voice file when available
+    if (run !== speaking) return;
     for (const part of parts) {
       if (run !== speaking) return;
       const r = premium() ? await ctx.bridge.api('/coach/api/tts', { method: 'POST', body: { text: part.trim(), speed: 0.95 }, binary: true }) : null;
@@ -231,7 +234,7 @@ export function renderTestdafSim(page, ctx) {
     return `<header class="sim-head"><div class="sim-head-main"><button type="button" class="btn" data-sim="library">← Liste</button><div><p class="kicker">TestDaF Simulation</p><h1 dir="ltr">${E(exam.title)}</h1><small class="muted">${completed}/4 Bereiche abgeschlossen</small></div></div><button type="button" class="btn btn-danger" data-sim="reset">Neu starten</button></header>
       ${st.finished ? `<section class="card sim-done"><div class="sim-exam-top"><div><h2>✓ Simulation abgeschlossen</h2><p class="muted">Diese Prüfung bleibt in deiner Liste als abgeschlossen markiert.</p></div><button type="button" class="btn btn-primary" data-sim="library">Weitere Prüfung</button></div>
         <div class="sim-grid"><div><b>Lesen</b><p>${ls.correct}/${ls.total} ${E(L('به‌صورت خودکار درست', 'automatically correct', 'automatisch richtig'))}</p></div><div><b>Hören</b><p>${hs.correct}/${hs.total} ${E(L('به‌صورت عینی درست', 'objectively correct', 'objektiv richtig'))}</p></div><div><b>Schreiben</b><p>${wordCount(st.answers.schreiben)} ${E(L('واژه', 'words', 'Wörter'))}</p></div><div><b>Sprechen</b><p>${Object.keys(st.recordings || {}).length}/7 Aufnahmen</p></div></div></section>` : ''}
-      <section class="sim-sections">${KEYS.map((id) => `<button type="button" class="card sim-section ${done[id] ? 'is-done' : ''}" data-section="${id}"><div class="sim-exam-top"><div><h2>${SECTIONS[id].label}</h2><p class="muted" dir="ltr">${SECTIONS[id].desc}</p></div><b class="sim-go">${done[id] ? 'Done' : answeredCount(id) ? 'Weiter' : 'Start'}</b></div>
+      ${premium() ? ss.tdPanel(ctx, st, d, (id) => autoStats(id, d)) : ''}<section class="sim-sections">${KEYS.map((id) => `<button type="button" class="card sim-section ${done[id] ? 'is-done' : ''}" data-section="${id}"><div class="sim-exam-top"><div><h2>${SECTIONS[id].label}</h2><p class="muted" dir="ltr">${SECTIONS[id].desc}</p></div><b class="sim-go">${done[id] ? 'Done' : answeredCount(id) ? 'Weiter' : 'Start'}</b></div>
         <div class="sim-tags"><span>${SECTIONS[id].minutes} min</span><span>${SECTIONS[id].parts} Teile</span><span>${answeredCount(id)}/${totalItems(id, d)} beantwortet</span></div></button>`).join('')}</section>`;
   }
   const radio = (section, key, oi, val) => `<label class="sim-opt"><input type="radio" name="sim-${section}-${key}" ${String(val) === String(oi) ? 'checked' : ''} data-ans="${section}|${key}|${oi}" /><span dir="ltr"></span></label>`;
@@ -309,6 +312,7 @@ export function renderTestdafSim(page, ctx) {
   root.addEventListener('click', async (event) => {
     const el = event.target.closest('button, input[type=radio]'); if (!el || el.disabled) return;
     const d = el.dataset; const st = ensureState();
+    if (d.ss === 'td') { ss.runTd(ctx, st, data(), save, () => { if (root.isConnected) draw(); }); return; }
     if (d.ans) { const [section, key, oi] = d.ans.split('|'); st.answers[section][key] = Number(oi); save(); counter(section); return; }
     if (d.open) openExam(d.open);
     else if (d.section) { st.started = true; st.active = d.section; if (!st.sectionStarts[d.section]) st.sectionStarts[d.section] = Date.now(); visit(st.examId, false); save(); draw(); ctx.scrollTop?.(); }

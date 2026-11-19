@@ -48,7 +48,7 @@ const app = {
 // One plan engine per signed-in session (created on first use, dropped on sign-out).
 let engine = null;
 const getEngine = () => {
-  if (!engine) engine = createEngine({ store, account: () => app.account, loadPack: (name) => loadPack(bridge, name), bridge, onDayFile: (date) => { ownerFiles.capture(date); ownerPacks.save('day-end').catch(() => {}); } });
+  if (!engine) engine = createEngine({ store, account: () => app.account, loadPack: (name) => loadPack(bridge, name), bridge });   // NO-DAYFILE / NO-OWNERPACKS (site 2026-11-19): no day file and no pack archive any more
   return engine;
 };
 
@@ -61,7 +61,13 @@ const store = createStore(bridge, {
 // owner day files (owner account only; a no-op for everyone else)
 const ownerFiles = createOwnerFiles({ store, engine: () => getEngine(), account: () => app.account });
 // stored content packs («افزودن دستی محتوا», owner account only): list/load/delete via /v1/owner-packs
-const ownerPacks = createOwnerPacks({ store, engine: () => getEngine(), account: () => app.account, api: (path, opts) => bridge.api(path, opts) });
+const ownerPacks = createOwnerPacks({
+  store,
+  engine: () => getEngine(),
+  account: () => app.account,
+  api: (path, opts) => bridge.api(path, opts),
+  files: { open: () => bridge.packOpenFile(), save: (payload) => bridge.packSaveFile(payload) },
+});
 
 
 // For tests and debugging: window.__amk.store / .loadPack
@@ -195,8 +201,8 @@ function openPage(id, { replace = false, keepScroll = false, fromHistory = false
     loadPack: (name) => loadPack(bridge, name),
     toast,
     setLesson: (api) => { app.lesson = api; },
-    ownerFiles,
-    ownerPacks,
+    ownerFiles: null, // day files removed (site NO-DAYFILE)
+    ownerPacks: null, // «افزودن دستی محتوا» removed (site LEAN4 / NO-OWNERPACKS)
     afterDraw: () => afterDraw(),
   };
   const el = renderPage(page, ctx);

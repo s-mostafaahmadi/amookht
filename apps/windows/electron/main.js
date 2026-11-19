@@ -446,12 +446,38 @@ function setupUpdates() {
   autoUpdater.on('download-progress', (p) => { updateState.progress = Math.round((p && p.percent) || 0); sendUpdate(); });
   autoUpdater.on('update-downloaded', (info) => {
     updateState.status = 'ready'; updateState.version = info && info.version || updateState.version; sendUpdate();
-    try { if (tray && !tray.isDestroyed?.()) tray.displayBalloon?.({ title: 'Amookht', content: `نسخهٔ ${updateState.version} آماده است؛ با بستن برنامه نصب می‌شود.` }); } catch { /* ignore */ }
+    offerUpdate();
   });
+  /* AUTO-INSTALL (4.4.1): a ready update no longer waits for a full quit, which almost never happens (closing the
+     window only hides the app in the tray, it starts with Windows, and a Windows shutdown kills it without installing).
+     While the app is hidden in the tray the update installs silently and the app starts again; while it is open the
+     learner is asked once, and «بعداً» installs it the next time the window is closed to the tray. */
+  let asked = false; let installT = 0;
+  const appVisible = () => !!(appWindow && !appWindow.isDestroyed() && appWindow.isVisible() && !appWindow.isMinimized());
+  const installNow = () => {
+    if (updateState.status !== 'ready') return;
+    isQuitting = true; app.isQuitting = true;
+    setImmediate(() => { try { autoUpdater.quitAndInstall(true, true); } catch (error) { console.warn('install failed', error); } });
+  };
+  const installWhenHidden = (delay) => { clearTimeout(installT); installT = setTimeout(() => { if (updateState.status === 'ready' && !appVisible()) installNow(); }, delay); };
+  async function offerUpdate() {
+    if (!appVisible()) { installWhenHidden(20000); return; }
+    if (asked) return; asked = true;
+    try { if (tray && !tray.isDestroyed?.()) tray.displayBalloon?.({ title: 'Amookht', content: `نسخهٔ ${updateState.version} آماده نصب است.` }); } catch { /* ignore */ }
+    const r = await dialog.showMessageBox(appWindow, {
+      type: 'info', buttons: ['نصب و راه‌اندازی دوباره', 'بعداً'], defaultId: 0, cancelId: 1, noLink: true,
+      title: 'به‌روزرسانی آموخت', message: `نسخهٔ جدید آموخت (${updateState.version}) آماده است.`,
+      detail: 'نصب کمتر از یک دقیقه طول می‌کشد و برنامه دوباره باز می‌شود. اگر «بعداً» را بزنید، دفعهٔ بعد که پنجره را ببندید خودکار نصب می‌شود.',
+    }).catch(() => ({ response: 1 }));
+    if (r.response === 0) installNow();
+  }
+  app.on('browser-window-created', (_e, win) => { win.on('hide', () => { if (win === appWindow && updateState.status === 'ready') installWhenHidden(15000); }); });
+  if (appWindow && !appWindow.isDestroyed()) appWindow.on('hide', () => { if (updateState.status === 'ready') installWhenHidden(15000); });
+  try { const { powerMonitor } = require('electron'); ['resume', 'unlock-screen'].forEach((ev) => powerMonitor.on(ev, () => setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 20000))); } catch { /* ignore */ }
   autoUpdater.on('error', (error) => { updateState.status = 'error'; updateState.error = String((error && error.message) || error).slice(0, 200); sendUpdate(); });
   const check = () => autoUpdater.checkForUpdates().catch(() => {});
   setTimeout(check, 15000);
-  setInterval(check, 4 * 3600 * 1000);
+  setInterval(check, 30 * 60 * 1000);   // every 30 minutes (was 4 hours)
   ipcMain.handle('update:state', () => ({ ...updateState }));
   ipcMain.handle('update:check', () => { check(); return { ...updateState }; });
   ipcMain.handle('update:install', () => {
@@ -1679,7 +1705,9 @@ function registerIpc() {
     try {
       const pathname = String((payload && payload.path) || '');
       // /v1/… = backend API; /coach/api/… = the coach service (translate, voices), behind the gate.
-      if (!pathname.startsWith('/v1/') && !pathname.startsWith('/coach/api/')) {
+      // SIM-AUDIO: the pre-made Hören files of the TestDaF simulation (GET only, exact file pattern)
+      const simAudio = /^\/sim-audio\/[0-9a-f]{20}\.mp3$/.test(pathname) && String((payload && payload.method) || 'GET').toUpperCase() === 'GET';
+      if (!pathname.startsWith('/v1/') && !pathname.startsWith('/coach/api/') && !simAudio) {
         return { ok: false, error: { code: 'bad_path', status: 400, message: 'مسیر درخواست نامعتبر است.' } };
       }
       const method = String((payload && payload.method) || 'GET').toUpperCase();
@@ -1710,6 +1738,40 @@ function registerIpc() {
           message: (error && error.message) || 'درخواست انجام نشد.',
         },
       };
+    }
+  });
+
+  // owner content packs: read a pack file from disk / write one back to disk
+  ipcMain.handle('pack:open-file', async () => {
+    const result = await dialog.showOpenDialog(appWindow, {
+      title: 'انتخاب فایل پک آموخت',
+      filters: [{ name: 'Amookht pack', extensions: ['json'] }],
+      properties: ['openFile'],
+    });
+    if (!result || result.canceled || !result.filePaths || !result.filePaths.length) return { ok: false, canceled: true };
+    const file = result.filePaths[0];
+    try {
+      const stat = fs.statSync(file);
+      if (stat.size > 8 * 1024 * 1024) return { ok: false, error: { message: 'حجم فایل پک بیش از ۸ مگابایت است.' } };
+      return { ok: true, name: path.basename(file), text: fs.readFileSync(file, 'utf8') };
+    } catch (error) {
+      return { ok: false, error: { message: (error && error.message) || 'خواندن فایل انجام نشد.' } };
+    }
+  });
+
+  ipcMain.handle('pack:save-file', async (_event, payload) => {
+    const suggested = String((payload && payload.name) || 'amookht-pack.json').replace(/[^\w.\-]+/g, '-');
+    const result = await dialog.showSaveDialog(appWindow, {
+      title: 'ذخیرهٔ پک آموخت',
+      defaultPath: path.join(app.getPath('downloads'), suggested),
+      filters: [{ name: 'Amookht pack', extensions: ['json'] }],
+    });
+    if (!result || result.canceled || !result.filePath) return { ok: false, canceled: true };
+    try {
+      fs.writeFileSync(result.filePath, String((payload && payload.text) || ''), 'utf8');
+      return { ok: true, path: result.filePath };
+    } catch (error) {
+      return { ok: false, error: { message: (error && error.message) || 'ذخیرهٔ فایل انجام نشد.' } };
     }
   });
 

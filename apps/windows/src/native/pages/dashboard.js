@@ -6,7 +6,7 @@
 import { esc, toast } from '../core/ui.js';
 import { lang } from '../core/i18n.js';
 import { today, addDays } from '../core/learning.js';
-import { MODS, ML, faNum, mmss, timeStr, wdOf, satOf, DAY_DEF, DAILY_CHOICES, EXTRA_CHOICES, BASE, planName, topicLabel } from '../core/engine.js';
+import { MODS, ML, faNum, mmss, timeStr, wdOf, satOf, DAY_DEF, DAILY_CHOICES, EXTRA_CHOICES, BASE, DEFAULT_DAILY, planName, topicLabel } from '../core/engine.js';
 import { EXAM_PLANS } from '../data/topics.js';
 import { confirmDialog } from './widgets.js';
 import { createModules } from './modules/index.js';
@@ -49,7 +49,10 @@ export function renderDashboard(page, ctx) {
     const S = eng.S;
     if (eng.V.screen === 'activity' && eng.act()) ui.view = 'activity';
     else if (ui.view === 'activity') ui.view = 'plan';
-    if (!eng.program()) { if (ui.view !== 'onboarding') ui.view = 'programs'; }
+    if (!eng.program() && ui.view !== 'onboarding') { // UNIFIED-PLAN: no program choice any more
+      const r = eng.selectExamPlan('testdaf');
+      if (r === 'onboarding') { ui.view = 'onboarding'; ui.onboardStep = 0; } else { ui.view = 'plan'; if (r === 'generate') setTimeout(() => generate(), 0); }
+    }
     else if (ui.view === 'programs') ui.view = 'plan';
     if (ui.view === 'programs') root.innerHTML = programsView();
     else if (ui.view === 'onboarding') root.innerHTML = onboardingView();
@@ -104,12 +107,11 @@ export function renderDashboard(page, ctx) {
 
   function dayCard() {
     const S = eng.S;
-    const k = S.plan?.date || today(); const m = eng.M(); const def = eng.dayDef(k); const wk = eng.weekOf(k); const ph = eng.ST().phases[m.phase] || eng.ST().phases[1];
-    const due = eng.srsDueCount();
+    const k = S.plan?.date || today(); const def = eng.dayDef(k); const wk = eng.weekOf(k);
     const sub = ML(def.sfa, def.sde) + (!def.evaluation && def.focus.length && def.focus.length < 4 && eng.dailyMin() >= 120 ? ' · ' + ML('همه مهارت‌ها امروز تمرین می‌شوند و زمان بیشتری به مهارت‌های تمرکز داده شده است.', 'Alle Fertigkeiten werden geübt; die Schwerpunkte bekommen mehr Zeit.', 'All skills are practised; the focus skills get more time.') : '') + (wk === 0 ? ' — ' + ML('امروز با یک ارزیابی اولیه وضعیت فعلی هر چهار مهارت ثبت می‌شود.', 'Heute wird der Ausgangsstand in allen vier Fertigkeiten erfasst.', "Today records your starting level in all four skills.") : '');
-    return `<article class="card day-card"><div class="chips"><span class="chip is-on">${E(wk === 0 ? ML('روز تشخیص سطح', 'Diagnosetag', 'Diagnosis day') : `${ML('هفته', 'Woche', 'Week')} ${faNum(wk)}`)}</span><span class="chip">${E(String(ph.name).split('·')[0].trim())}</span><span class="chip">${E(ML(def.fa, def.de))}</span></div>
-      <h3>${E(eng.focusLabel(def))}</h3><p class="muted">${E(sub)}</p>
-      <div class="row-actions"><button type="button" class="btn" data-hub="woche">🗓 ${E(ML('برنامه هفته', 'Wochenplan', 'Weekly plan'))}</button><button type="button" class="btn" data-act="progress">📈 ${E(ML('پیشرفت', 'Fortschritt', 'Progress'))}</button><button type="button" class="btn" data-act="deck">🗂 ${E(ML('دفتر عبارات', 'Wortschatz', 'Vocabulary'))}${due ? ` <b class="nb-due">${faNum(due)}</b>` : ''}</button><button type="button" class="btn" data-hub="methode">📘 ${E(ML('روش و قوانین', 'Methode', 'Method'))}</button></div></article>`;
+    return `<article class="card day-card"><div class="chips"><span class="chip is-on">${E(wk === 0 ? ML('روز تشخیص سطح', 'Diagnosetag', 'Diagnosis day') : `${ML('هفته', 'Woche', 'Week')} ${faNum(wk)}`)}</span><span class="chip">${E(ML(def.fa, def.de))}</span></div>
+      <h3>${E(ML('تنظیم برنامه', 'Planeinstellungen', 'Plan settings'))}</h3><p class="day-focus">${E(eng.focusLabel(def))}</p><p class="muted">${E(sub)}</p>
+      <div class="row-actions"><button type="button" class="btn" data-hub="woche">🗓 ${E(ML('برنامه هفته', 'Wochenplan', 'Weekly plan'))}</button><button type="button" class="btn" data-act="progress">📈 ${E(ML('پیشرفت', 'Fortschritt', 'Progress'))}</button><button type="button" class="btn" data-hub="muster">🧩 ${E(ML('الگوهای معروف', 'Bekannte Muster', 'Famous patterns'))}</button><button type="button" class="btn" data-hub="methode">📘 ${E(ML('روش و قوانین', 'Methode', 'Method'))}</button></div></article>`;
   }
 
   /** «افزودن دستی محتوا» — the owner's stored content packs (server /v1/owner-packs). */
@@ -137,6 +139,7 @@ export function renderDashboard(page, ctx) {
     const S = eng.S;
     if (eng.curMode() === 'free') return freeView();
     if (!S.plan && !eng.V.preparing) { setTimeout(() => eng.generatePlan().then(draw).catch((e) => toast(e.message, 'warn')), 0); }
+    try { eng.leanSeedDay(); } catch (e) { console.warn(e); }
     const info = eng.dashboard();
     const examDays = info.examDate && info.examDate > today() ? Math.round((new Date(info.examDate + 'T12:00:00') - new Date(today() + 'T12:00:00')) / 86400000) : null;
     const name = S.user.name || ctx.account.name || ML('زبان‌آموز', 'Lerner', 'Learner');
@@ -147,16 +150,17 @@ export function renderDashboard(page, ctx) {
     const nextCard = next
       ? `<article class="card next-card"><div><span class="kicker">▶ ${E(ML('از اینجا شروع کنید', 'HIER STARTEN', 'START HERE'))}</span><h3>${ICON[next.icon] || '•'} ${E(next.title)}</h3><p class="muted">${E(next.desc)}</p><span class="chip">⏱ ${faNum(next.dur)} ${E(ML('دقیقه', 'Min.', 'min'))}</span></div><button type="button" class="btn btn-primary big" data-start="${E(next.id)}">▶ ${E(ML('شروع تمرین', 'Übung starten', 'Start practice'))}</button></article>`
       : `<article class="card next-card done"><div><h3>🎉 ${E(ML('همه تمرین‌های امروز انجام شد!', 'Alles erledigt!', 'All done!'))}</h3><p class="muted">${E(ML('ارزیابی روز در تاریخچه ثبت شد.', 'Die Tagesbewertung ist jetzt verfügbar.', "Today's evaluation is now available."))}</p></div><button type="button" class="btn" data-act="progress">${E(ML('دیدن تاریخچه', 'Verlauf ansehen', 'View history'))}</button></article>`;
+    const fdef = eng.dayDef(S.plan.date || today()); const fFocus = Array.isArray(fdef.focus) && fdef.focus.length <= 2 ? fdef.focus : [];
     const list = S.plan.activities.map((a, idx) => {
       const done = info.completed.has(a.id); const isNext = next && next.id === a.id; const trk = Number(info.timers[a.id]) || 0;
       const pct = done ? 100 : Math.min(95, Math.round((trk / Math.max(1, a.dur * 60)) * 100));
-      return `<article class="act-card ${done ? 'is-done' : ''} ${isNext ? 'is-next' : ''}" style="--c:${MODS[a.id]?.color || 'var(--accent)'}" data-${done ? 'review' : 'start'}="${E(a.id)}" role="button" tabindex="0">
-        <span class="act-icon">${done ? '✓' : ICON[a.icon] || '•'}</span><div class="act-main"><div class="act-title"><span class="act-step">${faNum(idx + 1)}</span><h3>${E(a.title)}</h3>${a.priority === 'high' ? '<span class="act-high">!</span>' : ''}${done ? `<span class="chip small">👁 ${E(ML('مشاهده پاسخ‌ها', 'Antworten ansehen', 'View answers'))}</span>` : ''}</div><p class="muted small">${E(a.desc)}</p><div class="act-bar"><i style="width:${pct}%"></i></div></div>
+      return `<article class="act-card ${done ? 'is-done' : ''} ${isNext ? 'is-next' : ''} ${fFocus.includes(a.id) ? 'is-focus' : 'is-soft'}" style="--c:${MODS[a.id]?.color || 'var(--accent)'}" data-${done ? 'review' : 'start'}="${E(a.id)}" role="button" tabindex="0">
+        <span class="act-icon">${done ? '✓' : ICON[a.icon] || '•'}</span><div class="act-main"><div class="act-title"><span class="act-step">${faNum(idx + 1)}</span><h3>${E(a.title)}</h3>${fFocus.includes(a.id) ? `<span class="act-focus-pill">🎯 ${E(ML('تمرکز', 'Fokus', 'Focus'))}</span>` : ''}${a.priority === 'high' ? '<span class="act-high">!</span>' : ''}${done ? `<span class="chip small">👁 ${E(ML('مشاهده پاسخ‌ها', 'Antworten ansehen', 'View answers'))}</span>` : ''}</div><p class="muted small">${E(a.desc)}</p><div class="act-bar"><i style="width:${pct}%"></i></div></div>
         <div class="act-side"><b>${faNum(a.dur)}m</b>${trk ? `<small dir="ltr">${timeStr(trk)}</small>` : ''}</div></article>`;
     }).join('');
-    return hero + modeTabs(info) + oesdSettings() + dayCard() + progressCard(info) + nextCard
+    return hero + modeTabs(info) + oesdSettings() + `<div class="dash-pair">${dayCard()}${progressCard(info)}</div>` + nextCard
       + `<section class="act-section"><div class="act-head"><h2>📋 ${E(ML('برنامه یادگیری', 'Lernplan', 'Learning plan'))} · ${E(ML(`برنامه روزانه ${faNum(info.dailyMin)} دقیقه`, `Tagesplan ${info.dailyMin} Min.`, `Daily plan ${info.dailyMin} min`))}</h2><div class="row-actions"><button type="button" class="btn btn-ghost" data-hub="woche">${E(ML('برنامه هفته', 'Wochenplan', 'Weekly program'))} ↗</button>${next ? `<button type="button" class="btn btn-primary" data-act="start-next">${E(ML('شروع تمرین', 'Übung starten', 'Start practice'))} ▶</button>` : ''}</div></div><div class="act-grid">${list}</div></section>`
-      + `<section class="card day-end"><div><h3>${E(ML('اتمام تمرین و ثبت نتیجه', 'Übung abschließen & speichern', 'Finish & save the day'))}</h3><p class="muted small">${E(ML('تمرین‌ها و پاسخ‌های امروز از نو شروع می‌شوند. زمان مطالعه امروز حفظ می‌شود و ثبت روز خودکار در پایان روز انجام می‌شود.', 'Die heutigen Übungen und Antworten beginnen von vorn. Die Lernzeit bleibt erhalten; der Tag wird am Tagesende automatisch gespeichert.', "Today's exercises and answers start over. Study time is kept; the day is recorded automatically at the end of the day."))}</p></div>${ctx.ownerPacks && ctx.ownerPacks.isOwner() ? `<button type="button" class="btn" data-act="owner-packs">🗂 ${E(ML('افزودن دستی محتوا', 'Add content manually', 'Inhalte manuell hinzufügen'))}</button>` : ''}<button type="button" class="btn btn-primary" data-act="renew">↻ ${E(ML('ثبت نتیجه و تمرین تازه', 'Speichern & erneuern', 'Save & renew'))}</button></section>`;
+      + `<section class="card day-end"><div><h3>${E(ML('اتمام تمرین و ثبت نتیجه', 'Übung abschließen & speichern', 'Finish & save the day'))}</h3><p class="muted small">${E(ML('تمرین‌ها و پاسخ‌های امروز از نو شروع می‌شوند. زمان مطالعه امروز حفظ می‌شود و ثبت روز خودکار در پایان روز انجام می‌شود.', 'Die heutigen Übungen und Antworten beginnen von vorn. Die Lernzeit bleibt erhalten; der Tag wird am Tagesende automatisch gespeichert.', "Today's exercises and answers start over. Study time is kept; the day is recorded automatically at the end of the day."))}</p></div><div class="row-actions">${ctx.ownerPacks && ctx.ownerPacks.isOwner() ? `<button type="button" class="btn" data-act="owner-packs">🗂 ${E(ML('افزودن دستی محتوا', 'Add content manually', 'Inhalte manuell hinzufügen'))}</button>` : ''}<button type="button" class="btn btn-primary" data-act="renew">↻ ${E(ML('ثبت نتیجه و تمرین تازه', 'Speichern & erneuern', 'Save & renew'))}</button></div></section>`;
   }
 
   /** «مطالعه آزاد» tab: mode tabs, grammar-bot entry card, games space (site free-space.js replaces the old free plan). */
@@ -168,35 +172,32 @@ export function renderDashboard(page, ctx) {
 
   /* ───────────── weekly program (hub) ───────────── */
   function weekSettings() {
-    const S = eng.S; const m = eng.M(); const tab = eng.V.weekTab; const k = S.plan?.date || today();
+    const S = eng.S; const m = eng.M();
     const extra = Number(S.plan?.activities?.find((a) => a.id === 'extra')?.dur) || 0; const extraDone = (S.completed || []).includes('extra'); const extraStarted = (Number(S.activityTimers?.extra) || 0) > 0;
-    const items = (eng.active() && S.plan?.activities?.every((a) => a.type === 'method') ? S.plan.activities.filter((a) => a.id !== 'extra') : eng.moduleOrder(k).map((id) => ({ id, title: MODS[id]?.de || id, dur: eng.minutesFor(k)[id] || 0 }))).filter((a) => a.id !== 'extra');
     const t = eng.dailyMin();
-    const time = `<div class="daily-picker"><b>🕒 ${E(ML('زمان روزانه برنامه', 'Tägliche Planzeit', 'Daily plan time'))}</b><small class="muted">${E(ML('۲۴۰ دقیقه پیشنهاد برنامه است؛ اگر وقت کمتر یا بیشتری داری تغییرش بده.', '240 Minuten werden empfohlen; bei weniger oder mehr Zeit hier ändern.', '240 minutes is recommended; change it if you have less or more time.'))}</small>
-        <div class="daily-btns" role="radiogroup">${DAILY_CHOICES.map((n) => `<button type="button" role="radio" aria-checked="${n === t}" class="${n === t ? 'is-on' : ''} ${n === BASE ? 'is-rec' : ''}" data-daily="${n}"><b>${E(lang() === 'fa' ? `${faNum(String(n / 60).replace('.', '٫'))} ساعت` : `${n / 60} h`)}</b><small>${faNum(n)}′${n === BASE ? ' · ' + E(ML('پیشنهادی', 'empfohlen', 'recommended')) : ''}</small></button>`).join('')}</div><p class="muted small">${E(eng.dailyHint())}</p></div>
-      <div class="form-grid"><label class="fld"><span>${E(ML('تاریخ آزمون', 'Prüfungsdatum', 'Exam date'))}</span><input type="date" data-exam value="${E(S.user.examDate || '')}" /></label><div class="fld"><span>&nbsp;</span><button type="button" class="btn" data-act="change-program">${E(ML('تغییر نوع برنامه', 'Programm wechseln', 'Change program'))}</button></div></div>
-      <div class="extra-row"><b>${E(ML('زمان اضافه امروز', 'Extrazeit heute', 'Extra time today'))}</b><p class="muted small">${E(ML('برای مرور لغت، اشتباهات و شنیدن دوباره؛ جدا از زمان اصلی برنامه است.', 'Für Wortschatz, Fehler und erneutes Hören; zusätzlich zur regulären Planzeit.', 'For words, errors and listening again; separate from the regular program time.'))}</p><div class="chips" dir="ltr">${EXTRA_CHOICES.map((n) => `<button type="button" class="chip ${n === extra ? 'is-on' : ''}" data-extra="${n}" ${!eng.active() || extraDone || (n === 0 && extraStarted) ? 'disabled' : ''}>${n ? '+' + faNum(n) : E(ML('بدون', 'Keine', 'None'))}</button>`).join('')}</div></div>
-      <div class="extra-row"><b>${E(ML('مرحله یادگیری', 'Lernphase', 'Learning phase'))}</b><div class="chips">${[1, 2, 3].map((n) => `<button type="button" class="chip ${m.phase === n ? 'is-on' : ''}" data-phase="${n}">Phase ${faNum(n)}</button>`).join('')}</div></div>`;
-    const focus = `<p class="muted small">${E(ML('برای هر روز یک یا دو مهارت را انتخاب کنید. زمان تمرین آن مهارت‌ها بیشتر می‌شود؛ پنجشنبه آزمون و جمعه ارزیابی هفتگی باقی می‌ماند.', 'Wähle pro Tag ein oder zwei Schwerpunkte. Diese Fertigkeiten erhalten mehr Übungszeit; Donnerstag und Freitag bleiben Prüfungs- und Auswertungstage.', 'Choose one or two focus skills per day. They receive more practice time; Thursday and Friday remain exam and review days.'))}</p>
-      <div class="focus-grid">${[6, 0, 1, 2, 3].map((wd) => { const dk = Object.keys(m.days || {}).find((x) => wdOf(x) === wd) || addDays(satOf(today()), (wd + 1) % 7); const def = eng.dayDef(dk); const custom = !!m.weekFocus?.[wd]; return `<div class="focus-day"><div class="focus-head"><b>${E(ML(def.fa, def.de))}</b>${custom ? `<button type="button" class="btn btn-ghost small" data-focus-reset="${wd}">${E(ML('بازنشانی', 'Zurücksetzen', 'Reset'))}</button>` : ''}</div><div class="chips">${['hoeren', 'lesen', 'schreiben', 'sprechen'].map((id) => `<button type="button" class="chip ${def.focus.includes(id) ? 'is-on' : ''}" aria-pressed="${def.focus.includes(id)}" data-focus="${wd}:${id}">${E(ML(MODS[id].fa, MODS[id].de))}</button>`).join('')}</div></div>`; }).join('')}</div>`;
-    const order = `<p class="muted small">${E(ML('ترتیب تمرین‌های امروز را تغییر دهید. زمان و پیشرفت ذخیره‌شده هر فعالیت حفظ می‌شود.', 'Ändere die Reihenfolge der heutigen Übungen. Zeit und Fortschritt bleiben erhalten.', "Reorder today's activities. Each activity keeps its saved time and progress."))}</p>
-      <ol class="order-list">${items.map((a, i) => `<li><span class="act-step">${faNum(i + 1)}</span><span class="order-name">${E(ML(MODS[a.id]?.fa || a.title, MODS[a.id]?.de || a.title))}</span><small>${faNum(a.dur)}′</small><span class="row-actions"><button type="button" class="icon-btn" ${i === 0 ? 'disabled' : ''} data-move="${a.id}:-1" aria-label="${E(ML('بالا', 'Nach oben', 'Move up'))}">▲</button><button type="button" class="icon-btn" ${i === items.length - 1 ? 'disabled' : ''} data-move="${a.id}:1" aria-label="${E(ML('پایین', 'Nach unten', 'Move down'))}">▼</button></span></li>`).join('')}</ol><button type="button" class="btn btn-ghost" data-act="order-reset">${E(ML('بازگشت به ترتیب پیشنهادی', 'Empfohlene Reihenfolge wiederherstellen', 'Restore suggested order'))}</button>`;
-    const tabs = [['time', ML('زمان و مسیر', 'Zeit & Weg', 'Time & path')], ['focus', ML('تمرکز هفته', 'Wochenfokus', 'Weekly focus')], ['order', ML('ترتیب امروز', 'Reihenfolge heute', "Today's order")]];
-    return `<section class="card week-config"><div class="panel-head"><div><p>${E(ML('کنترل برنامه', 'PROGRAMM EINSTELLEN', 'PROGRAM SETTINGS'))}</p><h2>${E(ML('برنامه هفته را به روش خودتان بچینید', 'Gestalte deinen Wochenplan', 'Make the weekly program your own'))}</h2></div><button type="button" class="btn btn-primary" data-act="to-plan">${E(ML('اجرای برنامه ←', 'Zum Programm →', 'Run program →'))}</button></div>
-      <div class="segmented">${tabs.map(([id, l]) => `<button type="button" data-wtab="${id}" class="${tab === id ? 'is-on' : ''}">${E(l)}</button>`).join('')}</div><div class="week-body">${tab === 'time' ? time : tab === 'focus' ? focus : order}</div></section>`;
+    const time = `<div class="daily-picker"><b>🕒 ${E(ML('زمان روزانه برنامه', 'Tägliche Planzeit', 'Daily plan time'))}</b><small class="muted">${E(ML('۱۲۰ دقیقه (۲ ساعت) پیشنهاد برنامه است؛ اگر وقت کمتر یا بیشتری داری تغییرش بده.', '120 Minuten werden empfohlen; bei weniger oder mehr Zeit hier ändern.', '120 minutes is recommended; change it if you have less or more time.'))}</small>
+        <div class="daily-btns" role="radiogroup">${DAILY_CHOICES.map((n) => `<button type="button" role="radio" aria-checked="${n === t}" class="${n === t ? 'is-on' : ''} ${n === DEFAULT_DAILY ? 'is-rec' : ''}" data-daily="${n}"><b>${E(lang() === 'fa' ? `${faNum(String(n / 60).replace('.', '٫'))} ساعت` : `${n / 60} h`)}</b><small>${faNum(n)}′${n === DEFAULT_DAILY ? ' · ' + E(ML('پیشنهادی', 'empfohlen', 'recommended')) : ''}</small></button>`).join('')}</div><p class="muted small">${E(eng.dailyHint())}</p></div>
+      ${eng.lean() ? '' : `<div class="extra-row"><b>${E(ML('زمان اضافه امروز', 'Extrazeit heute', 'Extra time today'))}</b><p class="muted small">${E(ML('برای مرور لغت، اشتباهات و شنیدن دوباره؛ جدا از زمان اصلی برنامه است.', 'Für Wortschatz, Fehler und erneutes Hören; zusätzlich zur regulären Planzeit.', 'For words, errors and listening again; separate from the regular program time.'))}</p><div class="chips" dir="ltr">${EXTRA_CHOICES.map((n) => `<button type="button" class="chip ${n === extra ? 'is-on' : ''}" data-extra="${n}" ${!eng.active() || extraDone || (n === 0 && extraStarted) ? 'disabled' : ''}>${n ? '+' + faNum(n) : E(ML('بدون', 'Keine', 'None'))}</button>`).join('')}</div></div>`}`;
+    // FOCUS-MERGE / DRAG-SWAP / MIN-EDIT (site 2026-11-20): tap = focus, drag = order (swap / nearest slot), click the minutes = edit
+    const tk = S.plan?.date || today(); const twd = wdOf(tk); const SKL = ['hoeren', 'lesen', 'schreiben', 'sprechen'];
+    const focus = `<p class="muted small">${E(ML('روی هر تمرین بزنید تا تمرکز آن روز شود (حداکثر دو تمرین؛ زمان تمرین‌های متمرکز بیشتر می‌شود). برای تغییر ترتیب، تمرین را بالا یا پایین بکشید: اگر روی تمرین دیگری از همان روز رها کنید جایشان عوض می‌شود، وگرنه به نزدیک‌ترین جای رها کردن می‌رود. با کلیک روی عدد دقیقه، زمان هر تمرین در آن روز قابل تغییر است. جمعه روز آزمون و ارزیابی است.', 'Tippe eine Übung an, um sie zum Tagesschwerpunkt zu machen (höchstens zwei). Zum Umordnen ziehst du eine Übung nach oben oder unten: auf einer anderen Übung desselben Tages losgelassen, tauschen beide die Plätze, sonst landet sie an der nächstgelegenen Stelle. Ein Klick auf die Minuten ändert die Zeit. Freitag ist Prüfungs- und Auswertungstag.', 'Tap an exercise to make it the day’s focus (two at most). To reorder, drag it up or down: dropped on another exercise of the same day the two swap places, otherwise it goes to the nearest spot. Click the minutes to change them. Friday is the exam and review day.'))}</p>
+      <div class="wd-grid wd-3">${[6, 0, 1, 2, 3, 4].map((wd) => {
+        const info = eng.weekdayInfo(wd); const def = info.def; const chosen = (def.focus || []).length <= 2 ? (def.focus || []) : []; const total = info.order.reduce((a, id) => a + (Number(info.minutes[id]) || 0), 0); const isToday = wd === twd;
+        const customF = !!m.weekFocus?.[wd]; const customO = !!m.weekOrder?.[wd] || (isToday && !!m.dayOrder?.[tk]); const customM = !!m.weekMin?.[wd];
+        return `<div class="wd-day ${isToday ? 'is-today' : ''}"><div class="wd-head"><b>${E(ML(def.fa, def.de))} <small class="wd-total">Σ ${faNum(total)}′</small>${isToday ? ` <em class="wd-badge">${E(ML('امروز', 'Heute', 'Today'))}</em>` : ''}</b><span class="wd-acts">${customF ? `<button type="button" class="btn btn-ghost small" data-focus-reset="${wd}">${E(ML('بازنشانی تمرکز', 'Fokus zurücksetzen', 'Reset focus'))}</button>` : ''}${customO ? `<button type="button" class="btn btn-ghost small" data-order-reset="${wd}">${E(ML('ترتیب پیشنهادی', 'Empfohlene Reihenfolge', 'Suggested order'))}</button>` : ''}${customM ? `<button type="button" class="btn btn-ghost small" data-min-reset="${wd}">${E(ML('زمان پیشنهادی', 'Empfohlene Zeiten', 'Suggested times'))}</button>` : ''}</span></div>
+          <ol class="wd-list" data-wd-list="${wd}">${info.order.map((id, n) => { const sk = SKL.includes(id); const on = sk && chosen.includes(id); const v = Number(info.minutes[id]) || 0; return `<li draggable="true" data-wd-skill="${wd}:${id}" class="${on ? 'is-on' : ''}"><span class="wd-num">${faNum(n + 1)}</span><button type="button" class="wd-name" draggable="false" ${sk ? `data-focus="${wd}:${id}" aria-pressed="${on}" title="${E(ML('تمرکز این روز', 'Schwerpunkt dieses Tages', 'Focus of this day'))}"` : 'disabled'}>${E(ML(MODS[id]?.fa || id, MODS[id]?.de || id))}${on ? '<i class="wd-star">★</i>' : ''}</button><button type="button" class="wd-minbtn" draggable="false" data-wd-minedit="${wd}:${id}" data-v="${v}" title="${E(ML('برای تغییر زمان کلیک کنید', 'Zum Ändern klicken', 'Click to change'))}">${faNum(v)}′</button><span class="wd-grip" aria-hidden="true">⠿</span></li>`; }).join('')}</ol></div>`;
+      }).join('')}</div>`;
+    return `<section class="card week-config"><div class="panel-head"><div><p>${E(ML('کنترل برنامه', 'PROGRAMM EINSTELLEN', 'PROGRAM SETTINGS'))}</p><h2>${E(ML('برنامه هفته را به روش خودتان بچینید', 'Gestalte deinen Wochenplan', 'Make the weekly program your own'))}</h2></div></div>
+      <div class="wc-stack"><section class="wc-sec"><h3 class="wc-title">${E(ML('زمان و مسیر', 'Zeit & Weg', 'Time & path'))}</h3>${time}</section><section class="wc-sec"><h3 class="wc-title">${E(ML('تمرکز و ترتیب', 'Fokus & Reihenfolge', 'Focus & order'))}</h3>${focus}</section></div></section>`;
   }
 
   function hubWeek() {
     const k = today(); const m = eng.M(); const wk = eng.weekOf(k); const [from] = eng.weekRange(Math.max(1, wk));
     const days = [0, 1, 2, 3, 4, 5, 6].map((n) => addDays(wk === 0 ? satOf(k) : from, n));
     const fmt = (n) => `${faNum(n)}′`;
-    const rows = days.map((dk) => { const def = eng.dayDef(dk); const d = m.days[dk]; const done = d ? Object.keys(d.results || {}).filter((x) => x !== 'extra').length : 0; const foc = def.evaluation || def.focus.length === 4 ? E(eng.focusLabel(def)) : `<span class="chip small">${E(ML('تمرکز بیشتر', 'Schwerpunkt', 'More focus'))}</span> ${def.focus.map((f) => `<b dir="ltr">${E(ML(MODS[f].fa, MODS[f].de))} ${fmt(eng.minutesFor(dk)[f] || 0)}</b>`).join(' + ')}`; return `<tr class="${dk === k ? 'is-today' : ''}"><td><b>${E(ML(def.fa, def.de))}</b><small>${E(dk)}</small></td><td>${foc}</td><td>${E(ML(def.sfa, def.sde))}</td><td>${d ? `${faNum(done)}/${faNum(6)}` : dk < k ? '—' : ''}</td></tr>`; }).join('');
-    const cols = [['hoeren', 'Hören'], ['lesen', 'Lesen'], ['schreiben', 'Schreiben'], ['sprechen', 'Sprechen'], ['wortschatz', 'G & W'], ['wiederholung', 'Wdh.']];
-    const matrix = days.map((dk) => { const def = eng.dayDef(dk); const ev = !!def.evaluation; return `<tr class="${dk === k ? 'is-today' : ''}"><td><b>${E(ML(def.fa, def.de))}</b>${def.exam ? `<small>${E(ML('آزمون زمان‌دار', 'Prüfungsmodus', 'Exam mode'))}</small>` : ev ? `<small>${E(ML('آزمون هفتگی', 'Wochentest', 'Weekly test'))}</small>` : ''}</td>${cols.map(([id]) => { const real = ev && id === 'wortschatz' ? 'fehleranalyse' : ev && id === 'wiederholung' ? 'wochenbericht' : id; const v = eng.minutesFor(dk)[real]; const hi = !ev && !def.exam && def.focus.includes(id); return `<td class="${hi ? 'is-focus' : ''}">${v ? fmt(v) : '—'}${real !== id ? `<small dir="ltr">${E(MODS[real].de)}</small>` : ''}</td>`; }).join('')}</tr>`; }).join('');
+    const rows = days.map((dk) => { const def = eng.dayDef(dk); const d = m.days[dk]; const done = d ? Object.keys(d.results || {}).filter((x) => x !== 'extra').length : 0; const foc = def.evaluation || def.focus.length === 4 ? E(eng.focusLabel(def)) : `<span class="chip small">${E(ML('تمرکز بیشتر', 'Schwerpunkt', 'More focus'))}</span> ${def.focus.map((f) => `<b dir="ltr">${E(ML(MODS[f].fa, MODS[f].de))} ${fmt(eng.minutesFor(dk)[f] || 0)}</b>`).join(' + ')}`; return `<tr class="${dk === k ? 'is-today' : ''}"><td><b>${E(ML(def.fa, def.de))}</b><small>${E(dk)}</small></td><td>${foc}</td><td>${E(ML(def.sfa, def.sde))}</td><td>${d ? `${faNum(done)}/${faNum(eng.lean() ? 4 : 6)}` : dk < k ? '—' : ''}</td></tr>`; }).join('');
     const st = eng.ST();
-    return oesdSettings() + weekSettings()
-      + `<section class="card"><h3>${E(ML('برنامه هفتگی', 'Wochenplan', 'Weekly plan'))} · ${E(wk === 0 ? ML('روز تشخیص', 'Diagnose', 'Diagnosis') : ML('هفته', 'Woche', 'Week') + ' ' + faNum(wk))}</h3><p class="muted small">${E(eng.dailyMin() >= 120 ? ML(`هر روز هر چهار مهارت تمرین می‌شوند؛ مهارت‌های «تمرکز بیشتر» آن روز زمان بیشتری از ${faNum(eng.dailyMin())} دقیقه را می‌گیرند.`, `Jeden Tag werden alle vier Fertigkeiten geübt; die Schwerpunkte bekommen mehr von den ${eng.dailyMin()} Minuten.`, `All four skills are practised every day; the focus skills get more of the ${eng.dailyMin()} minutes.`) : eng.dailyHint())}</p><div class="table-wrap"><table class="tbl"><thead><tr><th>${E(ML('روز', 'Tag', 'Day'))}</th><th>${E(ML('تمرکز بیشتر', 'Schwerpunkt', 'More focus'))}</th><th>${E(ML('تمرین ویژه', 'Spezial', 'Special'))}</th><th>✓</th></tr></thead><tbody>${rows}</tbody></table></div></section>`
-      + `<section class="card"><h3>${E(ML(`تقسیم زمان هر روز · ${faNum(eng.dailyMin())} دقیقه مفید`, `Zeitverteilung pro Tag · ${eng.dailyMin()} Minuten`, `Time per day · ${eng.dailyMin()} minutes`))}</h3><div class="table-wrap"><table class="tbl tbl-min"><thead><tr><th>${E(ML('روز', 'Tag', 'Day'))}</th>${cols.map(([, l]) => `<th dir="ltr">${E(l)}</th>`).join('')}</tr></thead><tbody>${matrix}</tbody></table></div></section>`
+    return oesdSettings() + weekSettings() /* NO-WEEK-TABLE */
       + `<section class="card"><h3>${E(ML('ساختار آزمون', 'Prüfungsaufbau', 'Exam structure'))}</h3><table class="tbl"><tbody>${(st.examStructure || []).map((r) => `<tr><td dir="ltr"><b>${E(r.skill)}</b></td><td>${E(r.tasks)}</td><td>${E(r.minutes)}</td></tr>`).join('')}</tbody></table></section>`;
   }
 
@@ -210,24 +211,70 @@ export function renderDashboard(page, ctx) {
     const parts = String(rule || '').split(/(?<=\.)\s+(?=[A-ZÄÖÜ„])/).filter(Boolean);
     return `<div class="rule" dir="ltr">${parts.map((p) => { const mm = p.match(/^([^:]{2,40}):\s*(.+)$/); return mm ? `<p><b>${E(mm[1])}:</b> <span class="struct">${E(mm[2])}</span></p>` : `<p>${E(p)}</p>`; }).join('')}</div>`;
   }
-  const hubGrammar = () => (eng.ST().grammar || []).map((g) => `<section class="card gram-card"><p class="kicker">${E(ML('گرامر هفته', 'Grammatik der Woche', 'Grammar of the week'))} ${faNum(g.week)}</p><h3 dir="ltr">${E(g.title)}</h3><p dir="rtl"><b>${E(g.fa)}</b></p>${ruleLines(g.rule)}<ul dir="ltr">${(g.forms || []).map((f) => `<li>${E(f)}</li>`).join('')}</ul><p class="muted small" dir="rtl">⚠️ ${E(g.mistakes)}</p></section>`).join('');
+  function hubGrammar() {
+    const gl = eng.ST().grammar || []; const gw = gl.length ? (gl[(Math.max(1, eng.weekOf(today())) - 1) % gl.length] || {}).week : null; // site grammarOfWeek
+    if (ui.gramScroll !== today()) { ui.gramScroll = today(); setTimeout(() => { const el = root.querySelector('.gram-card.is-cur-week'); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 150); }
+    return (eng.ST().grammar || []).map((g) => `<section class="card gram-card ${g.week === gw ? 'is-cur-week' : ''}"><p class="kicker">${E(ML('گرامر هفته', 'Grammatik der Woche', 'Grammar of the week'))} ${faNum(g.week)}${g.week === gw ? ` · ${E(ML('این هفته', 'diese Woche', 'this week'))}` : ''}</p><h3 dir="ltr">${E(g.title)}</h3><p dir="rtl"><b>${E(g.fa)}</b></p>${ruleLines(g.rule)}<ul dir="ltr">${(g.forms || []).map((f) => `<li>${E(f)}</li>`).join('')}</ul><p class="muted small" dir="rtl">⚠️ ${E(g.mistakes)}</p></section>`).join('');
+  }
+
+  /* BATCH2 «الگوهای معروف»: ready answer patterns per skill + the Sprechen task types */
+  function hubMuster() {
+    const blk = (title, fa, lines) => `<section class="card"><h3 dir="auto">${E(title)}</h3><p class="muted small" dir="rtl">${E(fa)}</p><div class="muster" dir="ltr">${lines.map(([k, v]) => `<p><b>${E(k)}</b> ${E(v)}</p>`).join('')}</div></section>`;
+    const st = eng.ST();
+    return `<p class="muted small" dir="${dir()}">${E(ML('الگوهای آماده برای جواب دادن؛ جای خالی‌ها را با موضوع تمرین خودت پر کن.', 'Fertige Antwortmuster; fülle die Lücken mit deinem Thema.', 'Ready answer patterns; fill the gaps with your topic.'))}</p>`
+      + blk('Hören · Thema, Problem, Ziel', 'برای «فهم کلی» یک گفت‌وگو یا پادکست: سه جمله کامل بنویس.', [
+        ['Thema:', 'Mehrsprachigkeit im Kindesalter und ihre Auswirkungen auf kognitive Entwicklung und gesellschaftliche Integration.'],
+        ['Problem:', 'Viele Eltern und Bildungseinrichtungen unterschätzen die Notwendigkeit gezielter Förderung, wodurch potenzielle Nachteile entstehen können.'],
+        ['Ziel:', 'Die Sprecher wollen die Vorteile aufzeigen, kritische Aspekte beleuchten und Handlungsempfehlungen für Eltern und Politik geben.'],
+        ['Muster:', 'In dem Beitrag geht es um … · Das zentrale Problem besteht darin, dass … · Ziel der Sprecher ist es, … aufzuzeigen / zu erklären / zu kritisieren.']])
+      + blk('Hören · Sprecher und Meinungen', 'وقتی چند نفر صحبت می‌کنند: موضع هر نفر را با دلیلش جدا کن.', [
+        ['Sprecher A:', 'Frau Weber vertritt die Ansicht, dass …, weil …'],
+        ['Sprecher B:', 'Herr Kraus hält dagegen, dass …, und begründet das mit …'],
+        ['Fazit:', 'Beide sind sich einig, dass …, unterscheiden sich aber darin, ob …']])
+      + blk('Lesen · Hauptaussage je Absatz', 'برای هر پاراگراف یک جمله با فعل اصلی متن بساز.', [
+        ['Absatz 1:', 'Der Autor führt in das Thema … ein und zeigt, dass …'],
+        ['Absatz 2:', 'Anschließend werden Gründe für … genannt, vor allem …'],
+        ['Absatz 3:', 'Danach stellt der Text Gegenargumente vor: …'],
+        ['Absicht:', 'Der Autor möchte die Leser davon überzeugen, dass … / warnt davor, dass …']])
+      + blk('Schreiben · Argumentation', 'اسکلت چهار بخشی متن استدلالی (۲۳۰ تا ۲۸۰ کلمه).', [
+        ['Einleitung:', 'In letzter Zeit wird immer häufiger darüber diskutiert, ob … Diese Frage betrifft vor allem …'],
+        ['These:', 'Befürworter argumentieren, dass … Dafür spricht vor allem, dass … Ein gutes Beispiel dafür ist …'],
+        ['Gegenargument:', 'Kritiker wenden jedoch ein, dass … Dieser Einwand ist insofern berechtigt, als …'],
+        ['Meinung:', 'Meiner Ansicht nach überwiegen die Vorteile, denn … In meinem Heimatland beobachte ich, dass …'],
+        ['Schluss:', 'Zusammenfassend lässt sich sagen, dass … Es wäre daher sinnvoll, …']])
+      + blk('Schreiben · Grafik beschreiben', 'توصیف نمودار: منبع، بالاترین/پایین‌ترین، روند، مقایسه، نتیجه.', [
+        ['Einleitung:', 'Die Grafik zeigt …, und zwar im Zeitraum von … bis … Die Angaben stammen von …'],
+        ['Höchstwert:', 'Den höchsten Anteil hat … mit … Prozent, gefolgt von …'],
+        ['Entwicklung:', 'Zwischen … und … ist der Wert deutlich gestiegen / leicht gesunken / nahezu gleich geblieben.'],
+        ['Vergleich:', 'Im Vergleich zu … ist der Anteil fast doppelt so hoch.'],
+        ['Text + Grafik:', 'Der Text ergänzt, dass … Das erklärt, warum …']])
+      + blk('Sprechen · Rat geben', 'نمونه شروع و جمع‌بندی برای توصیه دادن.', [
+        ['Einstieg:', 'Ich verstehe gut, dass dich … beschäftigt.'],
+        ['Rat:', 'An deiner Stelle würde ich … Außerdem könntest du …, denn …'],
+        ['Abschluss:', 'Am wichtigsten finde ich aber, dass du … Ich drücke dir die Daumen!']])
+      + blk('Sprechen · Thema präsentieren', 'ساختار ارائه: مقدمه، سه نکته، جمع‌بندی.', [
+        ['Einleitung:', 'In meinem Kurzvortrag möchte ich über … sprechen. Zuerst …, dann …, zum Schluss …'],
+        ['Hauptteil:', 'Der erste Aspekt ist … Ein zweiter wichtiger Punkt ist … Schließlich sollte man bedenken, dass …'],
+        ['Schluss:', 'Zusammenfassend lässt sich festhalten, dass … Vielen Dank für Ihre Aufmerksamkeit.']])
+      + `<section class="card"><h3>${E(ML('انواع تمرین Sprechen در آزمون', 'Sprechaufgaben', 'Speaking task types'))}</h3><div class="types">${Object.values(st.speakingTypes || {}).map((t) => `<article><b dir="ltr">${E(t.label)}</b><p dir="${dir()}"><b>${E(t.fa)}:</b> ${E(t.how)}</p><p dir="ltr" class="muted small">${E((t.phrases || []).join(' · '))}</p></article>`).join('')}</div></section>`;
+  }
 
   function hubMethod() {
     const st = eng.ST();
     return `<section class="card"><h3>${E(ML('هدف و چارچوب کلی', 'Ziel und Rahmen', 'Goal and frame'))}</h3><ul dir="rtl"><li>هدف اصلی: کسب حداقل TDN 4 در هر چهار مهارت</li><li>مدت مطالعه روزانه: ۴ ساعت مفید · ۶ روز تمرین در هفته</li><li>روز هفتم (جمعه): ارزیابی و تحلیل عملکرد</li></ul></section>`
-      + Object.values(st.methods || {}).map((x) => `<section class="card"><h3 dir="ltr">${E(String(x.title).split('·')[0])}</h3><div dir="${dir()}"><p><b>${E(x.title)}</b></p><p>${E(x.goal)}</p><ol>${(x.steps || []).map((s) => `<li>${E(s)}</li>`).join('')}</ol>${x.rule ? `<p class="muted">💡 ${E(x.rule)}</p>` : ''}</div></section>`).join('')
-      + `<section class="card"><h3>${E(ML('انواع تمرین Sprechen در آزمون', 'Sprechaufgaben', 'Speaking task types'))}</h3><div class="types">${Object.values(st.speakingTypes || {}).map((t) => `<article><b dir="ltr">${E(t.label)}</b><p dir="${dir()}"><b>${E(t.fa)}:</b> ${E(t.how)}</p><p dir="ltr" class="muted small">${E((t.phrases || []).join(' · '))}</p></article>`).join('')}</div></section>`
+      + Object.entries(st.methods || {}).filter(([key]) => !['wortschatz', 'wiederholung'].includes(key)).map(([, x]) => `<section class="card"><h3 dir="ltr">${E(String(x.title).split('·')[0])}</h3><div dir="${dir()}"><p><b>${E(x.title)}</b></p><p>${E(x.goal)}</p><ol>${(x.steps || []).map((s) => `<li>${E(s)}</li>`).join('')}</ol>${x.rule ? `<p class="muted">💡 ${E(x.rule)}</p>` : ''}</div></section>`).join('')
       + `<section class="card"><h3>${E(ML('قوانین اصلی سیستم مطالعاتی', 'Grundregeln', 'Ground rules'))}</h3><ol dir="${dir()}">${(st.rules || []).map((r) => `<li>${E(r)}</li>`).join('')}</ol><p><b>${E(st.success)}</b></p></section>`
       + `<section class="card"><h3>${E(ML('منابع مطالعاتی', 'Quellen', 'Resources'))}</h3><table class="tbl"><tbody>${(st.resources || []).map(([a, b]) => `<tr><td>${E(a)}</td><td dir="rtl">${E(b)}</td></tr>`).join('')}</tbody></table><p><button type="button" class="btn btn-ghost" data-ext="${E(st.officialUrl)}">${E(ML('منبع رسمی: آمادگی آزمون', 'Offizielle Prüfungsvorbereitung', 'Official exam preparation'))} ↗</button></p></section>`;
   }
 
   function hubView() {
-    const tab = ['woche', 'proben', 'grammatik', 'methode'].includes(eng.V.hubTab) ? eng.V.hubTab : 'woche';
-    const m = eng.M(); const ph = eng.ST().phases[m.phase] || eng.ST().phases[1];
-    const tabs = [['woche', ML('برنامه هفته', 'Wochenplan', 'Weekly plan')], ['proben', ML('نمونه نوشته‌ها', 'Schreibproben', 'Writing samples')], ['grammatik', ML('گرامر هفته‌ها', 'Grammatik', 'Grammar')], ['methode', ML('روش و قوانین', 'Methode', 'Method')]];
-    const body = tab === 'woche' ? hubWeek() : tab === 'proben' ? hubProben() : tab === 'grammatik' ? hubGrammar() : hubMethod();
-    return `<header class="page-hero"><div class="page-hero-main"><button type="button" class="btn" data-act="to-plan">← ${E(planName(EXAM_PLANS[eng.S.user.examPlan]?.name || 'Lernplan'))}</button><div><h1>${E(ML('سیستم تمرین روزانه', 'Trainingssystem', 'Training system'))}</h1><small>${E(ph.name)} · ${E(ML('هدف: حداقل TDN 4 در هر چهار مهارت', 'Ziel: TDN 4 in allen Teilen', 'Goal: TDN 4 in all four parts'))}</small></div></div></header>
-      <nav class="segmented hub-tabs">${tabs.map(([id, l]) => `<button type="button" data-hub="${id}" class="${tab === id ? 'is-on' : ''}">${E(l)}</button>`).join('')}</nav>${body}`;
+    const lean = eng.lean();
+    const ids = ['woche', 'proben', 'muster', 'grammatik', 'methode'].filter((x) => !(lean && x === 'proben'));
+    const tab = ids.includes(eng.V.hubTab) ? eng.V.hubTab : 'woche';
+    const names = { woche: ML('برنامه هفته', 'Wochenplan', 'Weekly plan'), proben: ML('نمونه نوشته‌ها', 'Schreibproben', 'Writing samples'), muster: ML('الگوهای معروف', 'Bekannte Muster', 'Famous patterns'), grammatik: ML('گرامر هفته‌ها', 'Grammatik', 'Grammar'), methode: ML('روش و قوانین', 'Methode', 'Method') };
+    const body = tab === 'woche' ? hubWeek() : tab === 'proben' ? hubProben() : tab === 'muster' ? hubMuster() : tab === 'grammatik' ? hubGrammar() : hubMethod();
+    return `<header class="page-hero"><div class="page-hero-main"><button type="button" class="btn" data-act="to-plan">← ${E(ML('برنامه یادگیری', 'Lernplan', 'Learning plan'))}</button><div><h1>${E(ML('تنظیم برنامه', 'Planeinstellungen', 'Plan settings'))}</h1><small>${E(ML('یک برنامه برای همه؛ آزمون TestDaF یا ÖSD را در «شبیه‌سازی آزمون» تمرین کنید', 'Ein Plan für alle – TestDaF und ÖSD üben Sie in der Prüfungssimulation', 'One plan for everyone – practise TestDaF or ÖSD in the exam simulation'))}</small></div></div></header>
+      <nav class="nb-tabs hub-tabs" role="tablist">${ids.map((id) => `<button type="button" role="tab" aria-selected="${tab === id}" data-hub="${id}" class="${tab === id ? 'is-on' : ''}">${E(names[id])}</button>`).join('')}</nav>${body}`;
   }
 
   /* ───────────── actions ───────────── */
@@ -291,6 +338,10 @@ export function renderDashboard(page, ctx) {
     else if (d.phase) { const p = Number(d.phase); if (p !== eng.M().phase && await confirmDialog(ML(`فاز برنامه به ${faNum(p)} تغییر کند؟`, `Zu Phase ${p} wechseln?`, `Switch to phase ${p}?`), { ok: ML('تغییر', 'Wechseln', 'Switch'), danger: false })) { eng.setPhase(p); draw(); } }
     else if (d.focus) { const [wd, skill] = d.focus.split(':'); eng.setWeekFocus(Number(wd), skill); draw(); }
     else if (d.focusReset) { eng.resetWeekFocus(Number(d.focusReset)); draw(); }
+    else if (d.wdReset) { eng.resetWeekDay(Number(d.wdReset)); draw(); }
+    else if (d.orderReset) { eng.resetWeekOrder(Number(d.orderReset)); draw(); }
+    else if (d.minReset) { eng.resetWeekMin(Number(d.minReset)); draw(); }
+    else if (d.wdMinedit) { editMinutes(event.target.closest('[data-wd-minedit]')); }
     else if (d.move) { const [id, dirn] = d.move.split(':'); eng.moveDayActivity(id, Number(dirn)); draw(); }
     else if (d.go !== undefined) { eng.go(Number(d.go)); draw(); }
     else if (d.ext) ctx.bridge.openExternal(d.ext);
@@ -303,6 +354,13 @@ export function renderDashboard(page, ctx) {
         ui.view = 'plan';
         draw();
         toast(ML('پک در اجرای برنامه بارگذاری شد.', 'Der Pack wurde in den Durchlauf geladen.', 'The pack was loaded into the run.'), 'ok');
+      } catch (error) { toast(String(error?.message || error), 'warn'); }
+    }
+    else if (d.packDownload) {
+      const packs = ctx.ownerPacks; if (!packs) return;
+      try {
+        const file = await packs.download(d.packDownload);
+        if (file) toast(ML('پک روی کامپیوتر ذخیره شد.', 'The pack was saved to this computer.', 'Der Pack wurde auf diesem Computer gespeichert.') + ' ' + file, 'ok');
       } catch (error) { toast(String(error?.message || error), 'warn'); }
     }
     else if (d.packDel) {
@@ -318,13 +376,20 @@ export function renderDashboard(page, ctx) {
         case 'progress': ctx.navigate('history'); break;
         case 'owner-packs': ui.view = 'packs'; draw(); break;
         case 'packs-refresh': if (ctx.ownerPacks) { ctx.ownerPacks.state.list = null; draw(); } break;
+        case 'pack-import': {
+          const packs = ctx.ownerPacks; if (!packs) break;
+          try {
+            const saved = await packs.importFromFile();
+            if (saved) { ctx.ownerPacks.state.list = null; toast(ML('پک از فایل اضافه شد.', 'The pack was added from the file.', 'Der Pack wurde aus der Datei hinzugefügt.'), 'ok'); }
+            draw();
+          } catch (error) { toast(String(error?.message || error), 'warn'); }
+          break;
+        }
         case 'packs-back': ui.view = 'plan'; draw(); break;
         case 'deck': ctx.navigate('errorbook'); break;
         case 'account': ctx.navigate('settings'); break;
         case 'order-reset': eng.resetDayOrder(); draw(); break;
-        case 'change-program':
-          if (await confirmDialog(ML('برنامه فعلی بسته می‌شود و برنامه جدید را انتخاب می‌کنید. ادامه می‌دهید؟', 'Der aktuelle Plan wird geschlossen und du wählst ein neues Programm. Fortfahren?', 'The current plan is closed and you choose a new program. Continue?'), { ok: ML('ادامه', 'Weiter', 'Continue'), danger: false })) { eng.requestPlanChange(); ui.view = 'programs'; draw(); }
-          break;
+        case 'change-program': ctx.navigate('testdafSim'); break; // UNIFIED-PLAN
         case 'renew': {
           let q = ML('روز جاری با همهٔ پاسخ‌ها ثبت می‌شود و شش تمرین با مطالب تازه جایگزین می‌شوند. ادامه می‌دهید؟', 'Der heutige Tag wird mit allen Antworten gespeichert und die sechs Übungen werden durch neues Material ersetzt. Fortfahren?', 'The current day is saved with all answers and the six exercises are replaced with fresh material. Continue?');
           const info = eng.dashboard();
@@ -340,6 +405,36 @@ export function renderDashboard(page, ctx) {
       }
     }
   });
+  /* DRAG-SWAP drag (site 2026-11-20): dropped on another exercise of the same day = swap; anywhere else = nearest slot */
+  let wdDrag = null;
+  const wdClear = () => root.querySelectorAll('.wd-list li.is-over,.wd-list.is-gap').forEach((x) => x.classList.remove('is-over', 'is-gap'));
+  const wdList = (wd) => root.querySelector(`.wd-list[data-wd-list="${wd}"]`);
+  root.addEventListener('dragstart', (event) => { const li = event.target.closest && event.target.closest('[data-wd-skill]'); if (!li) return; const [wd, id] = li.dataset.wdSkill.split(':'); wdDrag = { wd, id }; try { event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', id); } catch (e) { /* ignore */ } });
+  root.addEventListener('dragover', (event) => {
+    if (!wdDrag) return; event.preventDefault(); try { event.dataTransfer.dropEffect = 'move'; } catch (e) { /* ignore */ }
+    const list = wdList(wdDrag.wd); const li = event.target.closest && event.target.closest('[data-wd-skill]'); wdClear(); if (!list) return;
+    if (li && list.contains(li) && li.dataset.wdSkill.split(':')[1] !== wdDrag.id) li.classList.add('is-over'); else list.classList.add('is-gap');
+  });
+  root.addEventListener('drop', (event) => {
+    const d = wdDrag; if (!d) return; event.preventDefault(); wdDrag = null; wdClear();
+    const list = wdList(d.wd); if (!list) return;
+    const els = [...list.querySelectorAll('li[data-wd-skill]')]; const ids = els.map((x) => x.dataset.wdSkill.split(':')[1]); const from = ids.indexOf(d.id); if (from < 0) return;
+    const li = event.target.closest && event.target.closest('[data-wd-skill]'); let next = ids.slice();
+    if (li && list.contains(li) && li.dataset.wdSkill.split(':')[1] !== d.id) { const to = ids.indexOf(li.dataset.wdSkill.split(':')[1]); next[from] = ids[to]; next[to] = d.id; }
+    else { const rest = els.filter((x) => x.dataset.wdSkill.split(':')[1] !== d.id); const at = rest.filter((x) => { const r = x.getBoundingClientRect(); return r.top + r.height / 2 < event.clientY; }).length; next = rest.map((x) => x.dataset.wdSkill.split(':')[1]); next.splice(at, 0, d.id); }
+    if (next.join() !== ids.join()) { eng.setWeekOrder(Number(d.wd), next); draw(); }
+  });
+  root.addEventListener('dragend', () => { wdDrag = null; wdClear(); });
+  /* MIN-EDIT: a click on the minutes opens a small field (Enter / click away = save, Esc = cancel) */
+  function editMinutes(btn) {
+    if (!btn) return; const [wd, id] = btn.dataset.wdMinedit.split(':'); const v = Number(btn.dataset.v) || 0; const li = btn.closest('li');
+    const inp = document.createElement('input'); inp.type = 'number'; inp.min = '5'; inp.max = '240'; inp.step = '5'; inp.value = String(v); inp.className = 'wd-mininp'; inp.setAttribute('dir', 'ltr');
+    if (li) li.draggable = false; btn.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const commit = (ok) => { if (done) return; done = true; const n = Number(inp.value); if (ok && Number.isFinite(n) && n > 0 && n !== v) eng.setWeekMin(Number(wd), id, n); draw(); };
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); commit(true); } else if (e.key === 'Escape') { e.preventDefault(); commit(false); } });
+    inp.addEventListener('blur', () => commit(true));
+  }
   root.addEventListener('keydown', (event) => {
     const card = event.target.closest('[data-start], [data-review]');
     if (card && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); card.click(); }

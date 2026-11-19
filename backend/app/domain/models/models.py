@@ -47,6 +47,8 @@ class User(Base):
     library_documents: Mapped[list["LibraryDocument"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     library_notes: Mapped[list["LibraryNote"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     pdf_annotations: Mapped[list["PdfAnnotation"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    ai_chat_conversations: Mapped[list["AIChatConversation"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    ai_provider_configs: Mapped[list["AIProviderConfig"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class UserProfile(Base):
@@ -93,6 +95,8 @@ class UserAppState(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True)
     schema_version: Mapped[int] = mapped_column(Integer, default=1)
     state_data: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    path_versions: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict, server_default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -653,3 +657,53 @@ class PdfAnnotation(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
     __table_args__ = (Index("ix_pdf_annotations_document_page", "document_id", "page_number"), CheckConstraint("page_number >= 1", name="ck_pdf_annotation_page"), CheckConstraint("annotation_type IN ('pen', 'highlight', 'underline', 'strikeout', 'text')", name="ck_pdf_annotation_type"))
     user: Mapped["User"] = relationship(back_populates="pdf_annotations")
+
+
+class AIChatConversation(Base):
+    __tablename__ = "ai_chat_conversations"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(160), nullable=False, default="گفتگوی جدید")
+    provider: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    model: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    provider_preference: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    kind: Mapped[str] = mapped_column(String(24), nullable=False, default="owner")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+    __table_args__ = (Index("ix_ai_chat_conversations_user_updated", "user_id", "updated_at"),)
+    user: Mapped["User"] = relationship(back_populates="ai_chat_conversations")
+    messages: Mapped[list["AIChatMessage"]] = relationship(back_populates="conversation", cascade="all, delete-orphan", order_by="AIChatMessage.created_at")
+
+
+class AIChatMessage(Base):
+    __tablename__ = "ai_chat_messages"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    conversation_id: Mapped[str] = mapped_column(String(36), ForeignKey("ai_chat_conversations.id", ondelete="CASCADE"), index=True)
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    provider: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    model: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    __table_args__ = (
+        CheckConstraint("role IN ('user', 'assistant')", name="ai_chat_message_role"),
+        Index("ix_ai_chat_messages_conversation_created", "conversation_id", "created_at"),
+    )
+    conversation: Mapped["AIChatConversation"] = relationship(back_populates="messages")
+
+
+class AIProviderConfig(Base):
+    __tablename__ = "ai_provider_configs"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    base_url: Mapped[str] = mapped_column(String(500), nullable=False)
+    model: Mapped[str] = mapped_column(String(160), nullable=False)
+    api_key_encrypted: Mapped[str] = mapped_column(Text, nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    __table_args__ = (
+        UniqueConstraint("user_id", "name", name="uq_ai_provider_configs_user_name"),
+        Index("ix_ai_provider_configs_user_enabled", "user_id", "enabled"),
+    )
+    user: Mapped["User"] = relationship(back_populates="ai_provider_configs")

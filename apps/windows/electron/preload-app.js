@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('amookht', {
   openDataFolder: () => invoke('app:data-folder'),
   setWidgetEnabled: (enabled) => invoke('widget:set-enabled', enabled),
   showWidget: () => invoke('widget:show'),
+  packOpenFile: () => invoke('pack:open-file'),
+  packSaveFile: (payload) => invoke('pack:save-file', payload),
   setLastSection: (section) => invoke('app:set-last-section', section),
   windowAction: (action) => invoke('window:action', action),
   onSettingsChanged: (callback) => subscribe('settings:changed', callback),
