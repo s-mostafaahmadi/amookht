@@ -1,2 +1,22 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node / Electron
+node_modules/
+dist/
+out/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local data, logs, OS noise
+backend/data/
+*.log
+.DS_Store
+Thumbs.db
