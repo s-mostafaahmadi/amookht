@@ -1,5 +1,7 @@
 # آموخت · Amookht
 
+![License: MIT](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-web%20%7C%20windows%20%7C%20android-blue) ![Stack](https://img.shields.io/badge/stack-FastAPI%20%7C%20PostgreSQL%20%7C%20Redis-009688)
+
 **پلتفرم یادگیری آلمانی با هوش مصنوعی برای آزمون‌های TestDaF و ÖSD** — وب، ویندوز و اندروید روی یک بک‌اند.
 
 آموخت یک برنامهٔ روزانهٔ شش‌دسته‌ای می‌سازد (Hören، Lesen، Schreiben، Sprechen، Grammatik & Wortschatz،
@@ -42,7 +44,7 @@ Wiederholung)، پاسخ‌ها را با AI تصحیح می‌کند، اشتب
 ## شروع سریع (سرور)
 
 ```bash
-git clone <this repo> amookht && cd amookht/backend
+git clone https://github.com/s-mostafaahmadi/amookht.git amookht && cd amookht/backend
 python3 -m venv .venv && .venv/bin/pip install -e .
 cp .env.example .env            # SECRET_KEY, DATABASE_URL, REDIS_URL, کلیدهای AI
 .venv/bin/uvicorn app.main:app --reload --port 8200
@@ -87,6 +89,10 @@ npm run dist       # ساخت نصب‌کننده → dist/Amookht-Setup-<ver>.e
 
 ## وضعیت پروژه
 
-- نسخهٔ اپ ویندوز: **4.1.0**
+- نسخهٔ اپ ویندوز: **4.5.0**
 - بک‌اند: FastAPI 0.110+، Python 3.11
-- لایسنس: MIT (بک‌اند) — استفادهٔ مجدد با ذکر منبع
+- لایسنس: [MIT](LICENSE) — استفاده مجدد آزاد با ذکر منبع
+
+## مجوز
+
+کد این مخزن تحت [پروانه MIT](LICENSE) منتشر شده است — استفاده مجدد آزاد با ذکر منبع.
