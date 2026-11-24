@@ -19,7 +19,7 @@ const ART_CLS = { der: 'm', die: 'f', das: 'n' };
 const ui = {
   tab: 'deck', errorFilter: 'vocabulary', errorSearch: '', expanded: null, manualOpen: false,
   review: null, // { queue, total, current, reveal, attempt, startedAt }
-  deckFilter: 'all', deckSearch: '', deckAdd: false, deckType: 'wort', deckMsg: '', deckBusy: false,
+  deckFilter: 'all', deckSearch: '', deckSort: 'new', deckAdd: false, deckType: 'wort', deckMsg: '', deckBusy: false,
   deckReview: false, deckFlip: false, deckSession: null,
   wrOpen: {}, // «نوشته‌های من»: which texts show their corrections
 };
@@ -152,9 +152,33 @@ export function renderErrorbook(page, ctx) {
     return `<section class="rv">${head}<div class="card rv-card ${ART_CLS[art] ? 'art-' + ART_CLS[art] : ''}"><span class="vc-tag">${esc(w ? d.wortart || L('لغت', 'Word', 'Wort') : 'Redemittel')}</span><h2 dir="ltr" lang="de">${art ? `<i>${esc(art)}</i> ` : ''}${esc(w ? d.wort : d.de)}</h2>${back}</div></section>`;
   };
 
+  /* DECK-SORT: card order of the notebook, same control as the favourites page. */
+  const deckSortLabel = (id) => ({
+    new: L('جدیدترین', 'Newest', 'Neueste'),
+    old: L('قدیمی‌ترین', 'Oldest', 'Älteste'),
+    az: L('الفبایی (A–Z)', 'A–Z', 'A–Z'),
+    due: L('نزدیک‌ترین سررسید', 'Next due', 'Nächste Fälligkeit'),
+    stage: L('کمترین مرحله مرور', 'Least practised', 'Am wenigsten geübt'),
+  })[id] || L('جدیدترین', 'Newest', 'Neueste');
+  const DECK_SORTS = ['new', 'old', 'az', 'due', 'stage'];
+  const deckSorted = (list) => {
+    const mode = DECK_SORTS.includes(ui.deckSort) ? ui.deckSort : 'new';
+    const rows = list.map((x, index) => ({ x, index }));
+    const added = (x) => String(x.added || '');
+    const dueD = (x) => String(x.due || '');
+    const stage = (x) => Number(x.stage) || 0;
+    const word = (x) => { const d = x.data || {}; return String(x.type === 'wort' ? d.wort : d.de || '').toLocaleLowerCase(); };
+    if (mode === 'old') rows.sort((a, b) => added(a.x).localeCompare(added(b.x)) || a.index - b.index);
+    else if (mode === 'az') rows.sort((a, b) => word(a.x).localeCompare(word(b.x), 'de') || a.index - b.index);
+    else if (mode === 'due') rows.sort((a, b) => dueD(a.x).localeCompare(dueD(b.x)) || a.index - b.index);
+    else if (mode === 'stage') rows.sort((a, b) => stage(a.x) - stage(b.x) || dueD(a.x).localeCompare(dueD(b.x)) || a.index - b.index);
+    else rows.sort((a, b) => added(b.x).localeCompare(added(a.x)) || a.index - b.index);
+    return rows.map((r) => r.x);
+  };
+
   const deckView = (data) => {
     if (ui.deckReview) return deckReviewView(data);
-    const all = Object.values(deckOf(data)).sort((a, b) => String(b.added).localeCompare(String(a.added)));
+    const all = deckSorted(Object.values(deckOf(data)));
     const t = today();
     const due = all.filter((x) => x.due <= t).length;
     const words = all.filter((x) => x.type === 'wort').length;
@@ -173,6 +197,7 @@ export function renderErrorbook(page, ctx) {
       </section>
       ${deckForm()}
       ${all.length ? `<div class="toolbar"><label class="search">${svg(ICONS.search)}<input type="search" data-search="deck" dir="auto" value="${esc(ui.deckSearch)}" placeholder="${esc(L('جستجو در لغت، معنی یا مثال…', 'Search word, meaning or example…', 'Suchen: Wort, Bedeutung, Beispiel …'))}" /></label>
+          <label class="fav-sort"><span>${esc(L('ترتیب', 'Sort', 'Sortierung'))}</span><select data-deck-sort="1" aria-label="${esc(L('ترتیب نمایش کارت‌ها', 'Card order', 'Sortierung der Karten'))}">${DECK_SORTS.map((id) => `<option value="${id}" ${ui.deckSort === id ? 'selected' : ''}>${esc(deckSortLabel(id))}</option>`).join('')}</select></label>
           <div class="chips">${chips.map(([id, label, n]) => chip(id, label, num(n), ui.deckFilter === id, 'data-deck-filter')).join('')}</div></div>
         <div class="vgrid" id="deckGrid">${all.map(deckCard).join('')}</div>
         <p class="empty-line" id="deckNone" hidden>${esc(L('موردی با این فیلتر پیدا نشد.', 'No entries match this filter.', 'Keine Einträge für diesen Filter.'))}</p>`
@@ -510,6 +535,12 @@ export function renderErrorbook(page, ctx) {
         default:
       }
     }
+  });
+
+  root.addEventListener('change', (event) => {
+    if (!event.target.dataset.deckSort) return;
+    ui.deckSort = DECK_SORTS.includes(event.target.value) ? event.target.value : 'new';
+    draw();
   });
 
   root.addEventListener('input', (event) => {

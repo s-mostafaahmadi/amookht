@@ -57,6 +57,9 @@ html[dir='ltr'] .w-tools { flex-direction: row; }
 }
 .w-icon:hover { background: var(--row-hover); color: var(--text); }
 .w-icon[aria-pressed='true'] { color: var(--ring); }
+/* the pin reads as off (outlined, tilted) until it is pressed; pressed = filled, upright, highlighted */
+#btn-pin[aria-pressed='false'] svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; transform: rotate(40deg); opacity: .8; }
+#btn-pin[aria-pressed='true'] { background: color-mix(in srgb, var(--ring) 18%, transparent); }
 #btn-close:hover { background: #c42b3a; color: #fff; }
 .w-icon.is-spinning svg { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Mila avatar">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="10" x2="110" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8b6cff"/>
+      <stop offset="1" stop-color="#34d9d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <circle cx="64" cy="60" r="36" fill="#2a2340"/>
+  <path d="M31 111c4-23 20-36 33-36s29 13 33 36" fill="#f7f0ff"/>
+  <circle cx="64" cy="57" r="25" fill="#f2c6a5"/>
+  <path d="M39 57c8-24 28-29 51-16-2-16-13-26-28-26-20 0-35 16-35 37 0 4 1 8 2 11 3-1 6-3 10-6z" fill="#342346"/>
+  <circle cx="55" cy="57" r="3" fill="#2b2340"/>
+  <circle cx="74" cy="57" r="3" fill="#2b2340"/>
+  <path d="M55 71c6 5 13 5 19 0" fill="none" stroke="#9c5570" stroke-width="4" stroke-linecap="round"/>
+  <path d="M27 95c10-8 22-13 37-13s27 5 37 13v33H27z" fill="#efe8ff"/>
+  <path d="M48 90l16 14 16-14" fill="none" stroke="#8b6cff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -80,7 +80,9 @@ class TelegramBot:
     async def notify(self, title: str, body: str, severity: str = "info") -> None:
         if not self.enabled:
             return
-        if severity != "critical" and not await self.alerts_enabled():
+        # Owner alerts are for important errors only (owner request 2026-11-24): warnings and info stay in the logs.
+        if severity != "critical":
+            logger.info("Telegram alert not sent (severity %s): %s", severity, title)
             return
         try:
             self.queue.put_nowait(TelegramEvent(title=title, body=body, severity=severity))

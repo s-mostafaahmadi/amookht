@@ -18,15 +18,23 @@ export function install(shim) {
     const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5h9M8 3.5v2m3 0c-.6 3.6-3 6.7-6.5 8.4M5.6 8.6c1.2 2.2 3 3.9 5.3 5"/><path d="m12.5 20.5 4-9.5 4 9.5m-6.6-3h5.2"/></svg>';
     let btn = null, panel = null, busy = false, last = null;
 
+    // On the conversation coach this button stands in for the coach's own translator button (hidden in its frame),
+    // so the translator sits in the same place with the same look on every page, and opens the coach's translator.
+    function coachFab() {
+      if (!document.documentElement.classList.contains('dcoach-active')) return null;
+      try { return document.querySelector('#dcoachFrame')?.contentDocument?.querySelector('#translatorFab') || null; } catch (e) { return null; }
+    }
     function visible() {
       const S_ = appS(); if (!S_?.currentUser || ['landing', 'auth', 'premiumPlans'].includes(S_.screen)) return false;
-      return !document.documentElement.classList.contains('dcoach-active'); // the conversation coach has its own translator
+      if (!document.documentElement.classList.contains('dcoach-active')) return true;
+      const fab = coachFab(); // the coach hides its translator in the mistakes / favourites views
+      return !!fab && !fab.classList.contains('view-hidden');
     }
     function mount() {
       if (btn) return;
       btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'amk-tr-fab'; btn.innerHTML = ICON;
-      btn.addEventListener('click', () => (panel && !panel.hidden ? close() : open()));
+      btn.addEventListener('click', () => { const fab = coachFab(); if (fab) { fab.click(); return; } if (panel && !panel.hidden) close(); else open(); });
       document.body.appendChild(btn);
       window.addEventListener('resize', place);
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel && !panel.hidden) close(); });
@@ -94,7 +102,8 @@ export function install(shim) {
       if (innerWidth <= 720) { panel.style.cssText = ''; return; }
       const r = btn.getBoundingClientRect(), w = Math.min(400, innerWidth - 24);
       const h = Math.min(panel.offsetHeight || 420, innerHeight - 24);
-      const left = Math.min(innerWidth - w - 12, r.right + 12);
+      // LTR (en/de): the button is on the right edge, so the panel opens to its left
+      const left = r.left > innerWidth / 2 ? Math.max(12, r.left - 12 - w) : Math.min(innerWidth - w - 12, r.right + 12);
       const top = Math.max(12, Math.min(innerHeight - h - 12, r.bottom - h));
       panel.style.cssText = `left:${Math.round(left)}px;top:${Math.round(top)}px;width:${w}px`;
     }

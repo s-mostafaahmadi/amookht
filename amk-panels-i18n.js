@@ -1,0 +1,397 @@
+// amk-panels-i18n.js — trilingual text for the owner «مدیریت هوش مصنوعی» and admin «کنترل محتوا»
+// panels, which are Persian-only in their own sources. Loaded before those two scripts.
+// Generated from the Windows app's core/tr-dict.js (same dictionary in both) — edit it there.
+// amkTranslateHTML(html) / amkPanelTree(el) translate rendered panels with the site language (S.uiLanguage);
+// the entries are also merged into window.AMK_PANELS_I18N, which the site's own uiCopyMap() reads.
+(function () {
+  'use strict';
+  var PANEL = {"مدیریت هوش مصنوعی":["AI management","KI-Verwaltung"],
+    "APIها، کلیدها، مدلها، مسیر هر بخش و مدل محلی":["APIs, keys, models, routing per feature and the local model","APIs, Schlüssel, Modelle, Routing je Bereich und lokales Modell"],
+    "ارائه‌دهنده‌ها":["Providers","Anbieter"],
+    "ارائه‌دهنده‌ها ":["Providers ","Anbieter "],
+    "افزودن ارائه‌دهنده هوش مصنوعی":["Add an AI provider","KI-Anbieter hinzufügen"],
+    "+ افزودن ارائه‌دهنده":["+ Add provider","+ Anbieter hinzufügen"],
+    "ترتیب = اولویت جایگزینی خودکار":["Order = automatic fallback priority","Reihenfolge = automatische Ausweichpriorität"],
+    "از چپ به راست امتحان می‌شود":["tried left to right","wird von links nach rechts versucht"],
+    "مسیر هر بخش":["Routing per feature","Routing je Bereich"],
+    "کلیدها":["Keys","Schlüssel"],
+    "کلیدها (":["Keys (","Schlüssel ("],
+    "کلید فعال":["Active key","Aktiver Schlüssel"],
+    "کلید اضافه شد.":["Key added.","Schlüssel hinzugefügt."],
+    "کلید حذف شد.":["Key deleted.","Schlüssel gelöscht."],
+    "کلید را وارد کنید.":["Enter a key.","Bitte einen Schlüssel eingeben."],
+    "کلیدی ثبت نشده.":["No key stored.","Kein Schlüssel gespeichert."],
+    "کلید جدید API":["New API key","Neuer API-Schlüssel"],
+    "برچسب (اختیاری)":["Label (optional)","Bezeichnung (optional)"],
+    "افزودن کلید":["Add key","Schlüssel hinzufügen"],
+    "+ افزودن کلید":["+ Add key","+ Schlüssel hinzufügen"],
+    "حذف کلید":["Delete key","Schlüssel löschen"],
+    "فعال کردن کلید":["Enable key","Schlüssel aktivieren"],
+    "غیرفعال کردن کلید":["Disable key","Schlüssel deaktivieren"],
+    "بازگشت به کلیدهای فایل":["Back to file keys","Zurück zu Dateischlüsseln"],
+    "ورود کلیدهای فایل":["Import file keys","Dateischlüssel importieren"],
+    "کلیدها دوباره از فایل خوانده می‌شوند.":["Keys are read from the files again.","Schlüssel werden wieder aus den Dateien gelesen."],
+    "بدون مصرف ثبت‌شده":["No usage recorded","Keine Nutzung erfasst"],
+    "مدل‌ها:":["Models:","Modelle:"],
+    "مدل‌ها (هر خط یک مدل؛ اولی پیش‌فرض)":["Models (one per line; the first is the default)","Modelle (eins pro Zeile; das erste ist Standard)"],
+    "مدل پیش‌فرض ارائه‌دهنده":["Provider default model","Standardmodell des Anbieters"],
+    "فهرست مدل‌ها":["List models","Modelle auflisten"],
+    "تست همه کلیدها":["Test all keys","Alle Schlüssel testen"],
+    "تست اتصال":["Test connection","Verbindung testen"],
+    "⚡ تست اتصال":["⚡ Test connection","⚡ Verbindung testen"],
+    "اتصال را آزمایش کنید":["Test the connection","Verbindung testen"],
+    "در حال آزمایش…":["Testing…","Wird getestet …"],
+    "در حال تست…":["Testing…","Wird getestet …"],
+    "در حال تست همه کلیدها… (تا ۲۰ ثانیه)":["Testing all keys… (up to 20 seconds)","Alle Schlüssel werden getestet … (bis 20 Sekunden)"],
+    "✓ اتصال برقرار است":["✓ Connected","✓ Verbunden"],
+    "✗ اتصال ناموفق":["✗ Connection failed","✗ Verbindung fehlgeschlagen"],
+    "سرور مدلی برنگرداند.":["The server returned no model.","Der Server hat kein Modell geliefert."],
+    "همه ارائه‌دهنده‌ها در دسترس ✓":["All providers reachable ✓","Alle Anbieter erreichbar ✓"],
+    "هیچ ارائه‌دهنده‌ای فعال نیست!":["No provider is enabled!","Kein Anbieter ist aktiv!"],
+    "مسیر پیش‌فرض":["Default route","Standardroute"],
+    "مسیر سفارشی جعبه":["Panel custom route","Eigene Route des Panels"],
+    "مسیر خودکار شد.":["Route set to automatic.","Route auf automatisch gesetzt."],
+    "مسیر خودکار به‌روزرسانی شد.":["Automatic route updated.","Automatische Route aktualisiert."],
+    "مسیر سفارشی ذخیره شد.":["Custom route saved.","Eigene Route gespeichert."],
+    "ذخیره مسیر":["Save route","Route speichern"],
+    "+ افزودن مرحله":["+ Add step","+ Schritt hinzufügen"],
+    "ویرایش مسیر سفارشی":["Edit custom route","Eigene Route bearbeiten"],
+    "خودکار (ترتیب بالا)":["Automatic (order above)","Automatisch (Reihenfolge oben)"],
+    "سفارشی":["Custom","Eigene"],
+    "روی «+ افزودن ارائه‌دهنده» بزنید، نوع را LM Studio (یا Ollama) بگذارید و این آدرس را وارد کنید:":["Press “+ Add provider”, choose LM Studio (or Ollama) and enter this address:","„+ Anbieter hinzufügen“ drücken, LM Studio (oder Ollama) wählen und diese Adresse eintragen:"],
+    "سلامت":["Health","Status"],
+    "افزوده":["Added","Hinzugefügt"],
+    "داخلی":["Built-in","Integriert"],
+    "محلی/تونل":["Local/tunnel","Lokal/Tunnel"],
+    "غیرفعال":["Disabled","Deaktiviert"],
+    "فعال":["Active","Aktiv"],
+    "● فعال":["● Active","● Aktiv"],
+    "● غیرفعال":["● Disabled","● Deaktiviert"],
+    "فعال شد.":["Enabled.","Aktiviert."],
+    "غیرفعال شد.":["Disabled.","Deaktiviert."],
+    "در مسیر خودکار:":["In the automatic route:","In der automatischen Route:"],
+    "در مسیر خودکار این بخش‌ها:":["These features use the automatic route:","Diese Bereiche nutzen die automatische Route:"],
+    "تعیین کنید کجا استفاده شود":["Choose where it is used","Festlegen, wo er genutzt wird"],
+    "مهلت":["Timeout","Zeitlimit"],
+    "مهلت هر تلاش (ثانیه)":["Timeout per attempt (seconds)","Zeitlimit je Versuch (Sekunden)"],
+    "حداکثر":["max.","max."],
+    "حداکثر توکن پاسخ (محلی)":["Max response tokens (local)","Max. Antwort-Token (lokal)"],
+    "توکن":["tokens","Token"],
+    "نام نمایشی":["Display name","Anzeigename"],
+    "آدرس پایه (Base URL، بدون /chat/completions)":["Base URL (without /chat/completions)","Basis-URL (ohne /chat/completions)"],
+    "یادداشت":["Note","Notiz"],
+    "کلید API (اختیاری برای محلی)":["API key (optional for local)","API-Schlüssel (optional für lokal)"],
+    "اجازه شبکه محلی / localhost / http (برای تونل یا سرور خانگی)":["Allow local network / localhost / http (tunnel or home server)","Lokales Netz / localhost / http erlauben (Tunnel oder Heimserver)"],
+    "ارسال response_format=json (اگر سرور پشتیبانی نکند خودکار حذف می‌شود)":["Send response_format=json (removed automatically if unsupported)","response_format=json senden (wird bei Bedarf automatisch entfernt)"],
+    "فقط مدل محلی":["Local models only","Nur lokale Modelle"],
+    "همه بخش‌ها فقط از مدل‌های محلی/تونل استفاده کنند":["All features use only local/tunnel models","Alle Bereiche nutzen nur lokale/Tunnel-Modelle"],
+    "همه بخش‌های هوش مصنوعی فقط از مدل‌های محلی/تونل استفاده کنند؟ (اگر مدل محلی خاموش باشد، هوش مصنوعی سایت کار نمی‌کند)":["Should all AI features use only local/tunnel models? (If the local model is off, the AI stops working.)","Sollen alle KI-Bereiche nur lokale/Tunnel-Modelle nutzen? (Ist das lokale Modell aus, funktioniert die KI nicht.)"],
+    "حالت «فقط مدل محلی» روشن شد.":["“Local models only” is on.","„Nur lokale Modelle“ ist an."],
+    "حالت «فقط مدل محلی» خاموش شد.":["“Local models only” is off.","„Nur lokale Modelle“ ist aus."],
+    "همه قطع‌کن‌ها باز شدند.":["All circuit breakers reset.","Alle Schutzschalter zurückgesetzt."],
+    "↺ رفع همه":["↺ Reset all","↺ Alle zurücksetzen"],
+    "↺ رفع قطع موقت":["↺ Reset breaker","↺ Schutzschalter zurücksetzen"],
+    "وضعیت قطع‌کن خودکار (circuit breaker):":["Automatic circuit breakers:","Automatische Schutzschalter:"],
+    "قطع موقت (":["Temporarily blocked (","Vorübergehend gesperrt ("],
+    "بارگذاری نشد:":["Loading failed:","Laden fehlgeschlagen:"],
+    "در حال بارگذاری…":["Loading…","Wird geladen …"],
+    "خطا در دریافت فهرست":["Could not load the list","Liste konnte nicht geladen werden"],
+    "خطا":["Error","Fehler"],
+    "آخرین تغییر:":["Last change:","Letzte Änderung:"],
+    "آخرین تست:":["Last test:","Letzter Test:"],
+    "به‌روزرسانی:":["Updated:","Aktualisiert:"],
+    "امروز:":["Today:","Heute:"],
+    "| ۷ روز:":["| 7 days:","| 7 Tage:"],
+    "موفق ·":["ok ·","ok ·"],
+    "ناموفق":["failed","fehlgeschlagen"],
+    "جدید در ۳۰ روز:":["New in 30 days:","Neu in 30 Tagen:"],
+    "جدید این هفته":["New this week","Neu diese Woche"],
+    "آخرین موارد افزوده‌شده":["Latest additions","Neueste Einträge"],
+    "نکته‌ها":["Notes","Hinweise"],
+    "⇩ پشتیبان":["⇩ Backup","⇩ Backup"],
+    "⇧ بازیابی":["⇧ Restore","⇧ Wiederherstellen"],
+    "ذخیره":["Save","Speichern"],
+    "ذخیره شد.":["Saved.","Gespeichert."],
+    "انصراف":["Cancel","Abbrechen"],
+    "حذف":["Delete","Löschen"],
+    "ویرایش":["Edit","Bearbeiten"],
+    "✎ ویرایش":["✎ Edit","✎ Bearbeiten"],
+    "بستن":["Close","Schließen"],
+    "بستن ▴":["Close ▴","Schließen ▴"],
+    "تلاش دوباره":["Try again","Erneut versuchen"],
+    "↻ بازخوانی":["↻ Reload","↻ Neu laden"],
+    "↻ تست دوباره":["↻ Test again","↻ Erneut testen"],
+    "تأییدشده":["Verified","Bestätigt"],
+    "مسدود":["Blocked","Gesperrt"],
+    "افزودن":["Add","Hinzufügen"],
+    "اجرا":["Run","Starten"],
+    "تمرین":["Practice","Üben"],
+    "کامل":["Complete","Vollständig"],
+    "روز":["Day","Tag"],
+    "روز آماده":["Day ready","Tag bereit"],
+    "روز فعلی":["Current day","Aktueller Tag"],
+    "روز بعدی در حال ساخت":["Next day is being built","Nächster Tag wird gebaut"],
+    "همه روزها آماده‌اند":["All days are ready","Alle Tage sind bereit"],
+    "هنوز آماده نیست":["Not ready yet","Noch nicht bereit"],
+    "همه تمرین‌های این روز هنوز منتشر نشده‌اند.":["Not all exercises of this day are published yet.","Noch nicht alle Übungen dieses Tages sind veröffentlicht."],
+    "در حال ساخت":["Building","Wird gebaut"],
+    "در صف":["Queued","In Warteschlange"],
+    "در حال دریافت…":["Loading…","Wird geladen …"],
+    "پک":["Pack","Paket"],
+    "پک روز در «اجرای برنامه» قرار گرفت.":["The day pack was placed in “Run plan”.","Das Tagespaket wurde in „Plan starten“ gelegt."],
+    "تمرین‌های امروز با پک «روز":["Today’s practice is replaced by pack “day","Die heutige Übung wird durch Paket „Tag"],
+    "این روز همان تمرین امروز در «اجرای برنامه» است. علامت‌ها پاک شوند و پیشرفت امروز Hören، Lesen، Schreiben و Sprechen هم از نو شروع شود؟":["This day is today’s practice in “Run plan”. Clear the marks and restart today’s Hören, Lesen, Schreiben and Sprechen progress?","Dieser Tag ist die heutige Übung in „Plan starten“. Markierungen löschen und den heutigen Fortschritt in Hören, Lesen, Schreiben und Sprechen neu starten?"],
+    "پاک کن":["Clear","Leeren"],
+    "🔌 وضعیت API‌ها":["🔌 API status","🔌 API-Status"],
+    "👥 وضعیت کاربران":["👥 User status","👥 Benutzerstatus"],
+    "📦 وضعیت محتوا":["📦 Content status","📦 Inhaltsstatus"],
+    "🖥️ وضعیت سیستم":["🖥️ System status","🖥️ Systemstatus"],
+    "🗂️ کنترل محتوا":["🗂️ Content control","🗂️ Inhaltssteuerung"],
+    "موضوعی":["Topic","Thema"],
+    "پردازنده":["CPU","Prozessor"],
+    "حافظه (RAM)":["Memory (RAM)","Arbeitsspeicher (RAM)"],
+    "دیسک":["Disk","Datenträger"],
+    "خط تولید":["Production line","Produktionslinie"],
+    "هسته)":["cores)","Kerne)"],
+    "کاربران":["Users","Benutzer"],
+    "همه کاربران":["All users","Alle Benutzer"],
+    "مدیر":["Admin","Administrator"],
+    "مالک":["Owner","Inhaber"],
+    "مربی":["Tutor","Tutor"],
+    "ربات گرامر":["Grammar bot","Grammatik-Bot"],
+    "برنامه یادگیری":["Learning plan","Lernplan"],
+    "دستیار مالک":["Owner assistant","Inhaber-Assistent"],
+    "ترجمه":["Translation","Übersetzung"],
+    "شناسه (اختیاری، انگلیسی)":["ID (optional, English)","ID (optional, Englisch)"],
+    "نوع":["Type","Typ"],
+    "هفته":["Week","Woche"],
+    "جزئیات":["Details","Details"],
+    "امروز در برنامه":["Today in the plan","Heute im Plan"],
+    "انجام‌شده در برنامه":["Done in the plan","Im Plan erledigt"],
+    "· انجام شد":["· done","· erledigt"],
+    "اجرای این روز به‌جای تمرین‌های امروز":["Run this day instead of today’s practice","Diesen Tag statt der heutigen Übung starten"],
+    "روی هر هفته بزنید تا پنجره‌اش باز شود · روز را روی روز دیگر بکشید تا جایشان عوض شود · هفته را روی هفته دیگر بکشید":["Click a week to open its window · drag a day onto another day to swap them · drag a week onto another week","Auf eine Woche klicken, um ihr Fenster zu öffnen · einen Tag auf einen anderen ziehen zum Tauschen · eine Woche auf eine andere ziehen"],
+    "اول در «اجرای برنامه» تب «برنامه یادگیری» را فعال کن.":["First enable the “Learning plan” tab in “Run plan”.","Aktiviere zuerst den Tab „Lernplan“ in „Plan starten“."],
+    "بازخوانی":["Reload","Neu laden"],
+    "شنبه":["Saturday","Samstag"],
+    "یکشنبه":["Sunday","Sonntag"],
+    "دوشنبه":["Monday","Montag"],
+    "سه‌شنبه":["Tuesday","Dienstag"],
+    "چهارشنبه":["Wednesday","Mittwoch"],
+    "پنجشنبه":["Thursday","Donnerstag"],
+    "جمعه":["Friday","Freitag"],
+    "آماده":["Ready","Bereit"],
+    "اکنون":["Now","Jetzt"],
+    "رایگان":["Free","Kostenlos"],
+    "از":["of","von"],
+    "آزاد از":["free of","frei von"],
+    "· حداکثر":["· max.","· max."],
+    "(غیرفعال)":["(disabled)","(deaktiviert)"],
+    "زنده · هر ۳ ثانیه ·":["live · every 3 seconds ·","live · alle 3 Sekunden ·"],
+    "بار ۱ دقیقه":["1-minute load","Last (1 Min.)"],
+    "روشن بودن":["Uptime","Laufzeit"],
+    "فعال ۲۴ ساعت":["Active 24 h","Aktiv 24 Std."],
+    "افزوده ۲۴ ساعت":["Added 24 h","Hinzugefügt 24 Std."],
+    "ارائه‌دهنده":["Provider","Anbieter"],
+    "ارائه‌دهنده «":["Provider “","Anbieter „"],
+    "» و کلیدهایش حذف شود؟":["” and its keys be deleted?","“ und seine Schlüssel löschen?"],
+    "سرور محلی معمولاً کلید لازم ندارد.":["A local server usually needs no key.","Ein lokaler Server braucht meist keinen Schlüssel."],
+    "مدل را روی لپ‌تاپ روشن کنید":["Start the model on your laptop","Starte das Modell auf dem Laptop"],
+    "تونل را به سرور وصل کنید":["Connect the tunnel to the server","Verbinde den Tunnel mit dem Server"],
+    "ارائه‌دهنده را در همین جعبه اضافه کنید":["Add the provider in this panel","Anbieter in diesem Panel hinzufügen"],
+    "حداقل یک مدل وارد کنید.":["Enter at least one model.","Bitte mindestens ein Modell eingeben."],
+    "ارائه‌دهنده اضافه شد. حالا «تست اتصال» را بزنید.":["Provider added. Now press “Test connection”.","Anbieter hinzugefügt. Jetzt „Verbindung testen“ drücken."],
+    "ترتیب ذخیره شد.":["Order saved.","Reihenfolge gespeichert."],
+    "فایل پشتیبان دانلود شد (کلیدها رمزنگاری‌شده‌اند و فقط روی همین سرور قابل استفاده‌اند).":["Backup file downloaded (keys are encrypted and only usable on this server).","Backup-Datei heruntergeladen (Schlüssel sind verschlüsselt und nur auf diesem Server nutzbar)."],
+    "فایل JSON معتبر نیست.":["The JSON file is not valid.","Die JSON-Datei ist ungültig."],
+    "تنظیمات فعلی هوش مصنوعی با این فایل پشتیبان جایگزین شود؟":["Replace the current AI settings with this backup file?","Aktuelle KI-Einstellungen durch diese Sicherungsdatei ersetzen?"],
+    "تنظیمات بازیابی شد.":["Settings restored.","Einstellungen wiederhergestellt."],
+    "حذف شد.":["Deleted.","Gelöscht."],
+    "این کلید از این جعبه حذف شود؟ (فایل‌های قدیمی سرور دست نمی‌خورند)":["Remove this key from this panel? (Old server files stay untouched)","Diesen Schlüssel aus dem Panel entfernen? (Alte Serverdateien bleiben unberührt)"],
+    "وضعیت کلید تغییر کرد.":["Key status changed.","Schlüsselstatus geändert."],
+    "کلیدهای ذخیره‌شده در این جعبه برای این ارائه‌دهنده کنار گذاشته شوند و دوباره از فایل‌های قبلی خوانده شوند؟":["Discard the keys saved for this provider in this panel and read the old files again?","Die im Panel gespeicherten Schlüssel dieses Anbieters verwerfen und die alten Dateien erneut lesen?"],
+    "مدل اضافه شد.":["Model added.","Modell hinzugefügt."],
+    "باز شد.":["Opened.","Geöffnet."],
+    "کپی شد":["Copied","Kopiert"],
+    "همان کد آزموده‌شده قبلی (Groq ← NVIDIA) اجرا می‌شود":["The previously tested code (Groq ← NVIDIA) is used","Der zuletzt getestete Code (Groq ← NVIDIA) wird verwendet"],
+    "مسیر جدید این جعبه اجرا می‌شود":["The new route of this panel is used","Die neue Route dieses Panels wird verwendet"],
+    "کلیدها فعلاً از فایل‌های قبلی خوانده می‌شوند. با افزودن/حذف کلید، یک نسخه رمزنگاری‌شده به این جعبه منتقل می‌شود (فایل‌ها دست‌نخورده می‌مانند).":["Keys are currently read from the old files. Adding or deleting a key moves an encrypted copy into this panel (the files stay untouched).","Schlüssel werden derzeit aus den alten Dateien gelesen. Beim Hinzufügen oder Löschen eines Schlüssels wird eine verschlüsselte Kopie in dieses Panel übernommen (die Dateien bleiben unverändert)."],
+    "فایل قدیمی (API.txt / .env / .nvidia_keys)":["Old file (API.txt / .env / .nvidia_keys)","Alte Datei (API.txt / .env / .nvidia_keys)"],
+    "برای افزودن به فهرست کلیک کنید":["Click to add to the list","Zum Hinzufügen zur Liste klicken"],
+    "مربی آلمانی (Study Tutor)":["German tutor (Study Tutor)","Deutsch-Tutor (Study Tutor)"],
+    "بازخورد برنامه یادگیری":["Learning-plan feedback","Lernplan-Feedback"],
+    "ربات تمرین گرامر":["Grammar practice bot","Grammatik-Übungsbot"],
+    "ترجمه (Deutsch Coach و مترجم سایت)":["Translation (Deutsch Coach and site translator)","Übersetzung (Deutsch Coach und Website-Übersetzer)"],
+    "OpenAI-compatible (دلخواه)":["OpenAI-compatible (custom)","OpenAI-kompatibel (benutzerdefiniert)"],
+    "راهنمای اجرای سایت با مدل محلی (LM Studio / Ollama) ▾":["Guide: run the site with a local model (LM Studio / Ollama) ▾","Anleitung: Website mit lokalem Modell betreiben (LM Studio / Ollama) ▾"],
+    "راهنمای اجرای سایت با مدل محلی":["Guide: run the site with a local model","Anleitung: Website mit lokalem Modell betreiben"],
+    "سایت روی سرور اینترنتی اجرا می‌شود و به‌طور مستقیم به لپ‌تاپ شما دسترسی ندارد. برای همین، مدلِ روی لپ‌تاپ را با یک «تونل» به سرور وصل می‌کنیم.":["The site runs on an internet server and cannot reach your laptop directly. That is why the model on your laptop is connected to the server through a “tunnel”.","Die Website läuft auf einem Internetserver und hat keinen direkten Zugriff auf deinen Laptop. Deshalb wird das Modell auf dem Laptop über einen „Tunnel“ mit dem Server verbunden."],
+    "در LM Studio یک مدل (مثلاً gemma-3-4b-it) را بارگذاری کنید و از بخش Developer گزینه Start Server را بزنید. سرور روی پورت ۱۲۳۴ بالا می‌آید.":["In LM Studio, load a model (e.g. gemma-3-4b-it) and press Start Server in the Developer section. The server starts on port 1234.","Lade in LM Studio ein Modell (z. B. gemma-3-4b-it) und klicke im Bereich Developer auf Start Server. Der Server startet auf Port 1234."],
+    "اگر از Ollama استفاده می‌کنید، این دستور را اجرا کنید (پورت ۱۱۴۳۴):":["If you use Ollama, run this command (port 11434):","Wenn du Ollama nutzt, führe diesen Befehl aus (Port 11434):"],
+    "روی لپ‌تاپ یک ترمینال باز کنید و این دستور را اجرا کنید. تا وقتی این پنجره باز است، اتصال برقرار می‌ماند:":["Open a terminal on the laptop and run this command. The connection stays up while this window is open:","Öffne auf dem Laptop ein Terminal und führe diesen Befehl aus. Solange das Fenster offen ist, bleibt die Verbindung bestehen:"],
+    "برای Ollama به‌جای 1234 عدد 11434 را بنویسید. نیازی به باز کردن پورت روی مودم نیست.":["For Ollama write 11434 instead of 1234. No port has to be opened on the router.","Für Ollama 11434 statt 1234 schreiben. Am Router muss kein Port geöffnet werden."],
+    "تیک «اجازه شبکه محلی» برای این نوع‌ها خودکار زده می‌شود. کلید API لازم نیست.":["“Allow local network” is ticked automatically for these types. No API key is needed.","„Lokales Netz erlauben“ wird für diese Typen automatisch aktiviert. Kein API-Schlüssel nötig."],
+    "روی کارت جدید، اول «فهرست مدل‌ها» را بزنید و مدل را اضافه کنید، بعد «⚡ تست اتصال». اگر جمله‌ای آلمانی برگشت، اتصال درست است.":["On the new card, first press “List models” and add the model, then “⚡ Test connection”. If a German sentence comes back, the connection works.","Auf der neuen Karte zuerst „Modelle auflisten“ drücken und das Modell hinzufügen, dann „⚡ Verbindung testen“. Kommt ein deutscher Satz zurück, funktioniert die Verbindung."],
+    "برای استفاده کنار APIها: در بخش «در مسیر خودکار» تیک مربی، برنامه یادگیری و… را بزنید و با ▲ کارت را بالا ببرید.":["To use it alongside the APIs: under “In the automatic route” tick tutor, learning plan … and move the card up with ▲.","Zur Nutzung neben den APIs: unter „In der automatischen Route“ Tutor, Lernplan … ankreuzen und die Karte mit ▲ nach oben schieben."],
+    "برای کار فقط با مدل محلی: کلید «فقط مدل محلی» بالای جعبه را روشن کنید.":["To work with the local model only: turn on “Local models only” at the top of the panel.","Nur mit dem lokalen Modell arbeiten: „Nur lokale Modelle“ oben im Panel einschalten."],
+    "راه دیگر: Cloudflare Tunnel (بدون SSH)":["Alternative: Cloudflare Tunnel (no SSH)","Alternative: Cloudflare Tunnel (ohne SSH)"],
+    "روی لپ‌تاپ اجرا کنید:":["Run on the laptop:","Auf dem Laptop ausführen:"],
+    "آدرس https که نشان می‌دهد را با":["Add the https address it shows, with","Die angezeigte https-Adresse mit"],
+    "در انتها، با نوع «OpenAI-compatible» اضافه کنید. چون این آدرس عمومی است، در LM Studio گزینه Require API key را روشن کنید و همان کلید را اینجا هم وارد کنید.":["at the end, as type “OpenAI-compatible”. Since this address is public, turn on Require API key in LM Studio and enter the same key here.","am Ende als Typ „OpenAI-compatible“ hinzufügen. Da diese Adresse öffentlich ist, in LM Studio Require API key einschalten und denselben Schlüssel hier eintragen."],
+    "مدل‌های کوچک محلی کند هستند؛ Gemma 4B روی کارت GTX 1050 Ti حدود ۷ توکن در ثانیه تولید می‌کند.":["Small local models are slow; Gemma 4B on a GTX 1050 Ti produces about 7 tokens per second.","Kleine lokale Modelle sind langsam; Gemma 4B erzeugt auf einer GTX 1050 Ti etwa 7 Token pro Sekunde."],
+    "مرورگر برای بازخورد برنامه حدود ۷۰ ثانیه و برای مربی حدود ۹۵ ثانیه صبر می‌کند. پاسخ مدل محلی به ۲۰۴۸ توکن محدود است و در «ویرایش» قابل تغییر است.":["The browser waits about 70 seconds for plan feedback and about 95 seconds for the tutor. The local model’s answer is limited to 2048 tokens and can be changed under “Edit”.","Der Browser wartet beim Plan-Feedback etwa 70 Sekunden und beim Tutor etwa 95 Sekunden. Die Antwort des lokalen Modells ist auf 2048 Token begrenzt und unter „Bearbeiten“ änderbar."],
+    "تبدیل گفتار به متن (Whisper) همچنان از Groq استفاده می‌کند.":["Speech-to-text (Whisper) still uses Groq.","Die Spracherkennung (Whisper) nutzt weiterhin Groq."],
+    "امنیت: آدرس‌های metadata ابری همیشه رد می‌شوند؛ localhost و شبکه داخلی فقط با تیک «اجازه شبکه محلی» مجازند. کلیدها رمزنگاری‌شده ذخیره می‌شوند و هرگز کامل نمایش داده نمی‌شوند.":["Security: cloud metadata addresses are always rejected; localhost and the internal network are only allowed with “Allow local network” ticked. Keys are stored encrypted and never shown in full.","Sicherheit: Cloud-Metadata-Adressen werden immer abgelehnt; localhost und internes Netz sind nur mit „Lokales Netz erlauben“ zulässig. Schlüssel werden verschlüsselt gespeichert und nie vollständig angezeigt."],
+    "«مسیر پیش‌فرض» یعنی همان کد قبلی سایت (Groq با کلیدهای رزرو، بعد NVIDIA). هر تغییری در ترتیب، مدل‌ها یا افزودن ارائه‌دهنده جدید، آن بخش را به موتور جدید این جعبه می‌برد. ترجمه در صورت مسیر پیش‌فرض از کلیدهای خود Deutsch Coach استفاده می‌کند.":["“Default route” means the site’s previous code (Groq with reserve keys, then NVIDIA). Any change to the order or the models, or adding a new provider, moves that feature to this panel’s new engine. With the default route, translation uses Deutsch Coach’s own keys.","„Standardroute“ bedeutet den bisherigen Code der Website (Groq mit Reserveschlüsseln, dann NVIDIA). Jede Änderung an Reihenfolge oder Modellen oder ein neuer Anbieter verschiebt diesen Bereich auf die neue Engine dieses Panels. Bei der Standardroute nutzt die Übersetzung die eigenen Schlüssel von Deutsch Coach."],
+    "کپی کلیدهای API.txt / .env / .nvidia_keys به این جعبه (فایل‌ها حذف نمی‌شوند)":["Copy the keys from API.txt / .env / .nvidia_keys into this panel (the files are not deleted)","Schlüssel aus API.txt / .env / .nvidia_keys in dieses Panel kopieren (die Dateien werden nicht gelöscht)"],
+    "اولویت بالاتر":["Higher priority","Höhere Priorität"],
+    "اولویت پایین‌تر":["Lower priority","Niedrigere Priorität"],
+    "فعال/غیرفعال":["Enable/disable","Aktivieren/Deaktivieren"],
+    "امروز (UTC)":["Today (UTC)","Heute (UTC)"],
+    "هر کلید جداگانه تست می‌شود":["Each key is tested separately","Jeder Schlüssel wird einzeln getestet"],
+    "خواندن /models از سرور":["Read /models from the server","/models vom Server lesen"],
+    "کلیدهای این جعبه کنار گذاشته شوند و دوباره از فایل‌ها خوانده شوند":["Set this panel’s keys aside and read them from the files again","Schlüssel dieses Panels verwerfen und wieder aus den Dateien lesen"],
+    "باز کردن":["Reset","Zurücksetzen"],
+    "کلیدهای فایل‌های قبلی (API.txt، .env، .nvidia_keys) به‌صورت رمزنگاری‌شده به این جعبه کپی شوند؟ فایل‌ها حذف یا تغییر داده نمی‌شوند.":["Copy the keys from the old files (API.txt, .env, .nvidia_keys) into this panel, encrypted? The files are neither deleted nor changed.","Schlüssel aus den alten Dateien (API.txt, .env, .nvidia_keys) verschlüsselt in dieses Panel kopieren? Die Dateien werden weder gelöscht noch geändert."],
+    "دسترسی ندارد":["No access","Kein Zugriff"],
+    "کلید نامعتبر":["Invalid key","Ungültiger Schlüssel"],
+    "پاک کردن علامت‌های انجام‌شده این روز":["Clear this day’s done marks","Erledigt-Markierungen dieses Tages löschen"],
+    "پاک کردن علامت‌ها":["Clear marks","Markierungen löschen"],
+    "دستیار هوش مصنوعی مالک":["Owner AI assistant","KI-Assistent des Inhabers"],
+    "ورود متن":["Enter text","Text eingeben"],
+    "ثبت":["Save","Speichern"],
+    "ساخت پوشه جدید":["New folder","Neuer Ordner"],
+    "برای مرتب‌سازی فایل‌ها و یادداشت‌ها یک نام انتخاب کنید.":["Choose a name to organise your files and notes.","Wähle einen Namen, um Dateien und Notizen zu ordnen."],
+    "نام پوشه":["Folder name","Ordnername"],
+    "ساخت پوشه":["Create folder","Ordner erstellen"],
+    "یادداشت جدید":["New note","Neue Notiz"],
+    "یک عنوان کوتاه و مشخص برای یادداشت بنویسید.":["Write a short, clear title for the note.","Schreib einen kurzen, klaren Titel für die Notiz."],
+    "عنوان یادداشت":["Note title","Notiztitel"],
+    "ایجاد یادداشت":["Create note","Notiz erstellen"],
+    "افزودن متن روی PDF":["Add text to the PDF","Text auf dem PDF hinzufügen"],
+    "متن در نقطه انتخاب‌شده قرار می‌گیرد.":["The text is placed at the selected point.","Der Text wird an der gewählten Stelle eingefügt."],
+    "متن خود را بنویسید":["Write your text","Schreib deinen Text"],
+    "افزودن متن":["Add text","Text hinzufügen"],
+    "ویرایش متن":["Edit text","Text bearbeiten"],
+    "متن انتخاب‌شده را ویرایش کنید.":["Edit the selected text.","Den ausgewählten Text bearbeiten."],
+    "مطالعه":["Study","Lernen"],
+    "کار":["Work","Arbeit"],
+    "ورزش":["Sport","Sport"],
+    "تفریح":["Leisure","Freizeit"],
+    "خواب":["Sleep","Schlaf"]};
+  var PATTERNS = [["^امروز: ([\\d.,]+) موفق · ([\\d.,]+) ناموفق · ([\\d.,]+) توکن$","Today: $1 ok · $2 failed · $3 tokens","Heute: $1 ok · $2 fehlgeschlagen · $3 Token"],["^امروز: ([\\d.,]+) موفق · ([\\d.,]+) ناموفق$","Today: $1 ok · $2 failed","Heute: $1 ok · $2 fehlgeschlagen"],["^\\| 7 روز: (.+) / (.+)$","| 7 days: $1 / $2","| 7 Tage: $1 / $2"],["^· مهلت ([\\d.,]+) ث · حداکثر ([\\d.,]+) توکن$","· timeout $1 s · max. $2 tokens","· Zeitlimit $1 s · max. $2 Token"],["^· مهلت ([\\d.,]+) ث$","· timeout $1 s","· Zeitlimit $1 s"],["^قطع موقت \\(([\\d.,]+) ث\\)$","Temporarily blocked ($1 s)","Vorübergehend gesperrt ($1 s)"],["^(.+?) · ([\\d.,]+) ث$","$1 · $2 s","$1 · $2 s"],["^کلیدها \\(([\\d.,]+)\\)$","Keys ($1)","Schlüssel ($1)"],["^مدل‌?های سرور \\(([\\d.,]+)\\)$","Server models ($1)","Server-Modelle ($1)"],["^کپی شد: (.+)$","Copied: $1","Kopiert: $1"],["^ارائه‌?دهنده «(.+)» و کلیدهایش حذف شود؟$","Delete provider “$1” and its keys?","Anbieter „$1“ und seine Schlüssel löschen?"],["^تمرین‌?های امروز با پک «روز ([\\d]+)» جایگزین شود؟ پیشرفت امروز صفر می‌?شود\\.$","Replace today’s practice with pack “day $1”? Today’s progress starts from zero.","Heutige Übung durch Paket „Tag $1“ ersetzen? Der heutige Fortschritt beginnt bei null."],["^ویرایش (.+)$","Edit $1","$1 bearbeiten"],["^(.+) \\(غیرفعال\\)$","$1 (disabled)","$1 (deaktiviert)"],["^(.+) \\(محلی\\)$","$1 (local)","$1 (lokal)"],["^(.*)\\(([\\d]+) هسته\\)$","$1($2 cores)","$1($2 Kerne)"],["^([\\d.,]+) روز$","$1 days","$1 Tage"],["^(.+) آزاد از (.+)$","$1 free of $2","$1 frei von $2"],["^زنده · هر ([\\d]+) ثانیه · (.+)$","Live · every $1 s · $2","Live · alle $1 s · $2"],["^([\\d.,]+) از ([\\d.,]+) کلید فعال$","$1 of $2 keys active","$1 von $2 Schlüsseln aktiv"],["^([\\d.,]+) از ([\\d.,]+)$","$1 of $2","$1 von $2"],["^([\\d.,]+)% آماده$","$1% ready","$1 % bereit"],["^اجرای روز ([\\d]+)$","Run day $1","Tag $1 starten"],["^روز ([\\d]+)$","Day $1","Tag $1"],["^هفته ([\\d]+)$","Week $1","Woche $1"],["^(.+) · انجام شد$","$1 · done","$1 · erledigt"]];
+
+  var FA = /[\u0600-\u06FF]/;
+  var ATTRS = ['title', 'placeholder', 'aria-label'];
+  var FA_DIGITS = '\u06F0\u06F1\u06F2\u06F3\u06F4\u06F5\u06F6\u06F7\u06F8\u06F9';
+  var AR_DIGITS = '\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669';
+  function latinDigits(value) {
+    return String(value)
+      .replace(/[\u06F0-\u06F9]/g, function (d) { return String(FA_DIGITS.indexOf(d)); })
+      .replace(/[\u0660-\u0669]/g, function (d) { return String(AR_DIGITS.indexOf(d)); })
+      .replace(/\u066A/g, '%').replace(/\u066B/g, '.').replace(/\u066C/g, ',');
+  }
+  function normKey(value) { return latinDigits(String(value).replace(/\u200c/g, '').replace(/\s+/g, ' ').trim()); }
+  var NORM = {};
+  Object.keys(PANEL).forEach(function (key) { var k = normKey(key); if (!(k in NORM)) NORM[k] = PANEL[key]; });
+  var RULES = PATTERNS.map(function (p) { return [new RegExp(p[0]), p[1], p[2]]; });
+  var own = Object.prototype.hasOwnProperty;
+  function lookup(text) {
+    if (own.call(PANEL, text)) return PANEL[text];
+    var site = window.AMK_PANELS_I18N;
+    if (site && own.call(site, text) && Array.isArray(site[text])) return site[text];
+    var n = normKey(text);
+    return own.call(NORM, n) ? NORM[n] : null;
+  }
+
+  function siteLang() {
+    // S is a top-level binding of the page script, not a window property
+    try { var l = typeof S !== 'undefined' && S ? S.uiLanguage : window.S && window.S.uiLanguage; return l === 'en' || l === 'de' ? l : 'fa'; } catch (e) { return 'fa'; }
+  }
+
+  // Translate one trimmed piece (index 0 = en, 1 = de); null when nothing matches.
+  function piece(text, index, depth) {
+    depth = depth || 0;
+    if (!text) return null;
+    var hit = lookup(text);
+    if (hit) return hit[index] || hit[0];
+    var latin = latinDigits(text).replace(/\u200c/g, '');
+    if (!FA.test(latin)) return latin;
+    for (var r = 0; r < RULES.length; r++) {
+      var m = latin.match(RULES[r][0]);
+      if (!m) continue;
+      return (index ? RULES[r][2] : RULES[r][1]).replace(/\$(\d)/g, function (_, n) {
+        var part = m[Number(n)] || '';
+        if (!FA.test(part) || depth >= 3) return part;
+        var sub = piece(part.trim(), index, depth + 1);
+        return sub == null ? part : sub;
+      });
+    }
+    if (depth > 3) return null;
+    var paren = text.match(/^\((.+)\)$/);
+    if (paren) { var inner = piece(paren[1].trim(), index, depth + 1); if (inner != null) return '(' + inner + ')'; }
+    var cut = text.match(/^(.+?)([\s]*[:·…—–-]+[\s]*)$/);
+    if (cut) { hit = lookup(cut[1].trim()); if (hit) return (hit[index] || hit[0]) + cut[2]; }
+    var label = text.match(/^([^:]+):\s+(.+)$/);
+    if (label && !FA.test(latinDigits(label[2]))) {
+      hit = lookup(label[1].trim() + ':') || lookup(label[1].trim());
+      if (hit) return String(hit[index] || hit[0]).replace(/:?\s*$/, ': ') + latinDigits(label[2]);
+    }
+    if (/ [·|] /.test(text)) {
+      var parts = text.split(/( [·|] )/);
+      var out = parts.map(function (p, i) { return i % 2 || !FA.test(p) ? p : piece(p.trim(), index, depth + 1); });
+      if (out.every(function (p) { return p != null; })) return out.join('');
+    }
+    return null;
+  }
+  function translateText(raw) {
+    var lang = siteLang();
+    if (lang === 'fa') return raw;
+    var trimmed = String(raw == null ? '' : raw).trim();
+    if (!trimmed || !FA.test(trimmed)) return raw;
+    var at = raw.indexOf(trimmed);
+    var hit = piece(trimmed, lang === 'de' ? 1 : 0);
+    return hit == null ? raw : raw.slice(0, at) + hit + raw.slice(at + trimmed.length);
+  }
+
+  /** Translate every Persian text node and title/placeholder/aria-label inside a panel. */
+  function amkPanelTree(root) {
+    try {
+      if (!root || siteLang() === 'fa') return root;
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      var node, nodes = [];
+      while ((node = walker.nextNode())) nodes.push(node);
+      nodes.forEach(function (n) { var next = translateText(n.nodeValue || ''); if (next !== n.nodeValue) n.nodeValue = next; });
+      if (root.querySelectorAll) {
+        Array.prototype.forEach.call(root.querySelectorAll('*'), function (el) {
+          ATTRS.forEach(function (name) {
+            var value = el.getAttribute && el.getAttribute(name);
+            if (!value || !FA.test(value)) return;
+            var next = translateText(value);
+            if (next !== value) el.setAttribute(name, next);
+          });
+        });
+      }
+      return root;
+    } catch (e) { return root; }
+  }
+
+  /** Translate a rendered HTML string (used before insertion). */
+  function amkTranslateHTML(html) {
+    try {
+      if (siteLang() === 'fa' || !html) return html;
+      var box = document.createElement('div');
+      box.innerHTML = html;
+      amkPanelTree(box);
+      return box.innerHTML;
+    } catch (e) { return html; }
+  }
+
+  // Exact entries also reach the site's own translator (uiCopyMap); existing site entries win.
+  window.AMK_PANELS_I18N = Object.assign({}, PANEL, window.AMK_PANELS_I18N || {});
+  // window.amkTranslateTree is the site's own function and is left alone.
+  window.amkPanelTree = amkPanelTree;
+  window.amkTranslateHTML = amkTranslateHTML;
+  window.amkPanelText = function (fa) { var l = siteLang(); if (l === 'fa') return fa; var hit = piece(String(fa).trim(), l === 'de' ? 1 : 0); return hit == null ? fa : hit; };
+  window.amkPanelLocale = function () { var l = siteLang(); return l === 'en' ? 'en-GB' : l === 'de' ? 'de-DE' : 'fa-IR'; };
+})();

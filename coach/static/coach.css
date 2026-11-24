@@ -1,0 +1,94 @@
+/* Deutsch Coach v3 additions */
+body.booting .app-shell{opacity:.55;pointer-events:none}
+body.gated .app-shell,body.gated .translator-fab{filter:blur(6px);pointer-events:none}
+.back-link{display:grid;place-items:center;width:34px;height:46px;margin-right:-4px;border:1px solid var(--line);border-radius:13px;background:#111a2c;color:#cfd8ee;font-size:26px;line-height:1;text-decoration:none}
+.back-link:hover{color:#fff;border-color:var(--coach-accent)}
+.pro-badge{display:inline-block;margin-left:4px;padding:2px 6px;border-radius:6px;background:linear-gradient(90deg,#f6d27a,#f39b4a);color:#3b2400;font-size:9px;font-style:normal;font-weight:900;letter-spacing:.06em;vertical-align:2px}
+.brand small span:empty+*{display:none}
+/* composer */
+.input-row.with-mic{align-items:flex-end}
+.input-row.with-mic textarea{flex:1;min-width:0}
+.mic{flex:0 0 44px;height:44px;display:grid;place-items:center;border:1px solid var(--line);border-radius:15px;background:#151e32;color:#dfe6f7;cursor:pointer;transition:.15s}
+.mic svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mic:hover{border-color:var(--coach-accent)}
+.mic.recording{border-color:#ff6f87;background:#ff6f87;color:#fff;animation:mic-pulse 1.2s ease-in-out infinite}
+.mic:disabled{opacity:.45;cursor:default}
+@keyframes mic-pulse{0%,100%{box-shadow:0 0 0 0 #ff6f8777}50%{box-shadow:0 0 0 10px #ff6f8700}}
+.rec-timer{margin:7px 9px 0;color:#ffb1bd;font-size:12px;font-weight:700}
+.voice-note-btn{border:0;background:none;color:var(--muted);cursor:pointer;font:inherit;font-size:11px}
+.voice-note-btn:hover{color:#fff}
+.voice-panel{display:flex;flex-wrap:wrap;gap:10px 18px;margin:8px 4px 0;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:#0e1628f2;color:#cdd6ea;font-size:12px}
+.voice-panel label{display:flex;align-items:center;gap:6px}
+.voice-panel select{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:#0a1221;color:#fff}
+/* messages */
+.message.is-speaking .bubble{box-shadow:0 0 0 2px var(--coach-accent),0 14px 40px #0006}
+.message.is-speaking .speak-mini{background:var(--coach-accent);color:#fff}
+.spoken-badge{margin-right:6px;font-size:12px;opacity:.75}
+.speak-inline{margin-left:6px;padding:3px 8px;border:1px solid var(--line);border-radius:8px;background:#151e32;color:#cfd8ee;cursor:pointer;font-size:11px;vertical-align:middle}
+.speak-inline:hover{border-color:var(--coach-accent);color:#fff}
+.favorite-item footer{gap:10px}
+#naturalText{cursor:pointer}
+#naturalText:hover{text-decoration:underline dotted}
+.use-pattern{margin-right:auto;padding:4px 9px;border:1px solid var(--line);border-radius:9px;background:#151e32;color:#bfaeff;cursor:pointer;font-size:11px}
+.answer-patterns .inline-favorite-row{align-items:center;gap:8px}
+/* Per-account coach management */
+.coach-tab{position:relative}
+.coach-delete{position:absolute;top:5px;right:5px;z-index:2;display:grid;place-items:center;width:24px;height:24px;border:1px solid #ff6f8755;border-radius:8px;background:#271923;color:#ffb1bd;font-style:normal;font-size:17px;line-height:1;cursor:pointer}
+.coach-delete:hover{background:#ff6f87;color:#fff}
+.delete-coach-window{width:min(430px,96vw)}
+.delete-coach-confirm{padding:11px 17px;border:0;border-radius:12px;background:#c7455c;color:#fff;font-weight:800;cursor:pointer}
+/* listening card */
+.listen-bubble{width:100%;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.listen-card{padding:16px;border:1px solid #36d6c455;border-radius:18px;background:linear-gradient(140deg,#0f2a33,#111a2d)}
+.listen-card.is-loading{opacity:.85}
+.listen-card header{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.listen-card header span{color:#62e5d5;font-size:9px;font-weight:900;letter-spacing:.14em}
+.listen-card header b{font-size:16px}
+.listen-player{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.listen-player audio{flex:1 1 220px;min-width:0;height:38px}
+.listen-player audio:not([controls]){display:none}
+.listen-player label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px}
+.listen-player select{padding:5px;border:1px solid var(--line);border-radius:8px;background:#0a1221;color:#fff}
+.listen-play{padding:11px 16px;border:0;border-radius:13px;background:linear-gradient(145deg,#36d6c4,#148e9a);color:#04201f;font-weight:900;cursor:pointer}
+.listen-play:disabled{opacity:.7;cursor:wait}
+.listen-note{margin:11px 0 0;color:#aebbd0;font-size:12px;line-height:1.7}
+.listen-reveal{margin-top:10px;padding:8px 12px;border:1px solid var(--line);border-radius:11px;background:#121c30;color:#cfe;cursor:pointer;font-size:12px}
+.listen-transcript{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);line-height:1.75}
+.listen-transcript p{margin:0 0 8px}
+.listen-transcript h4{margin:14px 0 6px;color:#62e5d5;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.listen-transcript ul{margin:0;padding-left:18px}
+.listen-vocab{display:grid;gap:6px;padding:0!important;list-style:none}
+.listen-vocab li{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:10px;background:#0b1626}
+/* gate */
+.gate{z-index:200;background:#030711e6}
+.gate-window{max-width:520px;text-align:center}
+.gate-tag{display:inline-block;padding:4px 11px;border-radius:999px;background:linear-gradient(90deg,#f6d27a,#f39b4a);color:#3b2400;font-size:11px;font-weight:900}
+.gate-window h2{margin:14px 0 8px;font-size:21px;line-height:1.6}
+.gate-window p{color:#b7c3d9;line-height:1.9}
+.gate-action{display:block;text-decoration:none;text-align:center}
+@media(max-width:720px){
+  .back-link{width:30px;height:40px}
+  .mic{flex-basis:40px;height:40px}
+  .composer-meta{flex-wrap:wrap;gap:4px}
+  .listen-card{padding:13px}
+}
+
+/* embedded inside Amookht (sidebar is Amookht's) */
+html.embedded .back-link{display:none!important}
+#messageInput:placeholder-shown{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/*AMK-SCROLL*/ /* same scrollbar as Amookht; --aca-200 is copied from Amookht when embedded */
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--aca-200,#c7d2fe);border-radius:3px}::-webkit-scrollbar-corner{background:transparent}
+
+/*AMK-EMBED-LAYOUT*/ /* inside Amookht: page bg + scrollbar belong to Amookht */
+html.embedded{background:#151621!important}html.embedded body{background:radial-gradient(circle at 9% 0,color-mix(in srgb,var(--aca-500,#2563eb) 14%,transparent),transparent 30%),radial-gradient(circle at 92% 18%,color-mix(in srgb,var(--acb-500,#8b5cf6) 15%,transparent),transparent 27%),#151621!important}
+html.embedded.amk-light{background:#f5f6fb!important}html.embedded.amk-light body{background:radial-gradient(circle at 9% 0,color-mix(in srgb,var(--aca-500,#2563eb) 12%,transparent),transparent 30%),radial-gradient(circle at 92% 18%,color-mix(in srgb,var(--acb-500,#8b5cf6) 10%,transparent),transparent 27%),#f5f6fb!important}
+html.embedded{scrollbar-width:none}html.embedded::-webkit-scrollbar{display:none}
+html.embedded .ambient{display:none!important}
+html.embedded .app-shell{width:100%;max-width:1180px;margin:0 auto;padding:22px 22px 140px;box-sizing:border-box}
+html.embedded .topbar{margin:0 0 18px!important;border-radius:26px!important;padding:22px 24px!important}
+html.embedded .composer{left:0;right:0;transform:none;width:100%;max-width:1180px;margin:0 auto;box-sizing:border-box;padding-left:22px;padding-right:22px;background:linear-gradient(180deg,transparent,#151621 34%)!important}
+html.embedded.amk-light .composer{background:linear-gradient(180deg,transparent,#f5f6fb 34%)!important}
+@media(max-width:900px){html.embedded{scrollbar-width:thin}html.embedded::-webkit-scrollbar{display:block}html.embedded .app-shell{padding:14px 12px 132px}html.embedded .topbar{border-radius:22px!important;padding:16px!important}html.embedded .composer{padding-left:12px;padding-right:12px}}
+
+/*FAB-RIGHT (2026-11-24): same place and size as the site's translator button on every other page (right edge, above the tutor slot) */ .translator-fab{left:auto!important;right:22px!important;bottom:220px!important;width:58px!important;height:58px!important}@media(max-width:720px){.translator-fab{right:12px!important;width:50px!important;height:50px!important}}

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <title>مربی گفتگو · آموخت</title>
+  <script>try{var t=localStorage.getItem("amookht_theme");if(t?t!=="dark":!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("amk-light");var c=JSON.parse(localStorage.getItem("amookht_accent")||"null");if(c&&c[0]){document.documentElement.style.setProperty("--amk-a",c[0]);document.documentElement.style.setProperty("--amk-b",c[1]||c[0])}}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Vazirmatn:wght@400;600;800;900&display=swap">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css?v=3.3.14">
+  <link rel="stylesheet" href="coach.css?v=3.3.14fab1">
+  <link rel="stylesheet" href="amookht-theme.css?v=3.3.14lt2">
+  <style>
+    :root{--coach-accent:#8b6cff}.coach-switcher{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}.coach-tab{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid var(--line);border-radius:16px;background:#111a2c;color:var(--muted);cursor:pointer;text-align:left}.coach-tab b,.coach-tab small{display:block}.coach-tab small{font-size:9px;margin-top:2px}.mini-avatar{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:11px;background:var(--coach-accent);color:#fff;font-size:11px;font-weight:900}.coach-tab.active{color:#fff;border-color:var(--coach-accent);background:#1b2439}.daily-plan{margin-top:14px;padding:18px 20px;border:1px solid var(--line);border-radius:22px;background:rgba(12,20,36,.78)}.daily-plan header,.plan-footer{display:flex;align-items:center;justify-content:space-between;gap:12px}.daily-plan small{color:var(--cyan);font-size:9px;letter-spacing:.14em}.daily-plan h2{margin:4px 0 0;font-size:18px}.daily-score{text-align:center}.daily-score b,.daily-score span{display:block}.daily-score span{font-size:9px;color:var(--muted)}.plan-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:15px 0}.plan-step{min-height:64px;padding:9px;border:1px solid var(--line);border-radius:13px;background:#111b2e;color:var(--muted);cursor:pointer;font-size:11px;text-align:left}.plan-step span{display:block;margin-bottom:5px;color:var(--coach-accent);font-weight:900}.plan-step.active{border-color:var(--coach-accent);color:#fff;box-shadow:inset 0 0 0 1px var(--coach-accent)}.plan-step.done{background:#12352d;color:#bff9df}.plan-footer{font-size:11px;color:var(--muted)}.plan-footer button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:10px}@media(max-width:720px){.coach-switcher{grid-template-columns:1fr 1fr}.plan-steps{display:flex;overflow-x:auto}.plan-step{flex:0 0 125px}}
+    .message-tools{position:absolute;right:9px;top:9px;display:flex;gap:5px}.message-tools .speak-mini{position:static}.hint-mini{height:29px;padding:0 9px;border:1px solid var(--line);border-radius:10px;background:#151e32;color:#bfaeff;cursor:pointer;font-size:10px}.message.assistant .bubble:has(.message-tools){padding-right:125px}.translator-fab{position:fixed;z-index:50;right:22px;bottom:145px;width:56px;height:56px;border:0;border-radius:19px;background:linear-gradient(145deg,#35d8c9,#148e9a);color:#041b1b;font-size:22px;font-weight:900;box-shadow:0 15px 40px #0dd8c955;cursor:pointer}.tool-overlay{position:fixed;z-index:100;inset:0;display:grid;place-items:center;padding:18px;background:#030711cc;backdrop-filter:blur(9px)}.tool-window{width:min(680px,96vw);max-height:88vh;overflow:auto;padding:20px;border:1px solid #ffffff18;border-radius:24px;background:linear-gradient(145deg,#17223a,#0c1424);box-shadow:0 35px 100px #000b}.tool-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.tool-head h2{margin:0}.tool-close{width:37px;height:37px;border:1px solid var(--line);border-radius:11px;background:#121c30;color:#fff;cursor:pointer}.tool-input{width:100%;min-height:88px;padding:13px;border:1px solid var(--line);border-radius:15px;background:#0a1221;color:#fff;resize:vertical}.tool-submit{width:100%;margin-top:9px;padding:12px;border:0;border-radius:13px;background:linear-gradient(145deg,var(--coach-accent),#5c45ce);color:#fff;font-weight:800;cursor:pointer}.tool-result{margin-top:16px}.translation-main,.hint-answer{padding:14px;border:1px solid #34d9d044;border-radius:15px;background:#0d2630;font-size:18px;line-height:1.7}.word-info,.hint-guidance{color:#b7c3d9;line-height:1.8}.collocation-list{display:grid;gap:8px;padding:0;list-style:none}.collocation-list li{padding:11px;border:1px solid var(--line);border-radius:13px;background:#101a2d}.collocation-list b,.collocation-list small{display:block}.collocation-list small{margin-top:4px;color:var(--muted)}.hint-translation{direction:rtl;padding:12px;border-right:3px solid #36d6c4;background:#0b1828;line-height:1.8}.sentence-structure{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.sentence-part{padding:7px 9px;border-radius:9px;font-weight:700}.role-starter{background:#513c84}.role-subject{background:#174b68}.role-verb{background:#76511f}.role-connector{background:#285f48}.role-detail{background:#613451}.role-ending{background:#38415c}.structure-legend{margin-top:9px;color:var(--muted);font-size:11px;direction:rtl}.tool-loading{padding:20px;text-align:center;color:var(--muted)}@media(max-width:720px){.translator-fab{right:13px;bottom:140px}.message.assistant .bubble:has(.message-tools){padding-right:105px}.hint-mini{padding:0 6px}}
+    .answer-patterns{display:grid;gap:8px;padding:0;counter-reset:pattern;list-style:none}.answer-patterns li{position:relative;padding:12px 12px 12px 43px;border:1px solid var(--line);border-radius:13px;background:#101a2d;line-height:1.6}.answer-patterns li:before{counter-increment:pattern;content:counter(pattern);position:absolute;left:11px;top:11px;display:grid;place-items:center;width:23px;height:23px;border-radius:8px;background:#8b6cff33;color:#c7baff;font-weight:900;font-size:11px}.verb-highlight{padding:2px 4px;border-radius:6px;background:#f2b84b26;color:#ffd77c;box-shadow:inset 0 -2px 0 #f2b84b;font-weight:800}.verb-legend{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px}.verb-legend i{width:10px;height:10px;border-radius:3px;background:#f2b84b}
+    .hint-original{padding:14px;border:1px solid #8b6cff55;border-radius:15px 15px 5px 5px;background:#161c35;font-size:17px;line-height:1.7}.hint-original+.hint-translation{margin-top:3px;border-radius:5px 5px 15px 15px}
+    .mistake-memory{margin-top:14px;border:1px solid var(--line);border-radius:22px;background:#0c1424c7;overflow:hidden}.mistake-memory>header{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:17px 20px}.mistake-memory small{color:#ffb66e;font-size:9px;letter-spacing:.14em}.mistake-memory h2{margin:4px 0;font-size:18px}.mistake-memory header p{margin:0;color:var(--muted);font-size:11px}.mistake-memory>header button{padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#151e32;color:#fff;cursor:pointer}.mistake-memory>header button b{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:4px;border-radius:7px;background:#ff9a5c22;color:#ffbd86}.mistake-panel{padding:0 20px 18px}.mistake-toolbar{display:flex;justify-content:space-between;gap:9px;margin-bottom:10px}.mistake-toolbar select,.mistake-toolbar button{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#10192c;color:#fff}.mistake-toolbar button{color:#ff91a3;cursor:pointer}.mistake-list{display:grid;gap:8px}.mistake-item{padding:12px 13px;border:1px solid var(--line);border-left:3px solid #8b6cff;border-radius:13px;background:#101a2d}.mistake-item.priority-high{border-left-color:#ff6f87}.mistake-item.priority-medium{border-left-color:#f2b84b}.mistake-item>header{display:flex;align-items:center;gap:8px}.mistake-item>header small{margin-left:auto;color:var(--muted);letter-spacing:0}.mistake-item>header button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px}.mistake-type{padding:4px 7px;border-radius:7px;background:#ffffff0c;color:#d8def0;font-size:10px;font-weight:800}.mistake-original{margin:10px 0 4px;color:#ffb1bd;text-decoration:line-through;text-decoration-color:#ff6f8766}.mistake-better{margin:0;color:#9af0c9}.mistake-note{margin:8px 0 0;color:#aebbd0;font-size:12px}.mistake-empty{padding:18px;text-align:center;color:var(--muted)}
+    .scenario-card{margin-top:14px;padding:19px 21px;border:1px solid #36d6c43d;border-radius:22px;background:linear-gradient(135deg,#102737d9,#11192de8);box-shadow:0 18px 50px #0003}.scenario-card header{display:flex;justify-content:space-between;color:#62e5d5;font-size:9px;font-weight:900;letter-spacing:.14em}.scenario-card h2{margin:10px 0 7px;font-size:21px}.scenario-card>p{margin:0;color:var(--muted);line-height:1.65}.scenario-card blockquote{margin:14px 0;padding:12px 14px;border-left:3px solid var(--coach-accent);border-radius:0 12px 12px 0;background:#070f1c9c;font-weight:700;line-height:1.65}.scenario-mission{display:flex;align-items:flex-start;gap:10px;padding-top:11px;border-top:1px solid var(--line)}.scenario-mission b{flex:0 0 auto;padding:5px 8px;border-radius:8px;background:var(--coach-accent);font-size:10px}.scenario-mission span{color:#c1ccde;font-size:12px;line-height:1.6}
+    .scenario-head-actions{display:flex;align-items:center;gap:9px}.scenario-head-actions button{padding:7px 9px;border:1px solid #36d6c44d;border-radius:9px;background:#12303a;color:#75ebdd;cursor:pointer;font-size:10px;font-weight:800;letter-spacing:0}@media(max-width:560px){.scenario-card header{align-items:flex-start;gap:8px}.scenario-head-actions{align-items:flex-end;flex-direction:column}.scenario-head-actions button{white-space:nowrap}}
+    .view-hidden{display:none!important}.view-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;padding:5px;border:1px solid var(--line);border-radius:16px;background:#0c1424}.view-tab{padding:11px;border:0;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;font-weight:800}.view-tab.active{background:#1c2942;color:#fff;box-shadow:0 8px 24px #0004}.view-tab b{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:6px;border-radius:8px;background:#ff9a5c22;color:#ffbd86;font-size:11px}.mistake-memory.standalone{margin-top:0;min-height:55vh}.mistake-memory.standalone>header{padding:22px}.mistake-memory.standalone .mistake-panel{padding:0 22px 22px}.mistake-count-badge{display:grid;place-items:center;min-width:44px;height:44px;border-radius:14px;background:#ff9a5c18;color:#ffbd86;font-weight:900}
+    .favorite-rating{display:inline-flex;align-items:center;gap:2px;padding:3px 5px;border:1px solid var(--line);border-radius:10px;background:#151e32}.favorite-rating button{width:24px;height:23px;border:0;background:transparent;color:#68738a;cursor:pointer;font-size:15px;line-height:1;transition:.15s}.favorite-rating button.is-on{color:#f2b84b;text-shadow:0 0 13px #f2b84b55}.favorite-rating button:hover,.favorite-rating button:hover~button{color:#f2b84b}.favorite-rating.is-rated{border-color:#f2b84b66;background:#3a2c13}.favorite-rating.compact button{width:21px;height:21px;font-size:13px}.message-tools .favorite-rating{height:29px}.favorite-list{display:grid;gap:10px}.favorite-item{padding:13px;border:1px solid var(--line);border-left:3px solid #f2b84b;border-radius:14px;background:#101a2d}.favorite-item header{display:flex;align-items:center;gap:8px;margin-bottom:8px}.favorite-item header b{font-size:12px}.favorite-item header small{margin-left:auto;color:var(--muted);font-size:10px}.favorite-stars{color:#f2b84b;letter-spacing:-1px}.favorite-item p{margin:0;white-space:pre-wrap;line-height:1.75;color:#d9e2f3}.favorite-item footer{display:flex;justify-content:flex-end;margin-top:9px}.favorite-item footer button{border:0;background:none;color:#ff91a3;cursor:pointer;font-size:12px}.favorite-empty{padding:28px;text-align:center;color:var(--muted);line-height:1.8}.inline-favorite-row{display:flex;justify-content:flex-end;margin-top:8px}.check-card{position:relative}.check-card .favorite-rating{position:absolute;right:10px;top:10px}@media(max-width:620px){.view-tabs{grid-template-columns:1fr}.view-tab{text-align:center}.favorite-item header{align-items:flex-start;flex-direction:column}.favorite-item header small{margin-left:0}}
+    .add-coach-tab{justify-content:center;border-style:dashed;color:#91e8dc}.add-coach-tab .mini-avatar{background:#173d42;font-size:23px}.coach-builder{width:min(760px,96vw)}.builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.builder-field{display:grid;gap:6px;color:#b9c5d9;font-size:11px}.builder-field.wide{grid-column:1/-1}.builder-field input,.builder-field select,.builder-field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;background:#0a1221;color:#fff;outline:none}.builder-field textarea{min-height:76px}.builder-color-row{display:flex;gap:8px}.builder-color-row input[type=color]{flex:0 0 52px;padding:4px;height:42px}.builder-help{margin:4px 0 14px;color:var(--muted);font-size:12px;line-height:1.6}.builder-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}.builder-actions button{padding:11px 17px;border-radius:12px;cursor:pointer}.builder-cancel{border:1px solid var(--line);background:#131d30;color:#fff}.builder-save{border:0;background:linear-gradient(145deg,var(--coach-accent),#5c45ce);color:#fff;font-weight:900}@media(max-width:620px){.builder-grid{grid-template-columns:1fr}.builder-field.wide{grid-column:auto}}
+    .coach-avatar{overflow:hidden;background:linear-gradient(145deg,var(--coach-accent),#20314f)}.coach-avatar span{width:100%;height:100%;display:block}.coach-avatar-img,.mini-avatar-img,.avatar-img{display:block;width:100%;height:100%;object-fit:cover}.avatar-fallback{display:grid!important;place-items:center;background:linear-gradient(145deg,var(--coach-accent),#17233a);color:#fff;font-weight:900}.mini-avatar{overflow:hidden;padding:0;background:#10192c}.add-coach-tab .mini-avatar{display:grid;place-items:center;padding:0}.chat-avatar{flex:0 0 42px;width:42px;height:42px;border:2px solid color-mix(in srgb,var(--coach-accent) 55%,transparent);border-radius:15px;overflow:hidden;background:#10192c;box-shadow:0 9px 24px #0005}.message.assistant{align-items:flex-end;gap:9px}.message.assistant .bubble{max-width:calc(100% - 51px)}.typing .chat-avatar{align-self:center}@media(max-width:720px){.chat-avatar{flex:0 0 36px;width:36px;height:36px;border-radius:13px}.message.assistant .bubble{max-width:calc(100% - 45px)}}
+    @media(max-width:720px){.conversation{gap:12px;padding-inline:0}.message{max-width:100%;width:100%}.message.user{justify-content:flex-end}.message.user .bubble{max-width:86%}.message.assistant{align-items:flex-end;gap:8px}.message.assistant .bubble{max-width:calc(100vw - 77px);min-width:0;padding:12px 13px}.message.assistant .bubble:has(.message-tools){padding-right:13px}.message-tools{position:static;margin-top:10px;display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}.message-tools .speak-mini{width:31px;height:29px}.hint-mini{height:29px;padding:0 9px}.inline-favorite-row{justify-content:flex-end;margin-top:8px}.bubble p{overflow-wrap:break-word;word-break:normal;hyphens:auto;line-height:1.72}.chat-avatar{margin-bottom:2px}}
+  </style>
+</head>
+<body class="booting">
+  <div class="ambient a1"></div><div class="ambient a2"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><a class="back-link" href="/" title="بازگشت به آموخت" aria-label="بازگشت به آموخت">›</a><span class="logo">💬</span><div><b>مربی گفتگو <em class="pro-badge">PRO</em></b><small dir="rtl">تمرین صحبت: آزاد حرف بزن و اصلاح فوری بگیر<span class="amk-user"> · <span id="userName"></span></span></small></div></div>
+      <div class="top-actions"><span id="statusBadge" class="status"><i></i> Verbinden…</span><button id="resetBtn" class="icon-btn" title="Neues Gespräch">↻</button></div>
+    </header>
+
+    <span hidden><b id="mistakeTabCount">0</b><b id="favoriteTabCount">0</b></span>
+
+    <nav id="coachSwitcher" class="coach-switcher learning-view" aria-label="Tutor auswählen"></nav>
+
+    <section class="coach-card learning-view" id="coachCard">
+      <div class="coach-avatar"><span id="coachInitials">MI</span><i></i></div>
+      <div><small id="coachRole">CONVERSATION PARTNER</small><h1 id="coachName">Hallo, ich bin Deutsch Coach.</h1><p id="coachIntro">Ein persönlicher Gesprächspartner für natürliches Deutsch und sanfte Korrekturen.</p></div>
+      <div class="settings">
+        <label>Niveau<select id="level"><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option></select></label>
+        
+      </div>
+    </section>
+
+    <section class="scenario-card learning-view">
+      <header><span>TESTDAF · SZENARIO DES TAGES</span><div class="scenario-head-actions"><time id="scenarioDate"></time><button id="newLearningDayBtn" type="button">↻ Neuer Lerntag</button></div></header>
+      <h2 id="scenarioTitle">Tagesszenario wird geladen…</h2>
+      <p id="scenarioContext"></p>
+      <blockquote id="scenarioQuestion"></blockquote>
+      <div class="scenario-mission"><b id="scenarioCoachName">Deutsch Coach</b><span id="scenarioTask"></span></div>
+    </section>
+
+    <section class="daily-plan learning-view">
+      <header><div><small>DEIN PERSÖNLICHER LERNPFAD</small><h2>Plan für heute</h2></div><div class="daily-score"><b id="planScore">0/5</b><span>Schritte</span></div></header>
+      <div id="planSteps" class="plan-steps"></div>
+      <div class="plan-footer"><span id="streakText">Heute starten</span><button id="resetPlanBtn" type="button">Tag zurücksetzen</button></div>
+    </section>
+
+    <section id="mistakesView" class="mistake-memory standalone view-hidden">
+      <header><div><small>LANGZEITGEDÄCHTNIS</small><h2>Fehlerspeicher</h2><p>گرامر در اولویت است؛ اشتباهات تایپی جزئی ذخیره نمی‌شوند.</p></div><span class="mistake-count-badge" id="mistakeCount">0</span></header>
+      <div id="mistakePanel" class="mistake-panel"><div class="mistake-toolbar"><select id="mistakeFilter"><option value="all">Alle Fehler</option><option value="grammar">Grammatik</option><option value="vocabulary">Wortschatz</option><option value="sentence_structure">Satzbau</option><option value="naturalness">Natürlichkeit</option></select><button id="clearMistakesBtn" type="button">Alle löschen</button></div><div id="mistakeList" class="mistake-list"></div></div>
+    </section>
+
+    <section id="favoritesView" class="mistake-memory standalone view-hidden">
+      <header><div><small>MERKLISTE</small><h2>Favoriten</h2><p dir="rtl">پاسخ‌ها، راهنماها، ترجمه‌ها و نکته‌های مهم را با ستاره ذخیره کنید.</p></div><span class="mistake-count-badge" id="favoriteCount">0</span></header>
+      <div class="mistake-panel"><div class="mistake-toolbar"><select id="favoriteFilter"><option value="all">Alle Favoriten</option><option value="ai_reply">AI-Antworten</option><option value="hint">Hinweis</option><option value="translate">Übersetzung</option><option value="listening">Hörtext</option><option value="feedback">Sprach-Check</option><option value="scenario">Szenario</option><option value="stars-3">★★★ Sehr wichtig</option><option value="stars-2">★★ Wichtig</option><option value="stars-1">★ Merken</option></select><button id="clearFavoritesBtn" type="button">Alle löschen</button></div><div id="favoriteList" class="favorite-list"></div></div>
+    </section>
+
+    <section id="conversation" class="conversation learning-view" aria-live="polite">
+      <article class="message assistant intro"><div class="bubble"><p>Einen Moment, dein Coach wird geladen…</p></div></article>
+    </section>
+
+    <section id="feedback" class="feedback learning-view hidden">
+      <header><span>✨ Sprach-Check</span><button id="closeFeedback">×</button></header>
+      <div class="check-grid">
+        <div id="grammarCard" class="check-card"><div><i>✓</i><b>Grammatik</b></div><p id="correctedText"></p></div>
+        <div id="naturalCard" class="check-card"><div><i>✓</i><b>Natürlichkeit</b></div><p id="naturalText"></p></div>
+      </div>
+      <p id="explanation" class="explanation" dir="rtl"></p>
+    </section>
+
+    <section class="composer learning-view">
+      <div class="input-row with-mic">
+        <button id="micBtn" class="mic" type="button" aria-label="Sprechen" title="Sprechen (Mikrofon)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm6-3a6 6 0 0 1-12 0M12 18v3m-4 0h8"/></svg></button>
+        <textarea id="messageInput" rows="1" maxlength="2400" placeholder="Schreib oder sprich auf Deutsch…"></textarea>
+        <button id="sendBtn" class="send" aria-label="Senden">➤</button>
+      </div>
+      <div id="recTimer" class="rec-timer hidden" dir="rtl"></div>
+      <div class="composer-meta"><span>Enter zum Senden · 🎙 zum Sprechen</span><button type="button" id="voiceSettingsBtn" class="voice-note-btn"><span id="voiceNote">🔊 Antworten werden automatisch vorgelesen</span> ⚙︎</button></div>
+      <div id="voicePanel" class="voice-panel hidden">
+        <label><input type="checkbox" id="prefAutoSpeak"> Antworten automatisch vorlesen</label>
+        <label><input type="checkbox" id="prefAutoSend"> Gesprochenes direkt senden</label>
+        <label>Sprechtempo <select id="prefSpeed"><option value="0.8">langsam</option><option value="0.9">etwas langsamer</option><option value="1">normal</option><option value="1.1">schneller</option></select></label>
+      </div>
+    </section>
+  </main>
+  <button id="translatorFab" class="translator-fab" title="فارسی ↔ Deutsch">文</button>
+  <section id="translatorOverlay" class="tool-overlay hidden" aria-modal="true" role="dialog">
+    <div class="tool-window"><header class="tool-head"><div><small>فارسی ↔ DEUTSCH</small><h2>Wortübersetzer</h2></div><button class="tool-close" data-close-tool="translatorOverlay">×</button></header><textarea id="translatorInput" class="tool-input" maxlength="500" placeholder="یک لغت یا عبارت فارسی / آلمانی بنویسید…"></textarea><button id="translateBtn" class="tool-submit">ترجمه و Collocations</button><div id="translatorResult" class="tool-result"></div></div>
+  </section>
+  <section id="hintOverlay" class="tool-overlay hidden" aria-modal="true" role="dialog">
+    <div class="tool-window"><header class="tool-head"><div><small>ANTWORT-HILFE</small><h2>Hinweis</h2></div><button class="tool-close" data-close-tool="hintOverlay">×</button></header><div id="hintResult" class="tool-result"></div></div>
+  </section>
+  <section id="coachBuilderOverlay" class="tool-overlay hidden" aria-modal="true" role="dialog">
+    <form id="coachBuilderForm" class="tool-window coach-builder">
+      <header class="tool-head"><div><small>PERSÖNLICHER COACH</small><h2>Neue Persönlichkeit erstellen</h2></div><button class="tool-close" type="button" data-close-tool="coachBuilderOverlay">×</button></header>
+      <p class="builder-help" dir="rtl">شخصیت، هدف و شیوهٔ بازخورد را دقیق انتخاب کنید؛ این اطلاعات مستقیماً رفتار مربی را تعیین می‌کنند.</p>
+      <div class="builder-grid">
+        <label class="builder-field">Name<input id="builderName" maxlength="30" required placeholder="z. B. Sophie"></label>
+        <label class="builder-field">Rolle<input id="builderRole" maxlength="50" required placeholder="z. B. Interview-Trainerin"></label>
+        <label class="builder-field">Niveau<select id="builderLevel"><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option></select></label>
+        <label class="builder-field">Farbe<span class="builder-color-row"><input id="builderColor" type="color" value="#4fb6ff"><input id="builderInitials" maxlength="3" required placeholder="Initialen"></span></label>
+        <label class="builder-field wide">Lernziel<input id="builderFocus" maxlength="160" required placeholder="Was möchtest du mit diesem Coach verbessern?"></label>
+        <label class="builder-field">Persönlichkeit<select id="builderPersonality"><option>warm, geduldig und motivierend</option><option>direkt, anspruchsvoll und präzise</option><option>ruhig, analytisch und strukturiert</option><option>locker, humorvoll und gesprächig</option></select></label>
+        <label class="builder-field">Stimme<select id="builderVoice"></select></label>
+        <label class="builder-field">Korrekturstil<select id="builderCorrection"><option>nur wichtige Fehler kurz korrigieren</option><option>jeden Grammatikfehler präzise korrigieren</option><option>zuerst zur Selbstkorrektur auffordern</option><option>Natürlichkeit und Redewendungen priorisieren</option></select></label>
+        <label class="builder-field wide">Begrüßung<input id="builderGreeting" maxlength="220" required placeholder="Erster Satz des Coaches auf Deutsch"></label>
+        <label class="builder-field wide">Zusätzliche Wünsche<textarea id="builderInstructions" maxlength="700" placeholder="z. B. Stelle immer nur eine Frage und simuliere Bewerbungsgespräche."></textarea></label>
+        <label class="builder-field wide">Tagesplan (5 Schritte, mit Komma getrennt)<input id="builderPlan" maxlength="300" required value="Warm-up, Neue Aufgabe, Aktive Übung, Korrektur, Tagesrückblick"></label>
+      </div>
+      <div class="builder-actions"><button class="builder-cancel" type="button" data-close-tool="coachBuilderOverlay">Abbrechen</button><button class="builder-save" type="submit">Persönlichkeit erstellen</button></div>
+    </form>
+  </section>
+  <section id="deleteCoachOverlay" class="tool-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="deleteCoachTitle">
+    <div class="tool-window delete-coach-window" dir="rtl">
+      <header class="tool-head"><div><small>مدیریت مربی‌ها</small><h2 id="deleteCoachTitle">حذف مربی</h2></div><button id="closeDeleteCoachBtn" class="tool-close" type="button" aria-label="بستن">×</button></header>
+      <p id="deleteCoachMessage" class="builder-help"></p>
+      <div class="builder-actions"><button id="cancelDeleteCoachBtn" class="builder-cancel" type="button">لغو</button><button id="confirmDeleteCoachBtn" class="delete-coach-confirm" type="button">حذف برای من</button></div>
+    </div>
+  </section>
+  <section id="gateOverlay" class="tool-overlay gate hidden" role="dialog" aria-modal="true">
+    <div class="tool-window gate-window" dir="rtl"><span id="gateTag" class="gate-tag">PREMIUM</span><h2 id="gateTitle"></h2><p id="gateBody"></p><a id="gateAction" class="tool-submit gate-action" href="/" target="_top">بازگشت به آموخت</a></div>
+  </section>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js?v=3.3.14" defer></script>
+</body>
+</html>

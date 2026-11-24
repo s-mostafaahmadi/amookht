@@ -1,0 +1,41 @@
+/* Amookht · site-wide translator (button above «مربی آلمانی») */
+.amk-tr-fab{position:fixed;z-index:1549;left:22px;top:auto;width:58px;height:58px;padding:0;border:1px solid color-mix(in srgb,var(--acb-300,#c4b5fd) 45%,transparent);border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#fff;
+  background:linear-gradient(145deg,var(--acb-500,#a855f7),var(--aca-600,#6d4fe6));box-shadow:0 10px 26px color-mix(in srgb,var(--aca-600,#6d4fe6) 34%,transparent),inset 0 1px rgba(255,255,255,.25);transition:transform .2s,box-shadow .2s;-webkit-user-select:none;user-select:none}
+.amk-tr-fab[hidden]{display:none}
+.amk-tr-fab svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.amk-tr-fab:hover{transform:translateY(-3px) scale(1.03)}
+.amk-tr-fab.is-open{box-shadow:0 0 0 3px color-mix(in srgb,var(--aca-300,#a5b4fc) 60%,transparent),0 10px 26px rgba(2,6,23,.35)}
+.amk-tr-fab.is-locked{filter:saturate(.45);opacity:.85}
+.amk-tr-panel{position:fixed;z-index:1600;width:400px;max-height:calc(100vh - 24px);overflow:auto;box-sizing:border-box;padding:14px 14px 16px;border-radius:22px;
+  background:#1b1d2b;color:#e8e9f3;border:1px solid rgba(255,255,255,.1);box-shadow:0 26px 70px rgba(2,6,23,.55);font-family:'Vazirmatn','Inter',system-ui,sans-serif;direction:rtl}
+.amk-tr-panel[hidden]{display:none}
+html:not(.dark) .amk-tr-panel{background:#fff;color:#1e2235;border-color:rgba(30,34,53,.12);box-shadow:0 26px 70px rgba(30,34,53,.22)}
+.amk-tr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.amk-tr-head small{font-size:.66rem;letter-spacing:.12em;font-weight:800;color:var(--aca-300,#a5b4fc)}
+html:not(.dark) .amk-tr-head small{color:var(--aca-600,#6d4fe6)}
+.amk-tr-head h2{margin:2px 0 0;font-size:1.05rem;font-weight:900}
+.amk-tr-x{border:0;background:rgba(127,127,160,.16);color:inherit;width:32px;height:32px;border-radius:10px;font-size:1.2rem;cursor:pointer}
+.amk-tr-in{width:100%;box-sizing:border-box;min-height:62px;resize:vertical;border-radius:14px;padding:10px 12px;font:inherit;font-size:.95rem;color:inherit;background:rgba(127,127,160,.1);border:1px solid rgba(127,127,160,.25);outline:0}
+.amk-tr-in:focus{border-color:var(--aca-400,#818cf8)}
+.amk-tr-go{margin-top:8px;width:100%;border:0;border-radius:13px;padding:10px;font:inherit;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--aca-600,#6d4fe6),var(--acb-500,#a855f7))}
+.amk-tr-go:disabled{opacity:.6;cursor:wait}
+.amk-tr-out:empty{display:none}
+.amk-tr-out{margin-top:12px}
+.amk-tr-loading,.amk-tr-err{font-size:.88rem;opacity:.8}
+.amk-tr-err{color:#f87171}
+.amk-tr-main{display:flex;align-items:center;gap:8px;font-size:1.08rem;font-weight:800;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--aca-500,#6366f1) 14%,transparent)}
+.amk-tr-main span{flex:1}
+.amk-tr-info{margin:8px 2px;font-size:.86rem;text-align:left;opacity:.9}
+.amk-tr-panel h3{margin:12px 2px 6px;font-size:.82rem;font-weight:900;opacity:.85}
+.amk-tr-cols{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.amk-tr-cols li{display:grid;gap:3px;padding:8px 10px;border-radius:12px;background:rgba(127,127,160,.08);border:1px solid rgba(127,127,160,.14)}
+.amk-tr-cols b{text-align:left;font-size:.92rem}
+.amk-tr-cols span{font-size:.85rem}
+.amk-tr-cols small{text-align:left;font-size:.8rem;opacity:.75}
+.amk-tr-ic{border:0;background:rgba(127,127,160,.16);color:inherit;border-radius:9px;min-width:28px;height:26px;margin-inline-start:4px;cursor:pointer;font-size:.8rem;vertical-align:middle}
+.amk-tr-ic:disabled{opacity:.7;cursor:default}
+@media(max-width:720px){
+  .amk-tr-panel{left:8px!important;right:8px!important;top:auto!important;bottom:calc(76px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-height:72vh;border-radius:20px}
+}
+
+/*TR-REL*/ .amk-tr-rel{margin:4px 2px 8px;font-size:.84rem;opacity:.92}.amk-tr-rel b{color:var(--aca-600,#6d4fe6)}html.dark .amk-tr-rel b{color:var(--aca-300,#c4b5fd)}

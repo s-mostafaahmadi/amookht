@@ -63,7 +63,8 @@ export function install(shim) {
       html.classList.toggle('tutor-docked', st.open && !isPhone() && isDocked());
       if (!isPhone() && isDocked()) {
         const side = document.querySelector('.sidebar'), sr = side?.getBoundingClientRect();
-        const sideW = sr && sr.width ? Math.round(window.innerWidth - sr.left) : 0;
+        // the sidebar can be on either side (rtl right, ltr left); --tutor-side is its width
+        const sideW = sr && sr.width ? Math.round(sr.width) : 0;
         html.style.setProperty('--tutor-side', sideW + 'px');
         panel.style.cssText = '';
       } else if (!isPhone()) {
@@ -800,7 +801,7 @@ export function install(shim) {
     }
     document.addEventListener('selectstart', (e) => {
       const n = e.target, el = n && (n.nodeType === 1 ? n : n.parentElement);
-      if (!el || el.closest('input,textarea,select,[contenteditable="true"],.tutor-root')) return;
+      if (!el || el.closest('input,textarea,select,[contenteditable="true"],.tutor-root,.gd-overlay')) return;
       let txt = n.nodeType === 3 ? n.nodeValue || '' : el.textContent || '';
       try {
         const r = px >= 0 && document.caretRangeFromPoint ? document.caretRangeFromPoint(px, py) : null;

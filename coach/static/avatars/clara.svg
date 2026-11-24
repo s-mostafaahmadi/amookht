@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Clara avatar">
+  <defs><linearGradient id="bg" x1="18" y1="8" x2="110" y2="120"><stop stop-color="#f2b84b"/><stop offset="1" stop-color="#8b6cff"/></linearGradient></defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <path d="M29 112c5-23 20-36 35-36s30 13 35 36" fill="#fff6df"/>
+  <circle cx="64" cy="58" r="25" fill="#e8b18a"/>
+  <path d="M37 60c-2-24 10-40 28-40s30 16 27 40c-12-1-23-6-32-16-5 9-13 14-23 16z" fill="#6c4324"/>
+  <circle cx="55" cy="58" r="3" fill="#2c2130"/>
+  <circle cx="74" cy="58" r="3" fill="#2c2130"/>
+  <path d="M55 72c6 4 12 4 18 0" fill="none" stroke="#9a5462" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 96c10-9 22-14 33-14s24 5 33 14v32H31z" fill="#fff1cf"/>
+  <rect x="43" y="86" width="42" height="10" rx="5" fill="#f2b84b"/>
+  <path d="M44 49h40" stroke="#f8e9d6" stroke-width="4" stroke-linecap="round"/>
+</svg>

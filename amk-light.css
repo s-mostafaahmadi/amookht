@@ -1,0 +1,125 @@
+/* HERO-LIGHT (2026-11-24): «اجرای برنامه» header in light mode — a soft tint of the accent instead of the dark gradient */
+html:not(.dark) .execution-hero{color:var(--aca-950,#1e1b4b);background:radial-gradient(circle at 78% -25%,color-mix(in srgb,var(--acb-300,#c4b5fd) 45%,transparent),transparent 42%),radial-gradient(circle at 6% 120%,color-mix(in srgb,var(--aca-200,#c7d2fe) 55%,transparent),transparent 45%),linear-gradient(125deg,var(--aca-50,#eef2ff) 0%,color-mix(in srgb,var(--acb-100,#ede9fe) 80%,#fff) 58%,color-mix(in srgb,var(--aca-100,#e0e7ff) 70%,#fff) 118%);border-bottom:1px solid color-mix(in srgb,var(--aca-300,#a5b4fc) 35%,transparent);box-shadow:0 22px 50px color-mix(in srgb,var(--aca-500,#6366f1) 12%,transparent)}
+html:not(.dark) .execution-hero:before{background:color-mix(in srgb,var(--aca-300,#a5b4fc) 16%,transparent)}
+html:not(.dark) .execution-hero:after{border-color:color-mix(in srgb,var(--aca-400,#818cf8) 28%,transparent);box-shadow:0 0 0 42px color-mix(in srgb,var(--aca-400,#818cf8) 7%,transparent),0 0 0 88px color-mix(in srgb,var(--aca-400,#818cf8) 4%,transparent)}
+html:not(.dark) .execution-hero > .absolute.inset-0 .bg-white{background:var(--aca-300,#a5b4fc)}
+html:not(.dark) .execution-hero h1{color:var(--aca-950,#1e1b4b)}
+html:not(.dark) .execution-hero .text-indigo-200,html:not(.dark) .execution-hero-inner .min-w-0>p{color:var(--aca-700,#4338ca)!important;opacity:1!important}
+html:not(.dark) .execution-hero-inner .rounded-full{background:rgba(255,255,255,.78);border-color:color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent);color:var(--aca-900,#312e81);box-shadow:0 4px 12px color-mix(in srgb,var(--aca-500,#6366f1) 8%,transparent)}
+html:not(.dark) .execution-hero-inner button.rounded-full:hover{background:#fff}
+html:not(.dark) .execution-hero-inner .rounded-full[class*="bg-orange-400"]{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+/* the plan / free-study switch that overlaps the header */
+html:not(.dark) .tdm-modebar{background:color-mix(in srgb,var(--aca-500,#6366f1) 8%,rgba(255,255,255,.72));border-color:color-mix(in srgb,var(--aca-400,#818cf8) 26%,transparent);box-shadow:0 12px 30px color-mix(in srgb,var(--aca-600,#4f46e5) 10%,transparent)}
+html:not(.dark) .tdm-modebar button{color:color-mix(in srgb,var(--aca-950,#1e1b4b) 78%,transparent)}
+html:not(.dark) .tdm-modebar button:hover{background:color-mix(in srgb,var(--aca-500,#6366f1) 9%,transparent)}
+html:not(.dark) .tdm-modebar button.is-cur{background:#fff;color:var(--aca-900,#312e81);box-shadow:0 8px 22px color-mix(in srgb,var(--aca-600,#4f46e5) 16%,transparent)}
+html:not(.dark) .tdm-modebar em{background:color-mix(in srgb,var(--aca-500,#6366f1) 13%,transparent);color:var(--aca-900,#312e81)}
+html:not(.dark) .tdm-modebar button:focus-visible{outline-color:var(--aca-500,#6366f1)}
+/* HEROES-LIGHT (2026-11-24): in light mode every page header / highlight box uses the same soft accent tint as
+   the «اجرای برنامه» header instead of a dark or saturated gradient with white text. Dark mode is untouched. */
+html:not(.dark) :is(.execution-next-card,.tdm-deck-hero,.favorites-hero,.library-hero,.free-study-hero,.amp4-hero,header.bg-gradient-to-br.from-indigo-700.via-violet-700,.bg-gradient-to-br.from-cyan-500.via-indigo-600.to-violet-700,header.bg-gradient-to-r.from-indigo-600.to-purple-600,header.bg-gradient-to-r.from-cyan-600.to-indigo-600){--hl-ink:var(--aca-950,#1e1b4b);--hl-soft:var(--aca-700,#4338ca);color:var(--hl-ink)!important;background:radial-gradient(circle at 82% -30%,color-mix(in srgb,var(--acb-300,#c4b5fd) 42%,transparent),transparent 45%),radial-gradient(circle at 4% 130%,color-mix(in srgb,var(--aca-200,#c7d2fe) 50%,transparent),transparent 48%),linear-gradient(125deg,var(--aca-50,#eef2ff) 0%,color-mix(in srgb,var(--acb-100,#ede9fe) 78%,#fff) 58%,color-mix(in srgb,var(--aca-100,#e0e7ff) 70%,#fff) 118%)!important;border-color:color-mix(in srgb,var(--aca-300,#a5b4fc) 38%,transparent)!important;box-shadow:0 18px 44px color-mix(in srgb,var(--aca-500,#6366f1) 11%,transparent)!important}
+/* text inside: dark ink, secondary lines in the accent shade */
+html:not(.dark) :is(.execution-next-card,.tdm-deck-hero,.favorites-hero,.library-hero,.free-study-hero,.amp4-hero,header.bg-gradient-to-br.from-indigo-700.via-violet-700,.bg-gradient-to-br.from-cyan-500.via-indigo-600.to-violet-700,header.bg-gradient-to-r.from-indigo-600.to-purple-600,header.bg-gradient-to-r.from-cyan-600.to-indigo-600) :is(h1,h2,h3,h4,b,strong,dt,label,span,div,i,em,li,dd):not(button,button *){color:var(--hl-ink)!important}
+html:not(.dark) :is(.execution-next-card,.tdm-deck-hero,.favorites-hero,.library-hero,.free-study-hero,.amp4-hero,header.bg-gradient-to-br.from-indigo-700.via-violet-700,.bg-gradient-to-br.from-cyan-500.via-indigo-600.to-violet-700,header.bg-gradient-to-r.from-indigo-600.to-purple-600,header.bg-gradient-to-r.from-cyan-600.to-indigo-600) :is(p,small):not(button *){color:var(--hl-soft)!important;opacity:1!important}
+/* translucent white chips, tiles and buttons that sat on the dark gradient */
+html:not(.dark) :is(.execution-next-card,.tdm-deck-hero,.favorites-hero,.library-hero,.free-study-hero,.amp4-hero,header.bg-gradient-to-br.from-indigo-700.via-violet-700,.bg-gradient-to-br.from-cyan-500.via-indigo-600.to-violet-700,header.bg-gradient-to-r.from-indigo-600.to-purple-600,header.bg-gradient-to-r.from-cyan-600.to-indigo-600) :is([class*="bg-white/"],[class*="border-white/"]){background-color:rgba(255,255,255,.78)!important;border-color:color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent)!important;color:var(--aca-900,#312e81)!important}
+/* decorative white circles become accent tints */
+html:not(.dark) :is(.execution-next-card,.tdm-deck-hero,.favorites-hero,.library-hero,.free-study-hero,.amp4-hero,header.bg-gradient-to-br.from-indigo-700.via-violet-700,.bg-gradient-to-br.from-cyan-500.via-indigo-600.to-violet-700) .absolute.bg-white{background:var(--aca-300,#a5b4fc)!important}
+/* ghost buttons that were white text on the dark gradient */
+html:not(.dark) :is(.library-hero .library-actions button,.free-study-hero button:not([class*="bg-gradient"]),.tdm-deck-hero .tdm-btn.ghost,.amp-sw-btns button,[data-amp-sw],header.bg-gradient-to-br.from-indigo-700.via-violet-700 button:not([class*="bg-gradient"])){background:rgba(255,255,255,.8)!important;border:1px solid color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent)!important;color:var(--aca-900,#312e81)!important;box-shadow:0 4px 12px color-mix(in srgb,var(--aca-500,#6366f1) 8%,transparent)!important}
+html:not(.dark) :is(.library-hero .library-actions button,.free-study-hero button:not([class*="bg-gradient"]),.tdm-deck-hero .tdm-btn.ghost,.amp-sw-btns button,[data-amp-sw],header.bg-gradient-to-br.from-indigo-700.via-violet-700 button:not([class*="bg-gradient"])):hover{background:#fff!important}
+html:not(.dark) :is(.library-hero .library-actions button,.free-study-hero button:not([class*="bg-gradient"]),.tdm-deck-hero .tdm-btn.ghost,.amp-sw-btns button,[data-amp-sw],header.bg-gradient-to-br.from-indigo-700.via-violet-700 button:not([class*="bg-gradient"])) *{color:inherit!important}
+/* app settings «live preview» shows the light look in light mode */
+html:not(.dark) .pref-mock{background:#e9edf6;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}
+html:not(.dark) .pref-mock-body aside,html:not(.dark) .pref-mock-body>div{background:#fff;color:#172033;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+html:not(.dark) .pref-mock-body p{background:#e2e8f0}/* ── inner boxes that were dark in light mode too ── */
+/* «Übung starten» / «finish» capsules */
+html:not(.dark) .execution-next-start{background:#fff!important;box-shadow:0 10px 24px color-mix(in srgb,var(--aca-500,#6366f1) 18%,transparent)!important}
+html:not(.dark) .execution-start-outer{background:#fff;box-shadow:0 2px 6px color-mix(in srgb,var(--aca-500,#6366f1) 14%,transparent)}
+html:not(.dark) .execution-start-inner{background:linear-gradient(135deg,var(--aca-50,#eef2ff),color-mix(in srgb,var(--acb-100,#ede9fe) 85%,#fff) 60%,color-mix(in srgb,var(--aca-100,#e0e7ff) 80%,#fff));color:var(--aca-900,#312e81);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--aca-400,#818cf8) 18%,transparent)}
+html:not(.dark) .execution-next-start b{color:var(--aca-900,#312e81)!important}
+html:not(.dark) .execution-next-start small{color:var(--aca-600,#4f46e5)!important}
+html:not(.dark) .library-glass-input-cancel{background:#f1f4f9!important;color:#334155!important;border-color:rgba(148,163,184,.35)!important}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) :is(time,[class*="clock"],[id*="Clock"]):not(strong){color:var(--aca-700,#4338ca)!important}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) select{color:#1e293b!important}
+html:not(.dark) .execution-finish-button{background:#fff!important}
+html:not(.dark) .execution-finish-button .execution-start-outer{background:#fff}
+html:not(.dark) .execution-finish-button .execution-start-inner{background:linear-gradient(135deg,#ecfdf5,#d1fae5 55%,#cffafe);color:#065f46;box-shadow:inset 0 0 0 1px rgba(16,185,129,.22)}
+html:not(.dark) .execution-finish-button b{color:#065f46!important}
+html:not(.dark) .execution-finish-button small{color:#0e7490!important}
+/* library: premium lock, name / note dialog, loading, toast */
+html:not(.dark) .library-lock{background:linear-gradient(145deg,var(--aca-50,#eef2ff),color-mix(in srgb,var(--acb-100,#ede9fe) 80%,#fff));color:var(--aca-950,#1e1b4b);border:1px solid color-mix(in srgb,var(--aca-300,#a5b4fc) 40%,transparent);box-shadow:0 24px 60px color-mix(in srgb,var(--aca-500,#6366f1) 14%,transparent)}
+html:not(.dark) .library-lock p{color:var(--aca-700,#4338ca)}
+html:not(.dark) .library-glass-input{background:rgba(15,23,42,.28)}
+html:not(.dark) .library-glass-input-card{background:#fff;color:#172033;border-color:color-mix(in srgb,var(--aca-300,#a5b4fc) 40%,transparent);box-shadow:0 30px 80px rgba(30,41,59,.22)}
+html:not(.dark) .library-glass-input-head p{color:#64748b}
+html:not(.dark) .library-glass-input-card :is(input,textarea){background:#f5f7fb;border-color:rgba(148,163,184,.35);color:#172033}
+html:not(.dark) .library-glass-input-card :is(input,textarea):focus{background:#fff}
+html:not(.dark) .library-glass-input-card :is(input,textarea)::placeholder{color:#94a3b8}
+html:not(.dark) :is(.library-loading-card,.app-exit-saving-card,.free-category-editor-card){background:#fff;color:#172033;border-color:rgba(148,163,184,.25);box-shadow:0 24px 70px rgba(30,41,59,.2)}
+html:not(.dark) :is(.library-loading-card,.app-exit-saving-card) small{color:#64748b}
+html:not(.dark) :is(.library-loading-overlay,.app-exit-saving-overlay,.free-category-editor){background:rgba(15,23,42,.28)}
+html:not(.dark) .free-category-editor-card input{background:#f5f7fb;color:#172033;border-color:rgba(148,163,184,.35)}
+html:not(.dark) .library-toast{background:#fff;color:#172033;border:1px solid rgba(148,163,184,.3);box-shadow:0 12px 30px rgba(30,41,59,.18)}
+/* PDF viewer chrome */
+html:not(.dark) .pdf-workspace{background:#e9edf5;color:#172033}
+html:not(.dark) .pdf-toolbar{background:#fff;border-bottom-color:rgba(148,163,184,.3)}
+html:not(.dark) .pdf-toolbar :is(button,select,input):not(.is-active){background:#f1f4f9!important;color:#1e293b!important;border-color:rgba(148,163,184,.35)}
+html:not(.dark) .pdf-page-nav{background:rgba(255,255,255,.92)!important;color:#1e293b!important;border-color:rgba(148,163,184,.45)!important}
+html:not(.dark) .pdf-page-nav:not(:disabled):hover{color:#fff!important}
+/* full-screen focus timer */
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback){color:#172033!important;background:radial-gradient(circle at 20% 10%,color-mix(in srgb,var(--aca-500,#6366f1) 16%,transparent),transparent 34%),radial-gradient(circle at 85% 85%,rgba(16,185,129,.12),transparent 32%),#f6f7fb!important}
+html:not(.dark) .free-timer:fullscreen:before,html:not(.dark) .free-timer.free-focus-fallback:before{background:#fff;border-color:color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent);color:var(--aca-700,#4338ca)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-study-card-head p{color:var(--aca-700,#4338ca)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) :is(.free-timer-modes,.free-goal){background:#fff;border-color:rgba(148,163,184,.25)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-timer-modes button:not(.is-active){color:#475569!important}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-timer-ring{background:conic-gradient(var(--acb-400,#a78bfa) var(--progress),rgba(148,163,184,.2) 0)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-timer-ring>div{background:#fff;box-shadow:0 10px 30px rgba(30,41,59,.08)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-timer-ring span{color:var(--aca-700,#4338ca)}
+html:not(.dark) :is(.free-timer:fullscreen,.free-timer.free-focus-fallback) .free-timer-actions button:not(.primary){background:#fff!important;color:#1e293b!important;border-color:rgba(148,163,184,.35)!important}
+/* owner AI assistant window */
+html:not(.dark) .owner-ai-backdrop{background:rgba(15,23,42,.3)}
+html:not(.dark) .owner-ai-window{background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--aca-50,#eef2ff) 70%,#fff))!important;color:#172033;border-color:color-mix(in srgb,var(--aca-300,#a5b4fc) 40%,transparent)}
+html:not(.dark) .owner-ai-history{background:#f4f6fb;border-right-color:rgba(148,163,184,.25)}
+html:not(.dark) .owner-ai-history-item{background:#fff;color:#334155;border-color:rgba(148,163,184,.2)}
+html:not(.dark) .owner-ai-history-item.active{background:color-mix(in srgb,var(--aca-500,#6366f1) 10%,#fff);color:var(--aca-900,#312e81)}
+html:not(.dark) .owner-ai-history-item small,html:not(.dark) .owner-ai-empty{color:#64748b}
+html:not(.dark) .owner-ai-header{background:rgba(255,255,255,.8);border-bottom-color:rgba(148,163,184,.25)}
+html:not(.dark) .owner-ai-header :is(h2,h3,b,strong){color:#172033}
+html:not(.dark) .owner-ai-header p,html:not(.dark) .owner-ai-bubble-meta{color:var(--aca-700,#4338ca)}
+html:not(.dark) .owner-ai-close{background:#f1f4f9;color:#334155}
+html:not(.dark) .owner-ai-empty h3{color:#172033}
+html:not(.dark) .owner-ai-bubble.assistant{background:#f4f6fb;border-color:rgba(148,163,184,.25);color:#1e293b}
+html:not(.dark) .owner-ai-thinking{background:#f1f4f9}
+html:not(.dark) .owner-ai-compose{background:#fff;border-top-color:rgba(148,163,184,.25)}
+html:not(.dark) .owner-ai-compose-box{background:#f5f7fb!important}
+html:not(.dark) .owner-ai-compose textarea{color:#172033}
+html:not(.dark) .owner-ai-compose textarea::placeholder{color:#94a3b8}
+html:not(.dark) :is(.owner-ai-mobile-history,.owner-ai-provider-manage){background:color-mix(in srgb,var(--aca-500,#6366f1) 10%,#fff);color:var(--aca-800,#3730a3)}
+html:not(.dark) :is(.owner-ai-provider-select,.owner-ai-provider-select option){background:#fff;color:#1e293b}
+html:not(.dark) .owner-ai-provider-tools::before,html:not(.dark) .owner-ai-provider-fields label{color:var(--aca-700,#4338ca)}
+html:not(.dark) .owner-ai-provider-modal{background:linear-gradient(145deg,#fff,color-mix(in srgb,var(--aca-50,#eef2ff) 80%,#fff))!important;color:#172033}
+html:not(.dark) .owner-ai-provider-head button{background:#f1f4f9;color:#334155}
+html:not(.dark) .owner-ai-provider-card{background:#fff;border-color:rgba(148,163,184,.25)}
+html:not(.dark) .owner-ai-provider-card small{color:#64748b}
+html:not(.dark) .owner-ai-provider-badge{background:#ecfeff;color:#0e7490}
+html:not(.dark) .owner-ai-provider-actions button{background:color-mix(in srgb,var(--aca-500,#6366f1) 10%,#fff);color:var(--aca-800,#3730a3)}
+html:not(.dark) .owner-ai-provider-actions .danger{background:#fff1f2;color:#be123c}
+html:not(.dark) .owner-ai-provider-form{background:#f8fafc;border-color:rgba(148,163,184,.25)}
+html:not(.dark) .owner-ai-provider-fields input{background:#fff;color:#172033;border-color:rgba(148,163,184,.35)}
+html:not(.dark) .owner-ai-provider-notice{color:#0e7490}
+html:not(.dark) .oa-md{color:#1e293b}
+html:not(.dark) .oa-md .oa-h{color:var(--aca-700,#4338ca)}
+html:not(.dark) .oa-md i{color:#475569}
+html:not(.dark) .oa-md code{background:#f1f4f9;border-color:rgba(148,163,184,.3)}
+html:not(.dark) .oa-md blockquote{color:var(--aca-800,#3730a3)}
+html:not(.dark) .oa-table th{color:var(--aca-800,#3730a3)}
+html:not(.dark) .oa-action{background:#fff;border-color:color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent)}
+html:not(.dark) :is(.oa-action details>summary,.oa-working,.oa-copy){color:var(--aca-700,#4338ca)}
+html:not(.dark) .oa-action>footer small{color:#64748b}
+html:not(.dark) :is(.oa-quick button,.oa-newchat){background:#fff;color:var(--aca-800,#3730a3);border-color:color-mix(in srgb,var(--aca-400,#818cf8) 30%,transparent)}
+html:not(.dark) :is(.oa-quick button,.oa-newchat):hover{background:color-mix(in srgb,var(--aca-500,#6366f1) 10%,#fff)}
+html:not(.dark) .oa-cancel{color:#be123c}
+html:not(.dark) .oa-badge.wait{color:#a16207}
+html:not(.dark) .oa-badge.ok{color:#15803d}
+html:not(.dark) .oa-badge.off{color:#475569}

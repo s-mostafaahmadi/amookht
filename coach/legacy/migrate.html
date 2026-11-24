@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Deutsch Coach · انتقال به آموخت</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#080d19;color:#f4f7ff;font-family:Tahoma,"Segoe UI",sans-serif}
+  main{max-width:440px;padding:28px;text-align:center;line-height:2}
+  a{color:#8be9dc}
+</style>
+</head>
+<body>
+<main>
+  <h1 style="font-size:20px">Deutsch Coach به آموخت منتقل شد</h1>
+  <p id="status">در حال انتقال داده‌ها و باز کردن نسخهٔ جدید…</p>
+  <p><a id="go" href="https://learn.tah3in.com/coach/">ورود به Deutsch Coach در آموخت</a></p>
+</main>
+<script>
+(function () {
+  var TARGET = 'https://learn.tah3in.com/coach/';
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+      navigator.serviceWorker.getRegistrations().then(function (list) { list.forEach(function (r) { r.unregister(); }); });
+    }
+    if (window.caches && caches.keys) caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
+  } catch (e) {}
+  function read(key, fallback) {
+    try { var v = JSON.parse(localStorage.getItem(key) || 'null'); return v == null ? fallback : v; } catch (e) { return fallback; }
+  }
+  var target = TARGET;
+  try {
+    if (!localStorage.getItem('dc_migrated_v3')) {
+      var levels = {};
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.indexOf('dc_profile_') === 0) {
+          var profile = read(key, {});
+          if (profile && profile.level) levels[key.slice(11)] = profile.level;
+        }
+      }
+      var payload = {
+        mistakes: read('dc_mistakes', []),
+        favorites: read('dc_favorites', []),
+        customCoaches: read('dc_custom_coaches', []),
+        levels: levels
+      };
+      var count = payload.mistakes.length + payload.favorites.length + payload.customCoaches.length;
+      if (count > 0) {
+        var bytes = new TextEncoder().encode(JSON.stringify(payload));
+        var binary = '';
+        for (var j = 0; j < bytes.length; j += 8192) binary += String.fromCharCode.apply(null, bytes.subarray(j, j + 8192));
+        target = TARGET + '#import=' + btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        document.getElementById('status').textContent = count + ' مورد ذخیره‌شده به حساب آموخت شما منتقل می‌شود…';
+      }
+      localStorage.setItem('dc_migrated_v3', String(Date.now()));
+    }
+  } catch (e) {}
+  document.getElementById('go').href = target;
+  setTimeout(function () { location.replace(target); }, 900);
+})();
+</script>
+</body>
+</html>

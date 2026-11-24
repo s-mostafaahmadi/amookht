@@ -206,7 +206,8 @@ export function install(shim) {
       var grid = document.querySelector('#view .settings-grid'); if (!grid || grid.querySelector('#amk-sp-set')) return;
       var on = !s.appSettings || s.appSettings.sentColors !== false;
       var c = document.createElement('section'); c.id = 'amk-sp-set'; c.className = 'app-pref-card amk-sp-set';
-      c.innerHTML = '<div class="app-pref-title"><span aria-hidden="true">🎨</span><div><h2>رنگ‌بندی ساختار جمله‌ها</h2><p>جمله‌های علاقه‌مندی‌ها، دفتر عبارات و اشتباهات با رنگ اجزای جمله نمایش داده شوند</p></div></div>' +
+      var l10n = (appS() || {}).uiLanguage, tr = function (f, e, d) { return l10n === 'en' ? e : l10n === 'de' ? d : f; };
+      c.innerHTML = '<div class="app-pref-title"><span aria-hidden="true">🎨</span><div><h2>' + tr('رنگ‌بندی ساختار جمله‌ها', 'Sentence-structure colours', 'Satzbau-Farben') + '</h2><p>' + tr('جمله‌های علاقه‌مندی‌ها، دفتر عبارات و اشتباهات با رنگ اجزای جمله نمایش داده شوند', 'Colour sentence parts in favourites, notebook and mistakes', 'Satzglieder in Favoriten, Heft und Fehlern färben') + '</p></div></div>' +
         '<label class="sp-set-row"><span class="sp-set-demo" dir="ltr"><span class="sp sp-S">Ich</span> <span class="sp sp-V">stelle</span> <span class="sp sp-O">das Buch</span> <span class="sp sp-P">morgen</span> <span class="sp sp-V">vor</span>.</span><input type="checkbox" ' + (on ? 'checked' : '') + '></label>';
       c.querySelector('input').addEventListener('change', function (e) { if (typeof setAppSetting === 'function') setAppSetting('sentColors', e.target.checked); });
       var acc = grid.querySelector('#tgl-card') || grid.querySelector('.app-account-link');

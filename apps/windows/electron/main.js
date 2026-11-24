@@ -51,7 +51,7 @@ const DEFAULT_SETTINGS = {
   reduceMotion: false,
   uiScale: 1,
   widgetEnabled: false,
-  widgetAlwaysOnTop: true,
+  widgetAlwaysOnTop: false, // the widget is a normal window until the user pins it
   widgetCompact: false,
   startWithWindows: false,
   closeToTray: true,
@@ -672,6 +672,9 @@ function applyWindowChrome() {
 
 function applyAutostart() {
   if (process.platform !== 'win32') return;
+  // Only the installed build may own the Windows «run at login» entry; a `npm start` dev run used to
+  // overwrite it with electron.exe from node_modules.
+  if (!app.isPackaged) return;
   try {
     app.setLoginItemSettings({
       openAtLogin: !!state.settings.startWithWindows,
@@ -1058,8 +1061,8 @@ function createWidgetWindow() {
   widgetWindow.loadFile(path.join(__dirname, '..', 'src', 'widget.html'));
 
   widgetWindow.once('ready-to-show', () => {
+    applyWidgetOptions(); // pin state first, so the first appearance never floats above other windows
     if (state.settings.widgetEnabled) widgetWindow.showInactive();
-    applyWidgetOptions();
   });
 
   const persistWidgetBounds = () => {
@@ -1100,9 +1103,9 @@ function showWidget(focus = true) {
     return;
   }
   win.setBounds(widgetBounds());
+  applyWidgetOptions();
   if (focus) win.show();
   else win.showInactive();
-  applyWidgetOptions();
 }
 
 function hideWidget() {

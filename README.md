@@ -10,11 +10,19 @@ Wiederholung)، پاسخ‌ها را با AI تصحیح می‌کند، اشتب
 
 ---
 
+## نسخهٔ فعلی (۲۴ نوامبر ۲۰۲۶)
+
+این کامیت نسخهٔ جاری و یگانهٔ در حال اجرای آموخت است: **سایت learn.tah3in.com** (فرانت در ریشهٔ ریپو + `backend/`)،
+**مربی گفتگو** (`coach/`) و **اپ ویندوز 4.6.14** (`apps/windows/`). نسخه‌های قبلی در تاریخچهٔ git همین ریپو باقی‌اند.
+
+- فایل‌های صوتی بزرگ (`assets/free-audio`, `assets/method-audio`, `sim-audio`, `osd-sim/audio`)، نصب‌کننده‌ها، دادهٔ کاربران و کلیدها در git نیستند.
+- نصب‌کنندهٔ ویندوز: `https://learn.tah3in.com/downloads/Amookht-Setup.exe` (به‌روزرسانی خودکار از `latest.yml`).
+
 ## سه بخش، یک محصول
 
 | بخش | مسیر | توضیح |
 | --- | --- | --- |
-| **وب‌اپ** | این ریپو (`index.html`, `backend/`) | FastAPI + PostgreSQL + Redis + فرانت بدون build |
+| **وب‌اپ** | این ریپو (`testdaf-daily-plan.html` و فایل‌های ریشه، `backend/`، `coach/`) | FastAPI + PostgreSQL + Redis + فرانت بدون build |
 | **اپ ویندوز** | [`apps/windows/`](apps/windows/README.md) · [`docs/windows/`](docs/windows/README.md) | Electron 32، موتور بومی، ویجت رومیزی، به‌روزرسانی خودکار |
 | **اندروید** | [`docs/android.md`](docs/android.md) | WebView/PWA روی همان API |
 

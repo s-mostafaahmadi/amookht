@@ -1,0 +1,28 @@
+/* Amookht — parts that kept their own colours now follow the chosen accent (Settings → colour) (2026-11-13, owner request).
+   Uses the site's palette variables from accent-theme.css: --aca-* (accent 1) and --acb-* (accent 2). Star ratings stay amber. */
+
+/* «مربی آلمانی» floating button + its badges / ask bubble */
+html body .language-coach-launcher:not(.language-coach-premium-locked){background:linear-gradient(145deg,var(--aca-600,#6d4fe6),var(--acb-500,#a855f7))!important;border-color:color-mix(in srgb,var(--aca-300,#c4b5fd) 70%,transparent)!important;box-shadow:0 14px 34px color-mix(in srgb,var(--aca-600,#6d4fe6) 34%,transparent),inset 0 1px rgba(255,255,255,.25)!important}
+html body .language-coach-launcher:not(.language-coach-premium-locked):hover{box-shadow:0 20px 48px color-mix(in srgb,var(--aca-600,#6d4fe6) 44%,transparent)!important}
+html body .tutor-badge,html body .tutor-empty-badge,html body .tutor-askbubble{background:linear-gradient(135deg,var(--aca-600,#6d4fe6),var(--acb-500,#a855f7))!important}
+html body .tutor-askbubble{box-shadow:0 8px 22px color-mix(in srgb,var(--aca-600,#6d4fe6) 35%,transparent)!important}
+html body .tutor-seltype button.is-on{color:var(--aca-800,#4c1d95)!important}
+
+/* «علاقه‌مندی‌ها» page */
+html body .favorites-page{background:radial-gradient(circle at 9% 0,color-mix(in srgb,var(--aca-500,#7c5cff) 14%,transparent),transparent 30%),radial-gradient(circle at 92% 18%,color-mix(in srgb,var(--acb-500,#a855f7) 12%,transparent),transparent 28%),#f5f7fb!important}
+html.dark body .favorites-page{background:radial-gradient(circle at 9% 0,color-mix(in srgb,var(--aca-500,#7c5cff) 14%,transparent),transparent 30%),radial-gradient(circle at 92% 18%,color-mix(in srgb,var(--acb-500,#a855f7) 12%,transparent),transparent 28%),#151621!important}
+html body .favorites-hero{background:linear-gradient(125deg,var(--aca-700,#5b3fd1),var(--acb-600,#9333ea) 62%,var(--aca-500,#7c5cff))!important;box-shadow:0 22px 60px color-mix(in srgb,var(--aca-600,#6d4fe6) 24%,transparent)!important}
+html body .favorites-toolbar>div button.is-active,html body .favorites-empty button{background:linear-gradient(135deg,var(--aca-500,#7c5cff),var(--acb-500,#a855f7))!important}
+html body .favorites-star-filters button{border-color:color-mix(in srgb,var(--aca-500,#7c5cff) 18%,transparent)!important}
+html body .favorites-star-filters button.is-active{background:linear-gradient(135deg,var(--aca-500,#7c5cff),var(--acb-500,#a855f7))!important;color:#fff!important}
+html body .favorites-empty{border-color:color-mix(in srgb,var(--aca-500,#7c5cff) 22%,transparent)!important}
+html body .favorites-empty>div{background:var(--aca-50,#f5f3ff)!important;color:var(--aca-500,#7c5cff)!important}
+html.dark body .favorites-empty>div{background:color-mix(in srgb,var(--aca-500,#7c5cff) 16%,transparent)!important}
+html body .favorite-create{color:var(--aca-700,#5b3fd1)!important;box-shadow:0 9px 25px color-mix(in srgb,var(--aca-900,#2e1f78) 20%,transparent)!important}
+html body .favorite-editor{border-color:var(--aca-100,#ede9fe)}
+html.dark body .favorite-editor{border-color:#ffffff20}
+html body .favorite-editor-head span{color:var(--aca-600,#6d4fe6)!important}
+html body .favorite-editor input:focus,html body .favorite-editor textarea:focus,html body .favorite-editor select:focus{border-color:var(--aca-500,#7c5cff)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--aca-500,#7c5cff) 18%,transparent)!important}
+html body .favorite-form-actions button:last-child{background:var(--aca-600,#6d4fe6)!important}
+html body .favorite-heart.is-favorite{color:var(--aca-600,#6d4fe6)!important;background:var(--aca-50,#f5f3ff)!important;border-color:var(--aca-200,#ddd6fe)!important}
+html.dark body .favorite-heart.is-favorite{background:color-mix(in srgb,var(--aca-500,#7c5cff) 20%,transparent)!important;border-color:color-mix(in srgb,var(--aca-400,#a78bfa) 40%,transparent)!important}

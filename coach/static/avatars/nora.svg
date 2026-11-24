@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Nora avatar">
+  <defs><linearGradient id="bg" x1="18" y1="10" x2="108" y2="118"><stop stop-color="#a37bff"/><stop offset="1" stop-color="#3de0a0"/></linearGradient></defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <path d="M30 112c5-23 20-36 34-36s30 13 35 36" fill="#edf7ff"/>
+  <circle cx="64" cy="58" r="25" fill="#bf866f"/>
+  <path d="M36 64c-4-21 7-43 29-43 19 0 31 15 29 37-16 1-29-5-39-18-4 11-10 18-19 24z" fill="#1f2940"/>
+  <circle cx="55" cy="59" r="3" fill="#12192a"/>
+  <circle cx="74" cy="59" r="3" fill="#12192a"/>
+  <path d="M55 72c6 5 13 5 19 0" fill="none" stroke="#784759" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 96c10-9 22-14 33-14s24 5 33 14v32H31z" fill="#e7f2ff"/>
+  <circle cx="45" cy="91" r="5" fill="#a37bff"/>
+  <circle cx="83" cy="91" r="5" fill="#3de0a0"/>
+  <path d="M50 92h28" stroke="#26314d" stroke-width="4" stroke-linecap="round"/>
+</svg>

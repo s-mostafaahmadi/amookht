@@ -5,11 +5,19 @@
 // progress when the pack is today's). The app CSP forbids inline handlers, so everything runs through delegation.
 
 import { esc } from '../core/ui.js';
+import { translateTree } from '../core/tr.js';
+import { lang } from '../core/i18n.js';
 import { confirmDialog } from './widgets.js';
 
 const SK = [['hoeren', '🎧', 'Hören'], ['lesen', '📖', 'Lesen'], ['schreiben', '✍️', 'Schreiben'], ['sprechen', '🎤', 'Sprechen']];
 const WD_FA = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
-const fa = (n) => String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const WD_EN = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+const WD_DE = ['Sa', 'So', 'Mo', 'Di', 'Mi', 'Do', 'Fr'];
+const wd = (i) => (lang() === 'fa' ? WD_FA : lang() === 'en' ? WD_EN : WD_DE)[i];
+const L = (a, b, c) => (lang() === 'fa' ? a : lang() === 'en' ? b : c);
+// Persian digits only in Persian; English/German read Latin digits like the rest of the panel.
+const fa = (n) => (lang() === 'fa' ? String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]) : String(n));
+const readyOf = (r, t) => (lang() === 'fa' ? `${fa(r)} از ${fa(t)} روز آماده` : L(`${r} of ${t} days ready`, `${r} of ${t} days ready`, `${r} von ${t} Tagen bereit`));
 // state survives page switches and redraws of the admin page
 const st = { data: null, loading: false, error: '', open: {}, dopen: {}, drag: 0, wdrag: 0, pos: {}, size: {}, z: {}, zTop: 10, ctx: null };
 
@@ -101,8 +109,8 @@ export function createContentControl(ctx) {
     const cur = d.day === act; const ready = d.status === 'published'; const op = !!st.dopen[d.day]; const by = bySkill(d); const dn = done[d.day] || {};
     const chips = SK.map(([k, ic, name]) => { const list = by[k]; const ok = list.length && list.every((i) => i.status === 'published'); return `<span class="amp4-chip ${ok ? '' : 'is-off'} ${dn[k] ? 'is-done' : ''}" title="${name}${dn[k] ? ' · انجام شد' : ''}">${ic}${k === 'sprechen' && list.length > 1 ? `<i>${fa(list.length)}</i>` : ''}</span>`; }).join('');
     const anyDone = SK.some(([k]) => dn[k]);
-    return `<article class="amp4-day st-${stClass(d.status)} ${cur ? 'is-cur' : ''} ${op ? 'is-open' : ''}" draggable="true" data-amp-day="${d.day}">
-      <div class="amp4-day-top"><span class="amp4-grip" aria-hidden="true">⠿</span><div class="amp4-day-n"><b>روز ${fa(d.day)}</b><small>${WD_FA[((Number(p) || 1) - 1) % 6]}</small></div>${cur ? '<span class="amp4-now">امروز در برنامه</span>' : ''}
+          return `<article class="amp4-day st-${stClass(d.status)} ${cur ? 'is-cur' : ''} ${op ? 'is-open' : ''}" draggable="true" data-amp-day="${d.day}">
+      <div class="amp4-day-top"><span class="amp4-grip" aria-hidden="true">⠿</span><div class="amp4-day-n"><b>روز ${fa(d.day)}</b><small>${wd(((Number(p) || 1) - 1) % 6)}</small></div>${cur ? `<span class="amp4-now">${L('امروز در برنامه', 'Today in the plan', 'Heute im Plan')}</span>` : ''}
       ${anyDone ? `<button type="button" class="amp4-reset" title="پاک کردن علامت‌های انجام‌شده این روز" data-amp-reset="${d.day}">↺</button>` : ''}
       <button type="button" class="amp4-play" ${ready ? '' : 'disabled '}title="${ready ? 'اجرای این روز به‌جای تمرین‌های امروز' : 'هنوز آماده نیست'}" data-amp-play="${d.day}">▶</button></div>
       <button type="button" class="amp4-day-body" aria-expanded="${op}" data-amp-dt="${d.day}"><span class="amp4-theme" lang="de" dir="ltr">${esc(d.theme || '—')}</span><span class="amp4-chips">${chips}<em class="amp4-more">${op ? 'بستن' : 'جزئیات'}</em></span></button>
@@ -123,10 +131,10 @@ export function createContentControl(ctx) {
     const tiles = weeks.map((ds, wi) => {
       const w = wi + 1; const op = !!st.open[w]; const cur = w === actWeek; const ready = ds.filter((x) => x.status === 'published').length; const themed = ds.some((x) => x.themed);
       const dots = ds.map((x) => `<i class="st-${stClass(x.status)} ${x.day === act ? 'is-cur' : ''}"></i>`).join('');
-      return `<li class="amp4-wk ${cur ? 'is-cur' : ''} ${op ? 'is-open' : ''}"><button type="button" class="amp4-wk-head" draggable="true" data-amp-week="${w}"><span class="amp4-wk-t"><b>هفته ${fa(w)}</b>${cur ? '<span class="amp4-now">اکنون</span>' : ''}${themed ? '<span class="amp4-tag">موضوعی</span>' : ''}</span><span class="amp4-dots">${dots}</span><small>${fa(ready)} از ${fa(ds.length)} روز آماده</small><span class="amp4-caret" aria-hidden="true">${op ? '●' : '⧉'}</span></button></li>`;
+      return `<li class="amp4-wk ${cur ? 'is-cur' : ''} ${op ? 'is-open' : ''}"><button type="button" class="amp4-wk-head" draggable="true" data-amp-week="${w}"><span class="amp4-wk-t"><b>هفته ${fa(w)}</b>${cur ? `<span class="amp4-now">${L('اکنون', 'Now', 'Jetzt')}</span>` : ''}${themed ? '<span class="amp4-tag">موضوعی</span>' : ''}</span><span class="amp4-dots">${dots}</span><small>${readyOf(ready, ds.length)}</small><span class="amp4-caret" aria-hidden="true">${op ? '●' : '⧉'}</span></button></li>`;
     }).join('');
     return `<section class="amp4">${hdr(meta, `<div class="amp4-prog"><i style="width:${pct}%"></i></div>`)}<ul class="amp4-weeks">${tiles}</ul>
-      <footer class="amp4-legend"><span><i class="st-ok"></i>آماده</span><span><i class="st-p"></i>در حال ساخت</span><span><i class="st-q"></i>در صف</span><span><i class="is-cur"></i>روز فعلی</span><span><b class="amp4-lg-done">🎧</b>انجام‌شده در برنامه</span></footer></section>`;
+      <footer class="amp4-legend"><span><i class="st-ok"></i>${L('آماده', 'Ready', 'Bereit')}</span><span><i class="st-p"></i>در حال ساخت</span><span><i class="st-q"></i>در صف</span><span><i class="is-cur"></i>روز فعلی</span><span><b class="amp4-lg-done">🎧</b>انجام‌شده در برنامه</span></footer></section>`;
   }
 
   /* ── ADMIN-STATUS (site 2026-11-19): four windows from the admin header (users, system, content, APIs) ── */
@@ -136,7 +144,7 @@ export function createContentControl(ctx) {
   let usersOf = () => [];
   const gb = (n) => { n = Number(n) || 0; return n >= 1073741824 ? (n / 1073741824).toFixed(1) + ' GB' : Math.round(n / 1048576) + ' MB'; };
   const meter = (label, used, total, txt) => { const p = total ? Math.min(100, Math.round((used / total) * 100)) : 0; return `<div class="amp-sw-meter ${p >= 90 ? 'is-hot' : p >= 70 ? 'is-warm' : ''}"><div><b>${label}</b>${txt ? `<span dir="ltr">${txt}</span>` : ''}<small>${fa(p)}٪</small></div><i><u style="width:${p}%"></u></i></div>`; };
-  const tloc = (iso) => { try { return new Date(iso).toLocaleString('fa-IR', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }); } catch { return iso || ''; } };
+  const tloc = (iso) => { try { return new Date(iso).toLocaleString(lang() === 'fa' ? 'fa-IR' : lang() === 'en' ? 'en-GB' : 'de-DE', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }); } catch { return iso || ''; } };
   async function swLoad(k) {
     if (k === 'api') { if (st.sd.apiBusy) return; st.sd.apiBusy = true; syncFloats(); }
     const path = k === 'sys' ? '/v1/admin/status/system' : k === 'cnt' ? '/v1/admin/status/content' : k === 'api' ? '/v1/admin/status/apis' : null;
@@ -190,7 +198,7 @@ export function createContentControl(ctx) {
     const cur = w === c.actWeek; const ready = ds.filter((x) => x.status === 'published').length;
     return {
       cls: 'amp4-win' + (cur ? ' is-cur' : ''),
-      head: `<span class="amp4-grip" aria-hidden="true">⠿</span><b>هفته ${fa(w)}</b>${cur ? '<span class="amp4-now">اکنون</span>' : ''}<small>${fa(ready)}/${fa(ds.length)} آماده</small><button type="button" class="amp4-win-x" aria-label="بستن" data-amp-close="${w}">×</button>`,
+      head: `<span class="amp4-grip" aria-hidden="true">⠿</span><b>هفته ${fa(w)}</b>${cur ? `<span class="amp4-now">${L('اکنون', 'Now', 'Jetzt')}</span>` : ''}<small>${fa(ready)}/${fa(ds.length)} ${L('آماده', 'ready', 'bereit')}</small><button type="button" class="amp4-win-x" aria-label="بستن" data-amp-close="${w}">×</button>`,
       body: ds.map((x) => dayCard(x, c.posOf[x.day], c.act, c.done)).join(''),
     };
   }
@@ -216,9 +224,14 @@ export function createContentControl(ctx) {
       if (el.className !== p.cls + keep) el.className = p.cls + keep;
       el.style.zIndex = String(100 + (st.z[w] || 0));
       const head = el.firstElementChild; const body = el.lastElementChild;
-      if (head.__h !== p.head) { head.innerHTML = p.head; head.__h = p.head; }
-      if (body.__h !== p.body) { const top = body.scrollTop; body.innerHTML = p.body; body.__h = p.body; body.scrollTop = top; }
+      // the cache key carries the language, so a language switch repaints the open week windows too
+      const hk = lang() + p.head; const bk = lang() + p.body;
+      if (head.__h !== hk) { head.innerHTML = p.head; head.__h = hk; translateTree(head); }
+      if (body.__h !== bk) { const top = body.scrollTop; body.innerHTML = p.body; body.__h = bk; body.scrollTop = top; translateTree(body); }
     });
+    // CONTENT-I18N: the panel text is Persian in the site; translate the rendered nodes (idempotent)
+    const panel = document.querySelector('.page.admin .amp4');
+    if (panel) translateTree(panel);
   }
   setInterval(() => { const h = document.getElementById('amp4Floats'); if (h && h.innerHTML && !document.querySelector('.page.admin .amp4')) h.innerHTML = ''; }, 800);
 
@@ -315,7 +328,7 @@ export function createContentControl(ctx) {
 
   return {
     html() { load(false); return `<div class="amp4-wrap" dir="rtl">${panel()}</div>`; },
-    mount(pageRoot, redrawFn) { redraw = redrawFn; bindEvents(pageRoot); setTimeout(syncFloats, 0); },
+    mount(pageRoot, redrawFn) { redraw = redrawFn; bindEvents(pageRoot); translateTree(pageRoot); setTimeout(syncFloats, 0); },
     close() { const h = document.getElementById('amp4Floats'); if (h) h.innerHTML = ''; },
     setUsers(fn) { usersOf = fn; },
     swButtons() { return `<div class="amp-sw-btns">${Object.keys(SW).map((k) => `<button type="button" data-amp-sw="${k}">${SW[k]}</button>`).join('')}</div>`; },

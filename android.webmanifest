@@ -1,0 +1,23 @@
+{
+  "id": "/android.html",
+  "name": "Amookht Android",
+  "short_name": "Amookht",
+  "description": "Amookht Android entry with a lightweight, responsive sign-in",
+  "start_url": "/android.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/assets/brand/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

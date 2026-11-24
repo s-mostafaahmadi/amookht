@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Jonas avatar">
+  <defs><linearGradient id="bg" x1="14" y1="12" x2="112" y2="116"><stop stop-color="#36d6c4"/><stop offset="1" stop-color="#4fb6ff"/></linearGradient></defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <path d="M29 112c4-23 20-36 35-36s31 13 35 36" fill="#e6fbff"/>
+  <circle cx="64" cy="57" r="25" fill="#c98f6d"/>
+  <path d="M38 54c4-23 18-35 36-30 12 3 20 14 19 29-13 1-24-3-34-12-5 8-12 13-21 13z" fill="#203247"/>
+  <circle cx="55" cy="59" r="3" fill="#142033"/>
+  <circle cx="74" cy="59" r="3" fill="#142033"/>
+  <path d="M55 72c6 4 12 4 18 0" fill="none" stroke="#7b4852" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 96c11-9 22-14 33-14s23 5 33 14v32H31z" fill="#dff8fa"/>
+  <path d="M43 90l21 18 21-18" fill="none" stroke="#36d6c4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M34 61c-6 0-10 5-10 11s4 11 10 11" fill="none" stroke="#e6fbff" stroke-width="6" stroke-linecap="round"/>
+  <path d="M94 61c6 0 10 5 10 11s-4 11-10 11" fill="none" stroke="#e6fbff" stroke-width="6" stroke-linecap="round"/>
+</svg>

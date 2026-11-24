@@ -1,5 +1,98 @@
-/* Amookht — WORD-HL (2026-11-19): toggled by double-click on a word */
-.amk-word-hl{background:rgba(250,204,21,.45);border-radius:5px;padding:0 1px;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;-webkit-tap-highlight-color:transparent}
-.amk-word-hl:hover{background:rgba(250,204,21,.62)}
-:is(.dark,[data-theme=dark]) .amk-word-hl{background:rgba(250,204,21,.32);color:inherit}
-:is(.dark,[data-theme=dark]) .amk-word-hl:hover{background:rgba(250,204,21,.46)}
+/* Amookht — WORD-HL (2026-11-19): right-click word highlight
+   HL-MENU / HL-COLOR (2026-11-20): colour per highlight
+   HL-RAIL (2026-11-20): icon-only rail, sits LEFT of the app sidebar, tooltip above each icon */
+.amk-word-hl{--hlc:250,204,21;background:rgba(var(--hlc),.45);border-radius:5px;padding:0 1px;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;-webkit-tap-highlight-color:transparent}
+.amk-word-hl:hover{background:rgba(var(--hlc),.62)}
+.amk-word-hl[data-c="green"]{--hlc:52,211,153}
+.amk-word-hl[data-c="blue"]{--hlc:96,165,250}
+.amk-word-hl[data-c="orange"]{--hlc:251,146,60}
+.amk-word-hl[data-c="pink"]{--hlc:244,114,182}
+.amk-word-hl[data-c="purple"]{--hlc:167,139,250}
+:is(.dark,[data-theme=dark]) .amk-word-hl{background:rgba(var(--hlc),.32);color:inherit}
+:is(.dark,[data-theme=dark]) .amk-word-hl:hover{background:rgba(var(--hlc),.46)}
+
+/* HL-RAIL: one icon wide, anchored left of .mac-sidebar by JS (--amk-hl-right) */
+.amk-hl-menu{position:fixed;right:var(--amk-hl-right,12px);top:50%;transform:translateY(-50%) translateX(14px);z-index:2147483200;display:none;flex-direction:column;align-items:center;gap:5px;width:48px;padding:6px;border-radius:18px;box-sizing:border-box;
+  background:color-mix(in srgb,var(--card,#fff) 92%,transparent);border:1px solid color-mix(in srgb,var(--line,#cbd5e1) 90%,transparent);
+  box-shadow:0 18px 44px rgba(2,6,23,.22);backdrop-filter:blur(14px);font:700 .82rem/1.45 Vazirmatn,Inter,system-ui,sans-serif;color:var(--ink,#0f172a);
+  opacity:0;transition:opacity .16s,transform .16s;pointer-events:none}
+.amk-hl-menu.is-on{display:flex;opacity:1;transform:translateY(-50%) translateX(0);pointer-events:auto}
+:is(.dark,[data-theme=dark]) .amk-hl-menu{background:color-mix(in srgb,#111c2e 94%,transparent);border-color:rgba(148,163,184,.28);color:#e8eefb;box-shadow:0 18px 44px rgba(0,0,0,.5)}
+
+/* icon buttons — no text at all, same background as the rail itself (light + dark) */
+.amk-hl-act,.amk-hl-x{display:grid;place-items:center;width:36px;height:36px;margin:0;padding:0;border-radius:12px;
+  background:transparent;color:inherit;font:inherit;cursor:pointer;
+  transition:background .14s,border-color .14s,transform .14s}
+.amk-hl-act{border:1px solid transparent}
+.amk-hl-act i{font-style:normal;font-size:1.05rem;line-height:1}
+.amk-hl-x{width:26px;height:26px;border:0;opacity:.55;font-size:1rem;line-height:1}
+.amk-hl-x:hover{opacity:1;background:rgba(148,163,184,.18)}
+:is(.dark,[data-theme=dark]) .amk-hl-x:hover{background:rgba(255,255,255,.12)}
+.amk-hl-act:hover:not([disabled]){background:rgba(124,58,237,.11);transform:translateY(-1px)}
+:is(.dark,[data-theme=dark]) .amk-hl-act:hover:not([disabled]){background:rgba(255,255,255,.12)}
+.amk-hl-act[disabled]{opacity:.4;cursor:not-allowed}
+.amk-hl-act.is-danger:hover:not([disabled]){color:#dc2626;background:rgba(239,68,68,.12)}
+:is(.dark,[data-theme=dark]) .amk-hl-act.is-danger:hover:not([disabled]){color:#fca5a5;background:rgba(239,68,68,.16)}
+.amk-hl-act[data-act="color"]{box-shadow:inset 0 -3px 0 0 rgb(var(--sw,250,204,21))}
+
+/* tooltip above the icon */
+.amk-hl-menu [data-tip]{position:relative}
+.amk-hl-menu [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);z-index:5;
+  padding:5px 9px;border-radius:9px;background:#0f172a;color:#fff;font:800 .7rem/1.35 Vazirmatn,Inter,system-ui,sans-serif;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;box-shadow:0 8px 20px rgba(2,6,23,.28)}
+.amk-hl-menu [data-tip]:hover::after,.amk-hl-menu [data-tip]:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(-2px)}
+
+/* colour popover, opens to the LEFT of the rail */
+.amk-hl-colors{position:absolute;right:calc(100% + 9px);top:50%;transform:translateY(-50%) scale(.97);display:none;grid-template-columns:repeat(2,auto);gap:6px;padding:7px;border-radius:14px;
+  background:color-mix(in srgb,var(--card,#fff) 96%,transparent);border:1px solid color-mix(in srgb,var(--line,#cbd5e1) 90%,transparent);box-shadow:0 16px 38px rgba(2,6,23,.24)}
+:is(.dark,[data-theme=dark]) .amk-hl-colors{background:color-mix(in srgb,#111c2e 97%,transparent);border-color:rgba(148,163,184,.28)}
+.amk-hl-colors.is-open{display:grid}
+.amk-hl-sw{width:22px;height:22px;padding:0;border-radius:50%;border:2px solid transparent;background:var(--sw);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(15,23,42,.14)}
+.amk-hl-sw:hover{transform:scale(1.1)}
+.amk-hl-sw.is-cur{border-color:var(--ink,#0f172a);box-shadow:0 0 0 2px color-mix(in srgb,var(--sw) 45%,transparent)}
+:is(.dark,[data-theme=dark]) .amk-hl-sw.is-cur{border-color:#f8fafc}
+
+#amkHlToast{position:fixed;left:50%;bottom:122px;transform:translate(-50%,8px);z-index:2147483240;max-width:min(90vw,420px);padding:8px 16px;border-radius:999px;
+  font:800 .82rem/1.4 Vazirmatn,Inter,system-ui,sans-serif;color:#fff;background:linear-gradient(135deg,#6d4fe6,#a855f7);box-shadow:0 12px 30px rgba(2,6,23,.32);
+  opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;text-align:center}
+#amkHlToast.is-on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:760px){.amk-hl-menu{width:46px;padding:5px}.amk-hl-act{width:34px;height:34px}.amk-hl-sw{width:20px;height:20px}}
+@media(max-height:560px){.amk-hl-menu{top:auto;bottom:80px;transform:translateX(14px)}.amk-hl-menu.is-on{transform:translateX(0)}}
+
+/* HL-MEANING: meaning-first add panel, opens to the left of the rail (same glass as the menu) */
+.amk-hl-add{position:fixed;z-index:2147483220;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;max-height:min(76vh,520px);padding:10px;border-radius:16px;
+  background:color-mix(in srgb,var(--card,#fff) 96%,transparent);border:1px solid color-mix(in srgb,var(--line,#cbd5e1) 90%,transparent);
+  box-shadow:0 20px 48px rgba(2,6,23,.24);backdrop-filter:blur(16px);font:700 .8rem/1.5 Vazirmatn,Inter,system-ui,sans-serif;color:var(--ink,#0f172a)}
+:is(.dark,[data-theme=dark]) .amk-hl-add{background:color-mix(in srgb,#111c2e 97%,transparent);border-color:rgba(148,163,184,.28);color:#e8eefb;box-shadow:0 20px 48px rgba(0,0,0,.55)}
+.amk-hl-add-h{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.82rem;font-weight:900}
+.amk-hl-add-x{width:24px;height:24px;border:0;border-radius:8px;background:transparent;color:inherit;opacity:.6;font-size:1rem;line-height:1;cursor:pointer}
+.amk-hl-add-x:hover{opacity:1;background:rgba(148,163,184,.18)}
+:is(.dark,[data-theme=dark]) .amk-hl-add-x:hover{background:rgba(255,255,255,.12)}
+.amk-hl-add-tip{margin:0;font-size:.68rem;font-weight:700;opacity:.7;line-height:1.65}
+.amk-hl-add-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.amk-hl-add-list li{display:flex;flex-direction:column;gap:5px;padding:7px 8px;border-radius:11px;background:rgba(148,163,184,.1)}
+:is(.dark,[data-theme=dark]) .amk-hl-add-list li{background:rgba(255,255,255,.06)}
+.amk-hl-add-w{font-size:.86rem;font-weight:900;letter-spacing:-.01em;direction:ltr;text-align:left;color:inherit}
+.amk-hl-add-list input{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid rgba(148,163,184,.45);border-radius:9px;background:transparent;color:inherit;font:inherit;font-weight:700;font-size:.76rem;outline:none;transition:border-color .14s,box-shadow .14s}
+.amk-hl-add-list input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.18)}
+.amk-hl-add-list input.is-empty{border-color:rgba(239,68,68,.55)}
+:is(.dark,[data-theme=dark]) .amk-hl-add-list input{border-color:rgba(148,163,184,.32)}
+.amk-hl-add-list input::placeholder{color:currentColor;opacity:.45}
+.amk-hl-add-st{display:none;font-style:normal;font-size:.62rem;font-weight:800;color:#7c3aed;opacity:.8}
+:is(.dark,[data-theme=dark]) .amk-hl-add-st{color:#c4b5fd}
+.amk-hl-add-st.is-loading{display:block}
+.amk-hl-add-st.is-loading::before{content:"…"}
+.amk-hl-add-f{display:flex;gap:7px;justify-content:flex-end}
+.amk-hl-add-f button{padding:8px 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}
+.amk-hl-add-cancel{background:rgba(148,163,184,.18);color:inherit}
+:is(.dark,[data-theme=dark]) .amk-hl-add-cancel{background:rgba(255,255,255,.1)}
+.amk-hl-add-cancel:hover{background:rgba(148,163,184,.3)}
+.amk-hl-add-ok{background:linear-gradient(135deg,#6d4fe6,#a855f7);color:#fff}
+.amk-hl-add-ok:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:760px){.amk-hl-add{max-height:min(70vh,460px)}}
+
+/* TOUCH-SELECT (2026-11-21): on a phone a long press must be able to select the text.
+   Chrome's UA treats <button> content as unselectable, and the exercise options are buttons,
+   so selection is enabled explicitly on the reading blocks (zero specificity keeps every
+   existing user-select:none rule, e.g. drag lists, winning). */
+:where(#app p,#app li,#app h1,#app h2,#app h3,#app h4,#app h5,#app h6,#app td,#app th,#app blockquote,#app figcaption,#app [data-amk-hl-block],#app .tdm-opts button,#app .tdm-qb,#app .tdm-q h4,#app .gd-msg,#app .gd-msg *,.gd-overlay p,.gd-overlay li,.gd-overlay h4,.gd-overlay td,.gd-overlay .gd-msg,.gd-overlay .gd-msg *,.fg-root p,.fg-root li,.amk-word-hl){-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}

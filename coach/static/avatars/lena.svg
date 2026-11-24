@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Lena avatar">
+  <defs><linearGradient id="bg" x1="16" y1="8" x2="112" y2="118"><stop stop-color="#ff7a8a"/><stop offset="1" stop-color="#f2b84b"/></linearGradient></defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <path d="M30 111c5-22 19-35 34-35s29 13 34 35" fill="#fff2ee"/>
+  <circle cx="64" cy="58" r="25" fill="#d89a74"/>
+  <path d="M37 63c-2-23 11-43 30-43 17 0 29 13 29 31 0 9-4 18-11 24 0-20-7-32-22-39-8 10-17 16-26 18z" fill="#41201f"/>
+  <circle cx="55" cy="58" r="3" fill="#291b24"/>
+  <circle cx="75" cy="58" r="3" fill="#291b24"/>
+  <path d="M56 72c5 4 11 4 17 0" fill="none" stroke="#844657" stroke-width="4" stroke-linecap="round"/>
+  <path d="M31 96c10-9 21-14 33-14s24 5 33 14v32H31z" fill="#ffe7e4"/>
+  <path d="M42 101h44" stroke="#ff7a8a" stroke-width="7" stroke-linecap="round"/>
+</svg>

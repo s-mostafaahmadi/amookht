@@ -234,6 +234,12 @@ function installTools() {
     refreshChrome: () => { renderNav(); renderStatus(); },
     applyLook: () => applyStateLook(),
   });
+  // the site's word-highlight rail (vendor/amk-word-hl.js) reads the site globals it used to get from #app
+  window.S = shim.S;
+  window.saveData = shim.saveData;
+  window.normalizeFavorite = shim.normalizeFavorite;
+  window.hasPremiumAccess = shim.hasPremiumAccess;
+  window.authTokens = shim.authTokens;
   [toolTutor, toolTranslate, toolStruct, toolSentparts, toolMediakeys, toolTabnext, toolCoachBridge, toolLastseen, toolAiAdmin, toolOwnerChat].forEach((m) => {
     try { m.install(shim); } catch (error) { console.warn('tool failed to start', error); }
   });

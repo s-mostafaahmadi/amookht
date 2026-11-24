@@ -6,6 +6,7 @@
 import { esc, toast } from '../core/ui.js';
 import { L } from '../core/learning.js';
 import { confirmDialog, promptDialog, busyStart, busyEnd } from './widgets.js';
+import { freeStudyHtml, mountFreeStudy, persistFreeStudy } from './free-study.js';
 
 const lib = {
   status: null, data: { folders: [], documents: [], notes: [] }, folderId: null, trail: [], loading: false, error: '',
@@ -123,7 +124,8 @@ export function renderLibrary(page, ctx) {
     if (lib.pdf) return drawPdf();
     if (lib.editor) return drawNote();
     if (lib.status && !lib.status.premium) {
-      root.innerHTML = promo();
+      root.innerHTML = promo() + `<div class="free-study-library-divider"></div>${freeStudyHtml(ctx)}`;
+      mountFreeStudy(root.querySelector('[data-fs-host]'), ctx, draw);
       return;
     }
     const d = lib.data || { folders: [], documents: [], notes: [] };
@@ -148,7 +150,10 @@ export function renderLibrary(page, ctx) {
             ${d.documents.map((x) => `<article class="lib-card" draggable="true" data-drag="document:${esc(x.id)}" data-open-pdf="${esc(x.id)}" data-title="${esc(x.title)}"><button type="button" class="qdel" data-del="document:${esc(x.id)}" title="${esc(L('حذف', 'Delete', 'Löschen'))}">×</button><div class="lib-icon">📕</div><h3 dir="auto">${esc(x.title)}</h3><p>PDF · ${Math.max(0.1, x.size_bytes / 1048576).toFixed(1)} MB</p></article>`).join('')}
             ${d.notes.map((x) => `<article class="lib-card" draggable="true" data-drag="note:${esc(x.id)}" data-open-note="${esc(x.id)}"><button type="button" class="qdel" data-del="note:${esc(x.id)}" title="${esc(L('حذف', 'Delete', 'Löschen'))}">×</button><div class="lib-icon">📝</div><h3 dir="auto">${esc(x.title)}</h3><p dir="auto">${esc((x.content || L('یادداشت خالی', 'Empty note', 'Leere Notiz')).slice(0, 55))}</p></article>`).join('')}
             ${count ? '' : `<div class="empty-line">${esc(L('هنوز چیزی اینجا نیست. یک PDF یا یادداشت اضافه کنید.', 'Nothing here yet. Add a PDF or a note.', 'Noch leer. Füge ein PDF oder eine Notiz hinzu.'))}</div>`}</div>`}
-        </section></div>`;
+        </section></div>
+        <div class="free-study-library-divider"></div>${freeStudyHtml(ctx)}`;
+    // the site's library screen carries the whole free-study desk under the file grid
+    mountFreeStudy(root.querySelector('[data-fs-host]'), ctx, draw);
   };
 
   const promo = () => {
@@ -878,6 +883,7 @@ export function renderLibrary(page, ctx) {
   });
   ctx.bridge.libraryEvents(true);
   root.onLeave = async () => {
+    persistFreeStudy(ctx);
     offEvents();
     ctx.bridge.libraryEvents(false);
     if (lib.editor) { readNoteFields(); if (lib.noteDirty) await saveNote(true); }
@@ -886,5 +892,10 @@ export function renderLibrary(page, ctx) {
 
   if (lib.editor || lib.pdf) draw();
   else load(lib.folderId);
+  // LIB-I18N: the library had no store watcher, so a language change left the whole page in the old language.
+  root.onStoreChange = (paths) => {
+    if (!paths.some((p) => p === '*' || p === 'uiLanguage')) return;
+    draw();
+  };
   return root;
 }

@@ -1,6 +1,9 @@
 // Owner «مدیریت هوش مصنوعی» box on the admin page (/v1/ai-admin).
 // Ported from the site's amk-ai-admin.js by the scratchpad script port_tools.py; site globals come from core/site-shim.js.
 /* eslint-disable */
+import { translateTree, T } from '../core/tr.js';
+import { lang } from '../core/i18n.js';
+
 export function install(shim) {
   const { S, saveData, render, rememberLearningError, navigateApp, isOwnerAccount, isGlobalContentAdmin, appConfirm, hasPremiumAccess, openPremiumPlans, safeText, ownerAIClientMessageId, authTokens, setAppSetting, normalizeFavorite, setFavoriteRating, apiRequest, fetch } = shim;
   /* AI-ADMIN (2026-11-14): owner «مدیریت هوش مصنوعی» box on the admin page (renderAdminUsers).
@@ -16,7 +19,7 @@ export function install(shim) {
     function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function isOwner() { try { return typeof isOwnerAccount === 'function' && isOwnerAccount(); } catch (e) { return false; } }
     function dark() { try { return typeof S !== 'undefined' && !!S.dark; } catch (e) { return false; } }
-    function fa(n) { try { return Number(n || 0).toLocaleString('fa-IR'); } catch (e) { return String(n || 0); } }
+    function fa(n) { try { return Number(n || 0).toLocaleString(lang() === 'fa' ? 'fa-IR' : lang() === 'en' ? 'en-GB' : 'de-DE'); } catch (e) { return String(n || 0); } }
     function api(path, opt) { return apiRequest('/ai-admin' + path, opt || {}); }
     function body(o) { return { method: 'POST', body: JSON.stringify(o || {}) }; }
     function errText(e) {
@@ -24,7 +27,7 @@ export function install(shim) {
       try { var j = JSON.parse(m); if (j && j.detail) m = typeof j.detail === 'string' ? j.detail : (j.detail.message || JSON.stringify(j.detail)); } catch (x) {}
       return m;
     }
-    function paint() { var el = document.getElementById('amkAiBox'); if (el) el.innerHTML = inner(); }
+    function paint() { var el = document.getElementById('amkAiBox'); if (el) { el.innerHTML = inner(); translateTree(el); } }
     function flash(msg, isErr) { A.note = msg; A.err = isErr ? msg : ''; paint(); clearTimeout(A._nt); A._nt = setTimeout(function () { A.note = ''; A.err = ''; paint(); }, 7000); }
 
     async function load(silent) {
@@ -126,7 +129,7 @@ export function install(shim) {
       if (!A.help) return '<button type="button" class="amk-ai-link" data-a="help">راهنمای اجرای سایت با مدل محلی (LM Studio / Ollama) ▾</button>';
       var cmd = function (t) { return '<pre class="amk-ai-cmd" dir="ltr">' + esc(t) + '</pre>'; };
       var step = function (n, title, body) { return '<li class="amk-ai-step"><span class="amk-ai-num">' + fa(n) + '</span><div><b>' + title + '</b>' + body + '</div></li>'; };
-      return '<div class="amk-ai-help" dir="rtl"><div class="amk-ai-help-head"><h4>راهنمای اجرای سایت با مدل محلی</h4><button type="button" class="amk-ai-link" data-a="help">بستن ▴</button></div>' +
+      return '<div class="amk-ai-help" dir="' + (lang() === 'fa' ? 'rtl' : 'ltr') + '"><div class="amk-ai-help-head"><h4>راهنمای اجرای سایت با مدل محلی</h4><button type="button" class="amk-ai-link" data-a="help">بستن ▴</button></div>' +
         '<p class="amk-ai-help-intro">سایت روی سرور اینترنتی اجرا می‌شود و به‌طور مستقیم به لپ‌تاپ شما دسترسی ندارد. برای همین، مدلِ روی لپ‌تاپ را با یک «تونل» به سرور وصل می‌کنیم.</p>' +
         '<ol class="amk-ai-steps">' +
         step(1, 'مدل را روی لپ‌تاپ روشن کنید',
@@ -172,13 +175,13 @@ export function install(shim) {
       var provs = '<h3>ارائه‌دهنده‌ها <small>(ترتیب = اولویت جایگزینی خودکار)</small></h3><div class="amk-ai-provs">' + ps.map(function (p, i) { return providerCard(p, i, ps.length); }).join('') + '</div>';
       var routes = '<h3>مسیر هر بخش <small>(از چپ به راست امتحان می‌شود)</small></h3><ul class="amk-ai-routes">' + FEAT_ORDER.filter(function (f) { return d.features[f]; }).map(routingRow).join('') + '</ul>' +
         '<p class="amk-ai-hint">«مسیر پیش‌فرض» یعنی همان کد قبلی سایت (Groq با کلیدهای رزرو، بعد NVIDIA). هر تغییری در ترتیب، مدل‌ها یا افزودن ارائه‌دهنده جدید، آن بخش را به موتور جدید این جعبه می‌برد. ترجمه در صورت مسیر پیش‌فرض از کلیدهای خود Deutsch Coach استفاده می‌کند.</p>';
-      return head + '<div class="amk-ai-body">' + top + msg + breakers + provs + routes + helpBox() + '<p class="amk-ai-muted">آخرین تغییر: ' + esc(d.updated_at ? new Date(d.updated_at).toLocaleString('fa-IR') : '—') + '</p></div>';
+      return head + '<div class="amk-ai-body">' + top + msg + breakers + provs + routes + helpBox() + '<p class="amk-ai-muted">آخرین تغییر: ' + esc(d.updated_at ? new Date(d.updated_at).toLocaleString(lang() === 'fa' ? 'fa-IR' : lang() === 'en' ? 'en-GB' : 'de-DE') : '—') + '</p></div>';
     }
 
     function sectionHtml() {
       if (!isOwner()) return '';
       if (!A.loaded && !A.loading && !A._requested) { A._requested = true; setTimeout(function () { load(); }, 0); }
-      return '<section id="amkAiBox" class="amk-ai' + (dark() ? ' is-dark' : '') + '" dir="rtl">' + inner() + '</section>';
+      return '<section id="amkAiBox" class="amk-ai' + (dark() ? ' is-dark' : '') + '" dir="' + (lang() === 'fa' ? 'rtl' : 'ltr') + '">' + inner() + '</section>';
     }
 
     /* ───────── provider dialog (outside #app so page re-renders never touch it) ───────── */
@@ -277,7 +280,7 @@ export function install(shim) {
       };
       inp.click();
     }
-    function confirmBox(text) { try { if (typeof appConfirm === 'function') return appConfirm(text); } catch (e) {} return Promise.resolve(window.confirm(text)); }
+    function confirmBox(text) { text = T(text); try { if (typeof appConfirm === 'function') return appConfirm(text); } catch (e) {} return Promise.resolve(window.confirm(text)); }
 
     document.addEventListener('input', function (e) {
       var t = e.target; if (!t.closest || !t.closest('#amkAiBox')) return;

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>آموخت برای ویندوز · راهنمای نصب و استفاده</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0f172a;--card:#1e293b;--line:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#6366f1;--accent2:#8b5cf6;--ok:#22c55e}
+    @media (prefers-color-scheme: light){:root{--bg:#f6f7fb;--card:#ffffff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b}}
+    *{box-sizing:border-box;font-family:'Vazirmatn',system-ui,'Segoe UI',sans-serif}
+    body{margin:0;background:radial-gradient(circle at 15% 0%,rgba(99,102,241,.16),transparent 45%),var(--bg);color:var(--text);line-height:1.9}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.15rem}
+    .brand .mark{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;color:#fff}
+    .back{background:rgba(148,163,184,.14);color:var(--text);text-decoration:none;padding:9px 16px;border-radius:12px;font-size:.85rem;font-weight:700}
+    .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;align-items:center;margin-bottom:22px}
+    .hero h1{font-size:1.9rem;font-weight:900;margin:0 0 8px;line-height:1.5}
+    .lead{color:var(--muted);font-size:.95rem;margin:0 0 16px}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+    .chips span{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(99,102,241,.14);color:#818cf8}
+    .hero img{width:100%;border-radius:18px;border:1px solid var(--line);box-shadow:0 20px 50px rgba(15,23,42,.25)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+    .card h2{margin:0 0 12px;font-size:1.15rem;font-weight:900;display:flex;align-items:center;gap:10px}
+    .badge{width:30px;height:30px;flex:0 0 30px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:.85rem;font-weight:900}
+    .steps{list-style:none;margin:0;padding:0}
+    .steps li{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed rgba(148,163,184,.22)}
+    .steps li:last-child{border-bottom:0}
+    .num{width:24px;height:24px;flex:0 0 24px;border-radius:8px;background:rgba(99,102,241,.18);color:#818cf8;display:grid;place-items:center;font-size:.75rem;font-weight:900;margin-top:5px}
+    .steps b{display:block;font-size:.92rem}
+    .steps span{color:var(--muted);font-size:.86rem}
+    code,kbd{background:rgba(148,163,184,.18);padding:2px 6px;border-radius:6px;font-family:Consolas,monospace;font-size:.82rem;direction:ltr;display:inline-block}
+    .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:6px;padding:14px;border-radius:14px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;font-weight:900;text-decoration:none;font-size:1rem;box-shadow:0 10px 26px rgba(99,102,241,.3)}
+    .btn.ghost{background:transparent;border:2px solid var(--line);color:var(--text);box-shadow:none}
+    .small{font-size:.78rem;color:var(--muted);text-align:center;margin-top:6px}
+    ul.plain{list-style:none;margin:0;padding:0}
+    ul.plain li{padding:6px 0;color:var(--muted);font-size:.9rem}
+    ul.plain li b{color:var(--text)}
+    .tip{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:14px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+    .warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:14px;padding:12px 16px;font-size:.86rem;margin-top:14px}
+    .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .gallery figure{margin:0;background:rgba(148,163,184,.06);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+    .gallery img{width:100%;display:block;cursor:zoom-in}
+    .gallery figcaption{padding:10px 14px;font-size:.86rem}
+    .gallery figcaption b{display:block}
+    .gallery figcaption span{color:var(--muted);font-size:.8rem}
+    .lb{position:fixed;inset:0;background:rgba(2,6,23,.86);display:none;align-items:center;justify-content:center;padding:20px;z-index:10;cursor:zoom-out}
+    .lb.on{display:flex}.lb img{max-width:100%;max-height:100%;border-radius:12px}
+    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:.8rem}
+    footer a{color:#818cf8;font-weight:700;text-decoration:none}
+    @media (max-width:760px){.hero{grid-template-columns:1fr}.gallery{grid-template-columns:1fr}.hero h1{font-size:1.5rem}}
+
+    .slides{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--card);aspect-ratio:16/10;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+    .slides .sl{position:absolute;inset:0;margin:0;opacity:0;transition:opacity 1.2s ease}
+    .slides .sl.is-on{opacity:1}
+    .slides .sl img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;border:0;border-radius:0;box-shadow:none}
+    .sl-cap{position:absolute;inset:auto 0 0 0;padding:28px 16px 30px;background:linear-gradient(transparent,rgba(2,6,23,.85));color:#fff;display:grid;gap:2px}
+    .sl-cap b{font-size:1rem}.sl-cap span{font-size:.82rem;opacity:.85}
+    .sl-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+    .sl-dots button{width:8px;height:8px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.45);cursor:pointer}
+    .sl-dots button.on{background:#fff;width:20px;border-radius:99px}
+
+    /* GUIDE-HERO-BIG: large slideshow on top, text underneath */
+    .wrap{max-width:1120px}
+    .hero{grid-template-columns:1fr;gap:18px}
+    .hero .slides{order:-1;aspect-ratio:16/9.4;border-radius:22px}
+    .hero-text{display:grid;grid-template-columns:1.35fr 1fr;column-gap:26px;row-gap:4px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 22px}
+    .hero-text h1{grid-column:1;grid-row:1;margin:0}
+    .hero-text .lead{grid-column:1;grid-row:2 / span 3;margin:0}
+    .hero-text .chips{grid-column:2;grid-row:1;margin:6px 0 4px;justify-content:flex-start}
+    .hero-text .btn{grid-column:2;grid-row:2;margin-top:4px}
+    .hero-text .small{grid-column:2;grid-row:3;margin:4px 0 0}
+    .sl-cap{padding:40px 22px 34px}.sl-cap b{font-size:1.15rem}.sl-cap span{font-size:.9rem}
+    @media (max-width:760px){.hero-text{grid-template-columns:1fr}.hero-text>*{grid-column:1!important;grid-row:auto!important}.hero .slides{aspect-ratio:16/11}}
+
+    /* GUIDE-SLIDES-2 */
+    .hero .slides{width:100%;justify-self:stretch;aspect-ratio:16/8.2;cursor:zoom-in}
+    .slides .sl{transition:opacity .8s ease}
+    .sl-cap{padding:46px 22px 34px;background:linear-gradient(180deg,transparent,rgba(17,12,46,.78) 38%,rgba(17,12,46,.95));gap:4px}
+    .sl-cap b{justify-self:start;font-size:1.32rem;font-weight:900;letter-spacing:-.01em;background:linear-gradient(90deg,#c4b5fd,#f9a8d4 55%,#fde68a);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .sl-cap span{font-size:.95rem;font-weight:600;color:#e2e8f0;opacity:1;line-height:1.8}
+    .sl-cap.pop b,.sl-cap.pop span{animation:capin .6s cubic-bezier(.2,.8,.2,1) both}.sl-cap.pop span{animation-delay:.08s}
+    @keyframes capin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .sl-dots{bottom:10px}
+    .glb{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px 64px;background:rgba(5,6,20,.88);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    .glb[hidden]{display:none!important}
+    .glb img{max-width:100%;max-height:calc(100vh - 110px);border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.6);cursor:default}
+    .glb-cap{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:#e2e8f0;font-weight:700;margin:0}
+    .glb-x{position:absolute;top:14px;left:18px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:1.6rem;cursor:pointer}
+    .glb-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:1.8rem;line-height:1;cursor:pointer}
+    .glb-prev{right:12px}.glb-next{left:12px}
+    .glb-x:hover,.glb-nav:hover{background:rgba(255,255,255,.25)}
+    .wrap img{cursor:zoom-in}
+    .btn.android{background:linear-gradient(135deg,#22c55e,#10b981 45%,#06b6d4);color:#fff;border:0;box-shadow:0 14px 34px rgba(16,185,129,.38);font-weight:900}
+    .btn.android:hover{filter:brightness(1.08);transform:translateY(-1px)}
+    .btn.android small{font-size:.7rem;font-weight:800;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.22);margin-inline-start:6px}
+    .and-ic{font-size:1.1rem}
+    @media (max-width:640px){.glb{padding:16px}.glb-nav{display:none}.sl-cap b{font-size:1.08rem}.sl-cap span{font-size:.82rem}}
+  
+    .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="mark">A</span>Amookht</div>
+    <div class="top-actions">
+      <a class="back" href="/" data-i18n="back">بازگشت به سایت</a>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1 data-i18n="heroTitle">آموخت برای ویندوز</h1>
+      <p class="lead" data-i18n="lead">همهٔ امکانات سایت در یک برنامهٔ واقعی ویندوز.</p>
+      <div class="chips"><span data-i18n="c1"></span><span data-i18n="c2"></span><span data-i18n="c3"></span><span data-i18n="c4"></span></div>
+      <a class="btn android" href="/downloads/Amookht-Android.apk" download="Amookht-Android.apk"><span class="and-ic">🤖</span> <span data-i18n="btnApk">دانلود اپ اندروید</span> <small>APK</small></a>
+      <p class="small" data-i18n="small"></p>
+    </div>
+    <div class="slides" id="gSlides"><!--GUIDE-SLIDES--><figure class="sl is-on"><img src="img/01-dashboard.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/02-plan.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/03-de-plan.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/04-de-vokabelheft.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/05-en-plan.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/06-en-vokabelheft.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/07-game.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/08-notebook.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/09-simulator-dark.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/10-coach-dark.jpg" alt="" loading="eager" /></figure><figure class="sl"><img src="img/11-dark.jpg" alt="" loading="eager" /></figure><div class="sl-cap"><b></b><span></span></div><div class="sl-dots"><button type="button" aria-label="1" class="on"></button><button type="button" aria-label="2"></button><button type="button" aria-label="3"></button><button type="button" aria-label="4"></button><button type="button" aria-label="5"></button><button type="button" aria-label="6"></button><button type="button" aria-label="7"></button><button type="button" aria-label="8"></button><button type="button" aria-label="9"></button><button type="button" aria-label="10"></button><button type="button" aria-label="11"></button></div></div>
+  </section>
+
+  <section class="card" id="android">
+    <h2><span class="badge">۱</span> <span data-i18n="aTitle">اپ اندروید</span></h2>
+    <ol class="steps">
+      <li><span class="num">۱</span><div><b data-i18n="a1b">دانلود</b><span data-i18n="a1t"></span></div></li>
+      <li><span class="num">۲</span><div><b data-i18n="a2b">اجازهٔ نصب</b><span data-i18n="a2t"></span></div></li>
+      <li><span class="num">۳</span><div><b data-i18n="a3b">نصب و ورود</b><span data-i18n="a3t"></span></div></li>
+    </ol>
+    <a class="btn android" href="/downloads/Amookht-Android.apk" download="Amookht-Android.apk"><span class="and-ic">🤖</span> <span data-i18n="aBtn">دانلود اپ اندروید</span> <small>APK</small></a>
+    <p class="small" data-i18n="aNote"></p>
+  </section>
+
+  <section class="card" id="windows">
+    <h2><span class="badge">۲</span> <span data-i18n="wTitle">نصب ویندوز</span></h2>
+    <ol class="steps">
+      <li><span class="num">۱</span><div><b data-i18n="w1b">دانلود</b><span data-i18n="w1t"></span></div></li>
+      <li><span class="num">۲</span><div><b data-i18n="w2b">اجرای نصب‌کننده</b><span data-i18n="w2t"></span></div></li>
+      <li><span class="num">۳</span><div><b data-i18n="w3b">مسیر نصب</b><span data-i18n="w3t"></span></div></li>
+      <li><span class="num">۴</span><div><b data-i18n="w4b">اجرا</b><span data-i18n="w4t"></span></div></li>
+    </ol>
+    <a class="btn" href="/downloads/Amookht-Setup.exe" download="Amookht-Setup.exe">⬇ <span data-i18n="btnWin">دانلود آموخت برای ویندوز</span></a>
+    <div class="warn" data-i18n="wWarn"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="badge">۳</span> <span data-i18n="lTitle">ورود به حساب</span></h2>
+    <ul class="plain">
+      <li>• <span data-i18n="l1"></span></li>
+      <li>• <span data-i18n="l2"></span></li>
+      <li>• <span data-i18n="l3"></span></li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="badge">۴</span> <span data-i18n="gTitle">ویجت رومیزی و میان‌برها</span></h2>
+    <ul class="plain">
+      <li>• <span data-i18n="g1"></span></li>
+      <li>• <span data-i18n="g2"></span></li>
+      <li>• <span data-i18n="g3"></span></li>
+      <li>• <span data-i18n="g4"></span></li>
+      <li>• <span data-i18n="g5"></span></li>
+    </ul>
+    <div class="tip" data-i18n="gTip"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="badge">۵</span> <span data-i18n="uTitle">به‌روزرسانی خودکار</span></h2>
+    <ul class="plain">
+      <li>• <span data-i18n="u1"></span></li>
+      <li>• <span data-i18n="u2"></span></li>
+      <li>• <span data-i18n="u3"></span></li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2><span class="badge">۶</span> <span data-i18n="hTitle">اگر کار نکرد</span></h2>
+    <ul class="plain">
+      <li>• <span data-i18n="helpConn"></span></li>
+      <li>• <span data-i18n="h2"></span></li>
+      <li>• <span data-i18n="h3"></span></li>
+      <li>• <span data-i18n="h4"></span></li>
+      <li>• <span data-i18n="h5"></span></li>
+    </ul>
+  </section>
+
+  <footer><span data-i18n="foot"></span> · <a href="/">learn.tah3in.com</a></footer>
+</div>
+<div class="lb" id="lb"><img alt="" /></div>
+<script src="lightbox.js"></script>
+<!--GUIDE-SLIDES-2--><div class="glb" id="gLb" hidden><button type="button" class="glb-x" aria-label="×">×</button><button type="button" class="glb-nav lb-prev" aria-label="‹">‹</button><img alt="" /><button type="button" class="glb-nav lb-next" aria-label="›">›</button><p class="glb-cap"></p></div>
+<script>
+/* GUIDE-I18N (2026-11-24): the install guide follows the language chosen on the site/app
+   (localStorage "amookht_ui_language"), with ?lang= overriding it. */
+var GUIDE_I18N = {
+  fa: {
+    title: 'آموخت برای ویندوز · راهنمای نصب و استفاده',
+    back: 'بازگشت به سایت',
+    heroTitle: 'آموخت برای ویندوز',
+    lead: 'همهٔ امکانات سایت در یک برنامهٔ واقعی ویندوز: برنامهٔ یادگیری روزانه، مطالعهٔ آزاد، دفتر عبارات، مربی گفتگو، شبیه‌سازی آزمون TestDaF و ÖSD، مترجم و مربی آلمانی — با همان حساب و همان پیشرفت سایت. ویجت رومیزی هم داخل همین برنامه است.',
+    c1: 'Windows 10 / 11 · ۶۴ بیتی', c2: 'حدود ۸۳ مگابایت', c3: 'به‌روزرسانی خودکار', c4: 'همگام با سایت',
+    btnApk: 'دانلود اپ اندروید', btnWin: 'دانلود آموخت برای ویندوز',
+    small: 'نسخهٔ فعلی: ۴.۶ · نسخه‌های بعدی خودکار نصب می‌شوند.',
+    aTitle: 'اپ اندروید', aBtn: 'دانلود اپ اندروید',
+    a1b: 'دانلود', a1t: 'فایل <code>Amookht-Android.apk</code> را روی گوشی ذخیره کنید.',
+    a2b: 'اجازهٔ نصب', a2t: 'اندروید می‌پرسد «Install unknown apps»؛ آن را برای مرورگر یا برنامهٔ فایل‌ها فعال کنید.',
+    a3b: 'نصب و ورود', a3t: 'فایل را باز کنید، نصب را تأیید کنید و با همان حساب سایت وارد شوید.',
+    aNote: 'همهٔ پیشرفت‌ها بین گوشی، ویندوز و سایت همگام می‌مانند.',
+    wTitle: 'نصب ویندوز',
+    w1b: 'دانلود', w1t: 'فایل <code>Amookht-Setup.exe</code> را با دکمهٔ بالا ذخیره کنید.',
+    w2b: 'اجرای نصب‌کننده', w2t: 'روی فایل دوبار کلیک کنید. اگر ویندوز پیام SmartScreen نشان داد، «More info» و بعد «Run anyway» را بزنید.',
+    w3b: 'مسیر نصب', w3t: 'می‌توانید مسیر پیش‌فرض را نگه دارید یا مسیر دیگری انتخاب کنید؛ میان‌بر روی دسکتاپ و منوی استارت ساخته می‌شود.',
+    w4b: 'اجرا', w4t: 'در پایان نصب، برنامه خودش باز می‌شود.',
+    wWarn: 'فایل نصب امضای تجاری (Code Signing) ندارد؛ پیام SmartScreen فقط به همین دلیل است. هیچ برنامهٔ جانبی یا پیش‌نیازی لازم نیست.',
+    lTitle: 'ورود به حساب',
+    l1: 'با <b>همان ایمیل و رمز عبور سایت</b> وارد شوید؛ حساب جداگانه لازم نیست.',
+    l2: 'همه‌چیز با سایت یکی است: برنامهٔ امروز، پاسخ‌ها، دفتر عبارات، علاقه‌مندی‌ها، تاریخچه و تنظیمات ظاهری. هر تغییری که در برنامه بدهید فوراً در سایت هم دیده می‌شود و برعکس.',
+    l3: 'ورود روی همین رایانه ذخیره می‌شود و تا مدت طولانی لازم نیست دوباره وارد شوید.',
+    gTitle: 'ویجت رومیزی و میان‌برها',
+    g1: 'ویجت رومیزی (کارها و یادداشت‌ها) داخل همین برنامه است: کلید <b>«ویجت رومیزی»</b> پایین منو را روشن کنید.',
+    g2: '<kbd>Ctrl+Alt+W</kbd> ویجت را روشن/خاموش می‌کند و <kbd>Ctrl+Alt+A</kbd> برنامه را جلو می‌آورد.',
+    g3: '<kbd>Ctrl+K</kbd> جست‌وجوی سریع بخش‌ها و فرمان‌ها.',
+    g4: 'با بستن پنجره، برنامه کنار ساعت ویندوز (System Tray) می‌ماند؛ برای خروج کامل از همان‌جا «خروج» را بزنید.',
+    g5: 'اجرای خودکار با روشن شدن ویندوز را از <b>«تنظیمات ویندوز»</b> پایین منو روشن کنید.',
+    gTip: 'اگر قبلاً ویجت جداگانه (<code>AmookhtWidget.exe</code>) را نصب کرده‌اید، دیگر به آن نیازی نیست؛ همهٔ امکاناتش در همین برنامه هست.',
+    uTitle: 'به‌روزرسانی خودکار',
+    u1: 'برنامه هنگام اجرا و بعد هر چند ساعت نسخهٔ جدید را بررسی می‌کند و آن را در پس‌زمینه دانلود می‌کند.',
+    u2: 'وقتی آماده شد، در نوار پایین پیام <b>«نسخهٔ … آماده است · راه‌اندازی دوباره»</b> را می‌بینید؛ با زدن آن یا با بستن کامل برنامه، نسخهٔ جدید نصب می‌شود.',
+    u3: 'داده‌ها و ورود شما در به‌روزرسانی حفظ می‌شوند.',
+    hTitle: 'اگر کار نکرد',
+    helpConn: '<b>«اتصال برقرار نشد»</b>: اینترنت یا فایروال را بررسی کنید؛ برنامه به <code>learn.tah3in.com</code> وصل می‌شود.',
+    h2: '<b>بخشی قفل است (PRO)</b>: کتابخانه، مربی گفتگو و شبیه‌سازی برای حساب Premium فعال‌اند؛ مثل سایت.',
+    h3: '<b>پنجره پیدا نیست</b>: <kbd>Ctrl+Alt+A</kbd> یا آیکن آموخت کنار ساعت ویندوز.',
+    h4: '<b>می‌خواهید ظاهر قبلی (خود سایت داخل برنامه) را ببینید</b>: روی نام خودتان پایین منو بزنید و «نمای سایت (نسخهٔ ۳)» را انتخاب کنید.',
+    h5: 'پشتیبانی: <a href="https://t.me/Amookht_support" target="_blank" rel="noopener noreferrer">@Amookht_support</a> در تلگرام.',
+    foot: 'آموخت · راهنمای نصب و استفاده',
+    caps: [
+      { b: 'اجرای برنامه در ویندوز', s: 'داشبورد برنامه با همان حساب و همان پیشرفت سایت.' },
+      { b: 'برنامهٔ امروز', s: 'تمرین‌های امروز به ترتیب، پیشرفت روز و منوی «برنامه امروز» بالای فهرست.' },
+      { b: 'Plan starten · آلمانی', s: 'همان برنامه با رابط آلمانی: تمرین‌های روز، دسته‌بندی مهارت‌ها و پیشرفت.' },
+      { b: 'Vokabelheft · آلمانی', s: 'دفتر عبارات با مرور فاصله‌دار، خروجی Anki و جست‌وجوی واژه‌ها — با رابط آلمانی.' },
+      { b: 'Run program · انگلیسی', s: 'همان برنامه با رابط انگلیسی: تمرین‌های امروز، تایمر و پیشرفت روز.' },
+      { b: 'Vocabulary notebook · انگلیسی', s: 'واژه‌ها با مرور فاصله‌دار و خروجی Anki — با رابط انگلیسی.' },
+      { b: 'بازی‌ها', s: 'جفت‌یابی، der/die/das، معنی‌یاب، حروف درهم، جمله‌ساز و عبارت‌ها.' },
+      { b: 'دفتر عبارات', s: 'لغات برنامه با مرور فاصله‌دار، اشتباهات و خروجی Anki.' },
+      { b: 'شبیه‌سازی TestDaF', s: 'آزمون کامل چهار بخشی با زمان، ضبط صدا و نتیجه.' },
+      { b: 'مربی گفتگو', s: 'گفتگوی متنی و صوتی با مربی‌های آلمانی و اصلاح فوری.' },
+      { b: 'ظاهر دلخواه', s: 'حالت روشن و تیره، رنگ اصلی، اندازهٔ نوشته‌ها و زبان فارسی، انگلیسی یا آلمانی.' }
+    ]
+  },
+  en: {
+    title: 'Amookht for Windows · installation and usage guide',
+    back: 'Back to the site',
+    heroTitle: 'Amookht for Windows',
+    lead: 'Everything the site offers in a real Windows app: the daily learning plan, free study, vocabulary notebook, conversation coach, TestDaF and ÖSD exam simulation, translator and German tutor — with the same account and the same progress as the site. The desktop widget is built in.',
+    c1: 'Windows 10 / 11 · 64-bit', c2: 'about 83 MB', c3: 'automatic updates', c4: 'in sync with the site',
+    btnApk: 'Download the Android app', btnWin: 'Download Amookht for Windows',
+    small: 'Current version: 4.6 · future versions install automatically.',
+    aTitle: 'Android app', aBtn: 'Download the Android app',
+    a1b: 'Download', a1t: 'Save <code>Amookht-Android.apk</code> on your phone.',
+    a2b: 'Allow installation', a2t: 'Android asks for «Install unknown apps»; allow it for your browser or file manager.',
+    a3b: 'Install and sign in', a3t: 'Open the file, confirm the installation and sign in with the same account as on the site.',
+    aNote: 'Your progress stays in sync between phone, Windows and the site.',
+    wTitle: 'Windows installation',
+    w1b: 'Download', w1t: 'Save <code>Amookht-Setup.exe</code> with the button above.',
+    w2b: 'Run the installer', w2t: 'Double-click the file. If Windows shows a SmartScreen warning, choose «More info» and then «Run anyway».',
+    w3b: 'Install location', w3t: 'Keep the default folder or pick another one; shortcuts are created on the desktop and in the Start menu.',
+    w4b: 'Start', w4t: 'The app opens by itself when the installation finishes.',
+    wWarn: 'The installer is not code-signed, which is the only reason Windows shows the SmartScreen warning. No extra software or prerequisites are needed.',
+    lTitle: 'Signing in',
+    l1: 'Sign in with <b>the same email and password as on the site</b>; no separate account is needed.',
+    l2: 'Everything matches the site: today’s program, answers, vocabulary notebook, favourites, history and appearance settings. Any change in the app shows up on the site immediately and vice versa.',
+    l3: 'Your sign-in is stored on this computer, so you rarely have to log in again.',
+    gTitle: 'Desktop widget and shortcuts',
+    g1: 'The desktop widget (tasks and notes) is built in: switch on <b>“Desktop widget”</b> at the bottom of the menu.',
+    g2: '<kbd>Ctrl+Alt+W</kbd> turns the widget on and off, <kbd>Ctrl+Alt+A</kbd> brings the app to the front.',
+    g3: '<kbd>Ctrl+K</kbd> opens quick search for pages and commands.',
+    g4: 'Closing the window keeps the app running in the Windows system tray; use “Quit” there to exit completely.',
+    g5: 'Turn on “Start with Windows” in <b>“Windows settings”</b> at the bottom of the menu.',
+    gTip: 'If you installed the separate widget (<code>AmookhtWidget.exe</code>) earlier, you no longer need it — all of its features are in this app.',
+    uTitle: 'Automatic updates',
+    u1: 'At startup and every few hours the app checks for a new version and downloads it in the background.',
+    u2: 'When it is ready, the bottom bar shows <b>“Version … ready · restart”</b>; click it — or simply quit the app — to install the new version.',
+    u3: 'Your data and sign-in are kept through the update.',
+    hTitle: 'If something does not work',
+    helpConn: '<b>“No connection”</b>: check your internet or firewall; the app connects to <code>learn.tah3in.com</code>.',
+    h2: '<b>A section is locked (PRO)</b>: the library, conversation coach and simulation are enabled for Premium accounts, just like on the site.',
+    h3: '<b>The window is gone</b>: press <kbd>Ctrl+Alt+A</kbd> or use the Amookht icon next to the Windows clock.',
+    h4: '<b>You want the previous look (the site inside the app)</b>: click your name at the bottom of the menu and choose “Site view (version 3)”.',
+    h5: 'Support: <a href="https://t.me/Amookht_support" target="_blank" rel="noopener noreferrer">@Amookht_support</a> on Telegram.',
+    foot: 'Amookht · installation and usage guide',
+    caps: [
+      { b: 'Running the app on Windows', s: 'The app dashboard with the same account and the same progress as the site.' },
+      { b: "Today's program", s: "Today's exercises in order, the day's progress and the “today” menu at the top of the list." },
+      { b: 'Plan starten · German', s: 'The same plan with the German interface: daily exercises, skill groups and progress.' },
+      { b: 'Vokabelheft · German', s: 'Vocabulary notebook with spaced repetition, Anki export and word search — German interface.' },
+      { b: 'Run program · English', s: 'The same plan with the English interface: today’s exercises, timer and daily progress.' },
+      { b: 'Vocabulary notebook · English', s: 'Words with spaced repetition and Anki export — English interface.' },
+      { b: 'Games', s: 'Matching, der/die/das, meaning finder, anagrams, sentence builder and phrases.' },
+      { b: 'Vocabulary notebook', s: 'Plan vocabulary with spaced repetition, mistakes and Anki export.' },
+      { b: 'TestDaF simulation', s: 'A complete four-part exam with timing, voice recording and results.' },
+      { b: 'Conversation coach', s: 'Text and voice chat with German coaches and instant corrections.' },
+      { b: 'Your own look', s: 'Light and dark mode, accent colour, text size and Persian, English or German language.' }
+    ]
+  },
+  de: {
+    title: 'Amookht für Windows · Installations- und Bedienungsanleitung',
+    back: 'Zurück zur Website',
+    heroTitle: 'Amookht für Windows',
+    lead: 'Alles, was die Website bietet, in einer echten Windows-App: Tagesplan, freies Lernen, Vokabelheft, Gesprächscoach, TestDaF- und ÖSD-Simulation, Übersetzer und Deutsch-Tutor — mit demselben Konto und demselben Fortschritt wie auf der Website. Das Desktop-Widget ist eingebaut.',
+    c1: 'Windows 10 / 11 · 64 Bit', c2: 'etwa 83 MB', c3: 'automatische Updates', c4: 'mit der Website synchron',
+    btnApk: 'Android-App herunterladen', btnWin: 'Amookht für Windows herunterladen',
+    small: 'Aktuelle Version: 4.6 · künftige Versionen installieren sich automatisch.',
+    aTitle: 'Android-App', aBtn: 'Android-App herunterladen',
+    a1b: 'Herunterladen', a1t: 'Speichere <code>Amookht-Android.apk</code> auf deinem Handy.',
+    a2b: 'Installation erlauben', a2t: 'Android fragt nach „Install unknown apps“; erlaube es für den Browser oder Dateimanager.',
+    a3b: 'Installieren und anmelden', a3t: 'Öffne die Datei, bestätige die Installation und melde dich mit demselben Konto wie auf der Website an.',
+    aNote: 'Dein Fortschritt bleibt zwischen Handy, Windows und Website synchron.',
+    wTitle: 'Installation unter Windows',
+    w1b: 'Herunterladen', w1t: 'Speichere <code>Amookht-Setup.exe</code> mit der Schaltfläche oben.',
+    w2b: 'Installer starten', w2t: 'Doppelklicke die Datei. Zeigt Windows eine SmartScreen-Warnung, wähle „More info“ und dann „Run anyway“.',
+    w3b: 'Installationsordner', w3t: 'Behalte den Standardordner oder wähle einen anderen; Verknüpfungen entstehen auf dem Desktop und im Startmenü.',
+    w4b: 'Starten', w4t: 'Nach der Installation öffnet sich die App von selbst.',
+    wWarn: 'Der Installer ist nicht signiert (kein Code Signing) — nur deshalb erscheint die SmartScreen-Warnung. Zusätzliche Programme oder Voraussetzungen sind nicht nötig.',
+    lTitle: 'Anmelden',
+    l1: 'Melde dich mit <b>derselben E-Mail und demselben Passwort wie auf der Website</b> an; ein separates Konto ist nicht nötig.',
+    l2: 'Alles ist identisch mit der Website: Tagesprogramm, Antworten, Vokabelheft, Favoriten, Verlauf und Darstellung. Jede Änderung in der App ist sofort auf der Website sichtbar und umgekehrt.',
+    l3: 'Die Anmeldung bleibt auf diesem Rechner gespeichert, du musst dich selten neu anmelden.',
+    gTitle: 'Desktop-Widget und Tastenkürzel',
+    g1: 'Das Desktop-Widget (Aufgaben und Notizen) ist eingebaut: schalte <b>„Desktop-Widget“</b> unten im Menü ein.',
+    g2: '<kbd>Ctrl+Alt+W</kbd> schaltet das Widget ein und aus, <kbd>Ctrl+Alt+A</kbd> holt die App nach vorne.',
+    g3: '<kbd>Ctrl+K</kbd> öffnet die Schnellsuche für Seiten und Befehle.',
+    g4: 'Beim Schließen des Fensters bleibt die App im Infobereich der Taskleiste; „Beenden“ dort schließt sie vollständig.',
+    g5: 'Autostart beim Start von Windows aktivierst du in den <b>„Windows-Einstellungen“</b> unten im Menü.',
+    gTip: 'Wenn du früher das separate Widget (<code>AmookhtWidget.exe</code>) installiert hast, brauchst du es nicht mehr — alle Funktionen stecken in dieser App.',
+    uTitle: 'Automatische Updates',
+    u1: 'Beim Start und alle paar Stunden prüft die App auf eine neue Version und lädt sie im Hintergrund herunter.',
+    u2: 'Ist sie bereit, erscheint unten <b>„Version … bereit · neu starten“</b>; ein Klick darauf — oder ein vollständiges Beenden — installiert die neue Version.',
+    u3: 'Daten und Anmeldung bleiben beim Update erhalten.',
+    hTitle: 'Wenn etwas nicht funktioniert',
+    helpConn: '<b>„Keine Verbindung“</b>: prüfe Internet oder Firewall; die App verbindet sich mit <code>learn.tah3in.com</code>.',
+    h2: '<b>Ein Bereich ist gesperrt (PRO)</b>: Bibliothek, Gesprächscoach und Simulation sind für Premium-Konten frei, wie auf der Website.',
+    h3: '<b>Das Fenster ist weg</b>: <kbd>Ctrl+Alt+A</kbd> drücken oder das Amookht-Symbol neben der Windows-Uhr verwenden.',
+    h4: '<b>Du möchtest die frühere Ansicht (die Website in der App)</b>: klicke unten im Menü auf deinen Namen und wähle „Website-Ansicht (Version 3)“.' ,
+    h5: 'Support: <a href="https://t.me/Amookht_support" target="_blank" rel="noopener noreferrer">@Amookht_support</a> auf Telegram.',
+    foot: 'Amookht · Installations- und Bedienungsanleitung',
+    caps: [
+      { b: 'Die App unter Windows', s: 'Das Dashboard mit demselben Konto und demselben Fortschritt wie auf der Website.' },
+      { b: 'Heutiges Programm', s: 'Die heutigen Übungen in Reihenfolge, der Tagesfortschritt und das Menü „Heute“ oben in der Liste.' },
+      { b: 'Plan starten · Deutsch', s: 'Derselbe Plan mit deutscher Oberfläche: Tagesübungen, Fertigkeiten und Fortschritt.' },
+      { b: 'Vokabelheft · Deutsch', s: 'Vokabelheft mit Spaced Repetition, Anki-Export und Wortsuche — deutsche Oberfläche.' },
+      { b: 'Run program · Englisch', s: 'Derselbe Plan mit englischer Oberfläche: heutige Übungen, Timer und Tagesfortschritt.' },
+      { b: 'Vocabulary notebook · Englisch', s: 'Wörter mit Spaced Repetition und Anki-Export — englische Oberfläche.' },
+      { b: 'Spiele', s: 'Paare finden, der/die/das, Bedeutungsfinder, Anagramme, Satzbauer und Redemittel.' },
+      { b: 'Vokabelheft', s: 'Plan-Wortschatz mit Spaced Repetition, Fehlern und Anki-Export.' },
+      { b: 'TestDaF-Simulation', s: 'Eine vollständige Prüfung mit vier Teilen, Zeit, Sprachaufnahme und Ergebnis.' },
+      { b: 'Gesprächscoach', s: 'Text- und Sprachchat mit deutschen Coaches und sofortigen Korrekturen.' },
+      { b: 'Eigenes Aussehen', s: 'Heller und dunkler Modus, Akzentfarbe, Schriftgröße und Sprache Persisch, Englisch oder Deutsch.' }
+    ]
+  }
+};
+(function () {
+  var KEY = 'amookht_ui_language';
+  var q = null;
+  try { q = new URLSearchParams(location.search).get('lang'); } catch (e) { }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) { }
+  var lang = GUIDE_I18N[q] ? q : (GUIDE_I18N[saved] ? saved : 'fa');
+  var dots = [], figs = [], capB = null, capS = null, idx = 0, timer = null;
+
+  function apply(code, remember) {
+    var d = GUIDE_I18N[code];
+    lang = code;
+    document.documentElement.lang = code;
+    document.documentElement.dir = (code === 'fa' ? 'rtl' : 'ltr');
+    document.title = d.title;
+    var nodes = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute('data-i18n');
+      if (d[k] != null) nodes[i].innerHTML = d[k];
+    }
+    var btns = document.querySelectorAll('.lang-switch button');
+    for (var j = 0; j < btns.length; j++) btns[j].classList.toggle('is-on', btns[j].getAttribute('data-lang') === code);
+    if (remember) { try { localStorage.setItem(KEY, code); } catch (e) { } }
+    updateCap();
+  }
+
+  function updateCap() {
+    var c = GUIDE_I18N[lang].caps[idx] || { b: '', s: '' };
+    if (capB) capB.textContent = c.b;
+    if (capS) capS.textContent = c.s;
+    if (figs[idx]) figs[idx].querySelector('img').setAttribute('alt', c.b);
+  }
+
+  function go(n) {
+    if (!figs.length) return;
+    figs[idx].classList.remove('is-on');
+    if (dots[idx]) dots[idx].classList.remove('on');
+    idx = (n + figs.length) % figs.length;
+    figs[idx].classList.add('is-on');
+    if (dots[idx]) dots[idx].classList.add('on');
+    updateCap();
+    var cap = capB && capB.parentNode;
+    if (cap) { cap.classList.remove('pop'); void cap.offsetWidth; cap.classList.add('pop'); }
+  }
+
+  function auto() {
+    clearInterval(timer);
+    timer = setInterval(function () { go(idx + 1); }, 4000);
+  }
+
+  function init() {
+    apply(lang, false);
+    var box = document.getElementById('gSlides');
+    if (!box) return;
+    figs = Array.prototype.slice.call(box.querySelectorAll('.sl'));
+    dots = Array.prototype.slice.call(box.querySelectorAll('.sl-dots button'));
+    capB = box.querySelector('.sl-cap b');
+    capS = box.querySelector('.sl-cap span');
+    updateCap();
+    dots.forEach(function (b, n) { b.onclick = function () { go(n); auto(); }; });
+    box.addEventListener('mouseenter', function () { clearInterval(timer); });
+    box.addEventListener('mouseleave', auto);
+    auto();
+    var sw = document.querySelectorAll('.lang-switch button');
+    for (var i = 0; i < sw.length; i++) sw[i].onclick = function () { apply(this.getAttribute('data-lang'), true); };
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script>
+(function(){var lb=document.getElementById("gLb"),im=lb.querySelector("img"),cap=lb.querySelector(".glb-cap"),list=[],k=0;
+function pics(){return Array.prototype.slice.call(document.querySelectorAll("#gSlides .sl img, body img:not(.glb img)")).filter(function(x,i,a){return a.findIndex(function(y){return y.getAttribute("src")===x.getAttribute("src")})===i})}
+function show(n){k=(n+list.length)%list.length;im.src=list[k].getAttribute("src");cap.textContent=list[k].alt||""}
+function open(src){list=pics();var n=list.findIndex(function(x){return x.getAttribute("src")===src});show(n<0?0:n);lb.hidden=false;document.body.style.overflow="hidden"}
+function close(){lb.hidden=true;document.body.style.overflow=""}
+document.addEventListener("click",function(e){var t=e.target;if(t.closest&&t.closest(".sl-dots"))return;if(t.closest&&t.closest("#gSlides")){var on=document.querySelector("#gSlides .sl.is-on img");if(on){e.preventDefault();open(on.getAttribute("src"))}return}
+if(t.tagName==="IMG"&&!t.closest(".glb")&&t.closest("body")){e.preventDefault();open(t.getAttribute("src"))}});
+lb.addEventListener("click",function(e){if(e.target.closest(".glb-prev")){show(k-1);return}if(e.target.closest(".glb-next")){show(k+1);return}if(e.target!==im)close()});
+document.addEventListener("keydown",function(e){if(lb.hidden)return;if(e.key==="Escape")close();else if(e.key==="ArrowLeft")show(k+1);else if(e.key==="ArrowRight")show(k-1)})})();
+</script>
+</body>
+</html>

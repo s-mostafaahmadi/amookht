@@ -1,0 +1,12 @@
+/* Amookht · grammar structures as small red boxes (see amk-struct.js) */
+.amk-struct{display:inline-flex;align-items:center;flex-wrap:wrap;gap:0 .3em;margin:.12em .18em;padding:.05em .55em;border-radius:8px;
+  direction:ltr;unicode-bidi:isolate;vertical-align:baseline;line-height:1.55;
+  font-family:'Inter','Vazirmatn',system-ui,sans-serif;font-weight:800;font-size:.95em;letter-spacing:.005em;
+  color:#b91c1c;background:#fef2f2;border:1px solid #fca5a5;box-shadow:0 1px 0 rgba(185,28,28,.08)}
+.amk-struct i{font-style:normal;font-weight:900;color:#ef4444;opacity:.75}
+html.dark .amk-struct{color:#fca5a5;background:rgba(239,68,68,.13);border-color:rgba(248,113,113,.42);box-shadow:none}
+html.dark .amk-struct i{color:#f87171}
+/* grammar rule of the week: one structure line per row */
+.amk-rule{display:grid;gap:.35rem;margin:.5rem 0}
+.amk-rule p{margin:0}
+.amk-rule b{font-weight:800;margin-inline-end:.25em}

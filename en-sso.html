@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>ورود به English Coach</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f4f6fb;color:#141a2e;font-family:Vazirmatn,Tahoma,system-ui,sans-serif}
+.card{background:#fff;border:1px solid #e3e7f1;border-radius:16px;padding:22px;max-width:380px;margin:16px;text-align:center;box-shadow:0 6px 24px rgba(20,26,46,.06)}
+a.btn{display:inline-block;margin:6px;padding:9px 16px;border-radius:12px;background:#3d5afe;color:#fff;text-decoration:none;font-weight:700}
+a.ghost{background:#eef0f7;color:#141a2e}
+</style>
+</head>
+<body>
+<div class="card" id="box">در حال انتقال به English Coach…</div>
+<script>
+/* Amookht → en.tah3in.com single sign-on bridge. Hands the Amookht access token to the
+   English Coach page (fixed target only) in the URL fragment, which never reaches a server. */
+(function () {
+  var TARGET = 'https://en.tah3in.com/';
+  var KEY = 'amookht_tokens';
+  function go(token) { location.replace(TARGET + '#sso=' + encodeURIComponent(token || 'none')); }
+  function needLogin() {
+    document.getElementById('box').innerHTML = '<p>برای ورود سریع، ابتدا در سایت آموخته وارد شوید.</p>' +
+      '<a class="btn" href="/">ورود به آموخته</a><a class="btn ghost" href="' + TARGET + '#sso=none">ورود با ایمیل و رمز</a>';
+  }
+  var tokens = null;
+  try { tokens = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { tokens = null; }
+  if (!tokens || !tokens.access_token) return needLogin();
+  fetch('/v1/account/me', { headers: { Authorization: 'Bearer ' + tokens.access_token } }).then(function (r) {
+    if (r.ok) return go(tokens.access_token);
+    if (r.status !== 401 || !tokens.refresh_token) return needLogin();
+    return fetch('/v1/auth/refresh?refresh_token=' + encodeURIComponent(tokens.refresh_token), { method: 'POST' }).then(function (rr) {
+      if (!rr.ok) return needLogin();
+      return rr.json().then(function (fresh) {
+        try { localStorage.setItem(KEY, JSON.stringify(fresh)); } catch (e) { /* ignore */ }
+        go(fresh.access_token);
+      });
+    });
+  }).catch(needLogin);
+})();
+</script>
+</body>
+</html>

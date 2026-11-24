@@ -7,6 +7,7 @@ import { esc as E, toast } from '../core/ui.js';
 import { lang } from '../core/i18n.js';
 import { st } from '../core/site-text.js';
 import { createContentControl } from './content-control.js';
+import { translateTree } from '../core/tr.js';
 
 const ROLES = ['all', 'normal', 'premium', 'admin', 'owner', 'blocked'];
 const L = (fa, en, de) => (lang() === 'fa' ? fa : lang() === 'en' ? en : de);
@@ -98,6 +99,9 @@ export function renderAdmin(page, ctx) {
       ${pd ? `<div class="dialog-backdrop adm-modal" role="dialog" aria-modal="true"><section class="dialog"><h2>🗑 ${E(c.delTitle)}</h2><p dir="ltr"><b>${E(pd.email)}</b></p><p>${E(c.delBody)}</p><div class="dialog-actions"><button type="button" class="btn" data-adm="cancel">${E(c.cancel)}</button><button type="button" class="btn btn-danger" data-adm="del">${E(c.confirm)}</button></div></section></div>` : ''}
       ${pb ? `<div class="dialog-backdrop adm-modal" role="dialog" aria-modal="true"><section class="dialog"><h2>${pb.isBlocked ? '✓' : '⛔'} ${E(pb.isBlocked ? c.unblockTitle : c.blockTitle)}</h2><p dir="ltr"><b>${E(pb.email)}</b></p><p>${E(pb.isBlocked ? c.unblockBody : c.blockBody)}</p><div class="dialog-actions"><button type="button" class="btn" data-adm="cancel">${E(c.cancel)}</button><button type="button" class="btn btn-primary" data-adm="block">${E(pb.isBlocked ? c.unblock : c.block)}</button></div></section></div>` : ''}`;
     if (cc) { cc.setUsers?.(() => ui.users); cc.mount(root, draw); cc.refreshUsers?.(); }
+    // ADMIN-I18N: the owner AI box is Persian in the site; translate its rendered nodes.
+    const aiBox = root.querySelector('#amkAiBox');
+    if (aiBox) translateTree(aiBox);
     if (focused) { const f = root.querySelector(`[data-field="${focused}"]`); if (f) { f.focus(); const n = f.value.length; try { f.setSelectionRange(n, n); } catch { /* ignore */ } } }
     if (ctx.afterDraw) ctx.afterDraw();
   }
@@ -155,5 +159,10 @@ export function renderAdmin(page, ctx) {
 
   draw();
   load();
+  // ADMIN-I18N: «مدیریت هوش مصنوعی» and «کنترل محتوا» live in this page — repaint them when the language changes.
+  root.onStoreChange = (paths) => {
+    if (!paths.some((p) => p === '*' || p === 'uiLanguage')) return;
+    draw();
+  };
   return root;
 }

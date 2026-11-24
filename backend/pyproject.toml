@@ -42,18 +42,19 @@ dependencies = [
 
     # Authentication
     "pyjwt>=2.8.0",
-    "bcrypt>=4.1.0",
-    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.1.0,<6",  # NO-PASSLIB: used directly (app/api/passwords.py)
 
     # AI / LLM
     "openai>=1.10.0",
     "anthropic>=0.18.0",
     "httpx>=0.26.0",
+    "cryptography>=42.0.0",
 
     # Utilities
     "python-dotenv>=1.0.0",
     "structlog>=24.1.0",
     "orjson>=3.9.0",
+    "pypdf>=6.15.0",
 
     # Spaced Repetition
     "numpy>=1.26.0",

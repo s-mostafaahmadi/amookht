@@ -6,7 +6,30 @@ import { st } from '../core/site-text.js';
 import { L, num, mutate, normalizeFavorite, favoritesOf, favoriteKindMeta, favoriteTopic, planName, deleteFavoriteStore } from '../core/learning.js';
 import { starsHtml, handleStarClick, confirmDialog, chip } from './widgets.js';
 
-const ui = { filter: 'all', search: '', formOpen: false, editId: '' };
+const ui = { filter: 'all', search: '', formOpen: false, editId: '', sort: 'new' };
+
+// FAV-SORT: same five orders as the site (favoriteSorted / setFavoriteSort)
+const SORTS = ['new', 'old', 'az-word', 'az-red', 'rating'];
+const sortLabel = (id) => ({
+  new: L('جدیدترین', 'Newest', 'Neueste'),
+  old: L('قدیمی‌ترین', 'Oldest', 'Älteste'),
+  'az-word': L('الفبایی · کلمه‌ها اول', 'A–Z · words first', 'A–Z · Wörter zuerst'),
+  'az-red': L('الفبایی · عبارت‌ها اول', 'A–Z · phrases first', 'A–Z · Ausdrücke zuerst'),
+  rating: L('بیشترین ستاره', 'Most stars', 'Meiste Sterne'),
+})[id] || L('جدیدترین', 'Newest', 'Neueste');
+
+function sortedFavorites(items) {
+  const mode = SORTS.includes(ui.sort) ? ui.sort : 'new';
+  const list = items.map((item, index) => ({ item, index }));
+  const word = (x) => String(x.title || '').toLocaleLowerCase();
+  if (mode === 'old') list.sort((a, b) => b.index - a.index);
+  else if (mode === 'az-word' || mode === 'az-red') {
+    const first = mode === 'az-word' ? 'vocabulary' : 'structure';
+    list.sort((a, b) => ((a.item.kind === first ? 0 : 1) - (b.item.kind === first ? 0 : 1)) || word(a.item).localeCompare(word(b.item), 'de') || a.index - b.index);
+  } else if (mode === 'rating') list.sort((a, b) => (b.item.rating - a.item.rating) || a.index - b.index);
+  else list.sort((a, b) => a.index - b.index);
+  return list.map((entry) => entry.item);
+}
 
 export function renderFavorites(page, ctx) {
   const root = document.createElement('div');
@@ -52,13 +75,14 @@ export function renderFavorites(page, ctx) {
       stars[item.rating] = (stars[item.rating] || 0) + 1;
     });
     const f = ui.filter;
-    const visible = items.filter((item) => f === 'all' || (f.startsWith('star-') ? item.rating === Number(f.slice(5)) : item.kind === f));
+    const visible = sortedFavorites(items).filter((item) => f === 'all' || (f.startsWith('star-') ? item.rating === Number(f.slice(5)) : item.kind === f));
     const kinds = [...new Set(items.map((item) => item.kind))];
     const starLabel = (n) => L(`${n} ستاره`, `${n} star${n > 1 ? 's' : ''}`, `${n} Stern${n > 1 ? 'e' : ''}`);
     root.innerHTML = `<header class="page-hero fav-hero"><div class="page-hero-main"><span class="page-hero-icon">${svg(ICONS.heart)}</span><div><p class="kicker">${esc(st('favorite.kicker'))}</p><h1>${esc(st('favorite.title'))}</h1><small>${esc(st('favorite.description'))}</small></div></div>
         <div class="hero-side"><div class="big-count"><strong>${num(items.length)}</strong><small>${esc(st('favorite.saved'))}</small></div><button type="button" class="btn btn-primary" data-act="new">＋ ${esc(L('افزودن کارت شخصی', 'Add a personal card', 'Eigene Karte hinzufügen'))}</button></div></header>
       ${ui.formOpen ? form(data) : ''}
       <section class="toolbar card-flat"><label class="search">${svg(ICONS.search)}<input type="search" data-search="1" value="${esc(ui.search)}" placeholder="${esc(st('favorite.search'))}" /></label>
+        <label class="fav-sort"><span>${esc(L('ترتیب', 'Sort', 'Sortierung'))}</span><select data-sort="1" aria-label="${esc(L('ترتیب نمایش کارت‌ها', 'Card order', 'Sortierung der Karten'))}">${SORTS.map((id) => `<option value="${id}" ${ui.sort === id ? 'selected' : ''}>${esc(sortLabel(id))}</option>`).join('')}</select></label>
         <div class="chips">${chip('all', st('common.all'), num(items.length), f === 'all')}${[1, 2, 3].map((n) => chip('star-' + n, '★'.repeat(n) + ' ' + starLabel(n), num(stars[n] || 0), f === 'star-' + n)).join('')}</div>
         ${kinds.length ? `<div class="chips">${kinds.map((kind) => chip(kind, favoriteKindMeta(kind).label, num(counts[kind]), f === kind)).join('')}</div>` : ''}</section>
       ${visible.length ? `<section class="fav-grid" id="favGrid">${visible.map(card).join('')}</section><p class="empty-line" id="favNone" hidden>${esc(st('favorite.emptyTitle'))}</p>`
@@ -138,6 +162,12 @@ export function renderFavorites(page, ctx) {
       ui.editId = '';
       draw();
     }
+  });
+
+  root.addEventListener('change', (event) => {
+    if (!event.target.dataset.sort) return;
+    ui.sort = SORTS.includes(event.target.value) ? event.target.value : 'new';
+    draw();
   });
 
   root.addEventListener('input', (event) => {

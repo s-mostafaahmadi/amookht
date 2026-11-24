@@ -66,16 +66,47 @@ TOPICS: dict[str, str] = {
     "nomen_verb": "Nomen-Verb-Verbindungen (eine Entscheidung treffen, zur Verfügung stehen, in Kauf nehmen)",
     "grafik": "Redemittel zur Grafikbeschreibung (ist um … Prozent gestiegen, sank auf, der Anteil beträgt)",
 }
-THEMES = ["Studium", "Beruf", "Umwelt", "Digitalisierung", "Gesundheit", "Wohnen", "Verkehr", "Medien", "Bildung", "Forschung",
-          "Kultur", "Reisen", "Familie", "Ernährung", "Wirtschaft", "Migration", "Alltag", "Energie", "Künstliche Intelligenz", "Politik"]
+# Inhaltliches Thema der Sätze (the learner picks one in the bot; key = id sent by the frontend).
+THEMES: dict[str, str] = {
+    "alltag": "Alltag und Tagesablauf",
+    "studium": "Studium und Universität",
+    "beruf": "Beruf und Arbeitsleben",
+    "familie": "Familie und Zusammenleben",
+    "wohnen": "Wohnen und Miete",
+    "reisen": "Reisen und Urlaub",
+    "verkehr": "Verkehr und Mobilität",
+    "gesundheit": "Gesundheit und Arztbesuche",
+    "ernaehrung": "Ernährung und Essgewohnheiten",
+    "umwelt": "Umwelt und Klimaschutz",
+    "digital": "Digitalisierung und Internet",
+    "ki": "Künstliche Intelligenz",
+    "medien": "Medien und Nachrichten",
+    "wirtschaft": "Wirtschaft und Geld",
+    "bildung": "Bildung und Schule",
+    "kultur": "Kultur, Musik und Kino",
+    "sport": "Sport und Freizeit",
+    "behoerde": "Ämter und Bürokratie",
+    "einkaufen": "Einkaufen und Konsum",
+}
 
 GEN_SYSTEM = """Du erstellst Übersetzungsübungen Persisch→Deutsch für persischsprachige Deutschlernende (B1–C1, Ziel TestDaF).
-Antworte NUR mit JSON: {"items":[{"topic":"<id>","fa":"…","de":"…","alt":["…"],"hint":"…"}]}
-- "de": natürlicher, fehlerfreier deutscher Satz (8–20 Wörter), der die Zielgrammatik des Themas eindeutig verwendet. Prüfe jede Endung und die Verbstellung.
-- "fa": idiomatische persische Übersetzung in persischer Schrift, eindeutig genug, um den deutschen Satz zu rekonstruieren; keine deutschen Wörter.
-- "alt": 0–2 weitere korrekte DEUTSCHE Übersetzungen genau desselben persischen Satzes mit derselben Zielgrammatik (nur andere Wortstellung oder ein Synonym, gleicher Inhalt; keine freie Umschreibung).
-- "hint": sehr kurzer Hinweis AUF PERSISCH in persischer Schrift (max. 8 Wörter), deutsche Signalwörter erlaubt, z. B. «از obwohl استفاده کن» oder «مجهول گذشته: wurde + Partizip II». Der Hinweis muss fachlich stimmen.
-- Alle Sätze verschieden in Wortschatz, Person und Variante der Grammatik."""
+Wichtig: "de" und "fa" müssen DENSELBEN Satz ausdrücken. Arbeite jede Übung in dieser Reihenfolge ab:
+1) Baue zuerst einen natürlichen, fehlerfreien deutschen Satz mit 7–15 Wörtern und HÖCHSTENS einem Nebensatz (keine verschachtelten "dass … oder ob"-Konstruktionen) mit der Zielgrammatik. Prüfe Kongruenz (Subjekt↔Verb, Artikel, Adjektivendungen, Kasus), Verbstellung und Zeitform.
+   Der Satz muss heutiges ALLTAGSDEUTSCH sein: genau so, wie eine normale Person in Deutschland ihn heute sagen oder schreiben würde — aus typischen Situationen wie Wohnen, Arbeit, Ausbildung/Studium, Arzt, Termin und Amt, Einkaufen, Verkehr, Familie, Kurs und Freizeit.
+   - Nimm die gebräuchlichsten Wörter und festen Wendungen (z. B. „einen Termin vereinbaren", „Bescheid geben", „sich um etwas kümmern", „es lohnt sich", „auf dem Weg zur Arbeit").
+   - KEINE seltenen, literarischen, gestelzten oder behördlich-formelhaften Wörter, die im Alltag niemand benutzt; kein Nominalstil, wo ein normales Verb üblich ist; keine unnötig komplizierte Wortstellung.
+   - KEINE künstlichen Lehrbuchsätze, keine erfundenen Statistiken oder Zahlen, keine ungewöhnlichen Namen oder Orte, keine Sätze, die nur konstruiert wirken, um eine Grammatik unterzubringen.
+   - Frage dich bei jedem Satz: Würde ein normaler Mensch diesen Satz diese Woche wirklich brauchen? Wenn nicht, formuliere alltäglicher.
+   - Ein Satz = ein Gedanke: verbinde nicht zwei verschiedene Aussagen mit „und"/„aber" (nicht „Ich bewerbe mich um die Wohnung und stelle mir vor, dass …"), keine künstlich gegenübergestellten Halbsätze („Heute …, gestern …") — außer die Wendung ist im Alltag genau so üblich (z. B. „Ich stehe auf und frühstücke.").
+   - Ziehe das alltägliche Verb der förmlichen Alternative vor: bekommen statt erhalten, sagen statt äußern, helfen statt unterstützen, machen statt durchführen, zeigen statt darlegen, brauchen statt benötigen.
+2) Übersetze GENAU DIESEN Satz ins Persische: gleiche Person, gleiche Zahl, gleiche Zeit, gleiche Negation, dieselben Objekte/Orte/Mengen, kein Zusatz, keine Auslassung. Natürliches, heute gebräuchliches Persisch (nicht literarisch), keine deutsche Wortstellung, keine deutschen Wörter.
+3) Schreibe "back": eine wörtliche Wort-für-Wort-Rückübersetzung des persischen Satzes ins Deutsche, in der Reihenfolge des persischen Satzes (darf ungrammatisch klingen; ist nur die Prüfung, nicht die Lösung).
+4) Prüfe still: Ergeben "de" und "back" denselben Inhalt? Weicht Person, Zeit, Negation, Zahl oder ein Objekt ab, korrigiere zuerst "fa", dann "de" und wiederhole 2–4. Erst danach ausgeben.
+Lässt sich ein Inhalt nicht deckungsgleich in beiden Sprachen formulieren, nimm einen einfacheren – aber weiterhin alltäglichen – Satz.
+Antworte NUR mit JSON: {"items":[{"topic":"<id>","de":"…","fa":"…","back":"…","alt":["…"],"hint":"…"}]}
+- "alt": 0–2 weitere korrekte DEUTSCHE Übersetzungen genau desselben Inhalts mit derselben Zielgrammatik (nur Wortstellung oder Synonym; keine Umschreibung, kein Zusatz) — ebenfalls in Alltagssprache.
+- "hint": sehr kurzer Hinweis AUF PERSISCH in persischer Schrift (max. 8 Wörter), deutsche Signalwörter erlaubt, fachlich korrekt.
+- Alle Sätze verschieden in Wortschatz, Person und Variante der Grammatik — aber alle im heutigen, gebräuchlichen Alltagsdeutsch."""
 
 CHECK_SYSTEM = """Du bist ein knapper, genauer Deutschlehrer. Ein persischsprachiger Lernender hat einen persischen Satz ins Deutsche übersetzt, um eine bestimmte Grammatik zu üben.
 Bewerte NUR, ob seine Übersetzung korrektes Deutsch ist und die Bedeutung trifft. Andere korrekte Formulierungen als die Musterlösung sind richtig. Die Zielgrammatik soll verwendet sein, wenn der Satz sie natürlicherweise braucht.
@@ -89,6 +120,14 @@ class SentenceRequest(BaseModel):
     topics: list[str] = Field(min_length=1, max_length=40)
     count: int = Field(default=4, ge=1, le=6)
     avoid: list[str] = Field(default_factory=list, max_length=20)
+    theme: str = Field(default="", max_length=60)
+
+    @field_validator("theme")
+    @classmethod
+    def clean_theme(cls, value: str) -> str:
+        # known id (THEMES) or a free-text theme the learner typed in the bot
+        text = re.sub(r'[<>«»"„“”`]', " ", str(value or ""))
+        return re.sub(r"\s+", " ", text).strip()[:60]
 
     @field_validator("topics")
     @classmethod
@@ -109,6 +148,10 @@ class CheckRequest(BaseModel):
     fa: str = Field(min_length=1, max_length=600)
     de: str = Field(default="", max_length=600)
     answer: str = Field(min_length=1, max_length=600)
+
+
+class TranslateRequest(BaseModel):
+    fa: str = Field(min_length=1, max_length=600)
 
 
 def _rate_limit(user: User) -> None:
@@ -142,7 +185,7 @@ async def _json_complete(messages: list[dict], *, max_tokens: int, effort: str, 
             except Exception:  # noqa: BLE001
                 return False
         content, model = await ai_registry.complete("grammar", _plan, messages, max_tokens=max_tokens, budget=budget, json_mode=True,
-                                                    accept=_ok, temperature=0.6, effort=effort, busy_message="AI is busy right now")
+                                                    accept=_ok, temperature=0.45, effort=effort, busy_message="AI is busy right now")
         return _parse_json(content), model
     groq_down = await ai_guard.retry_after(BREAKER)
     nv_ok = ai_nvidia.available() and not await ai_guard.retry_after("nvidia-grammar")
@@ -168,7 +211,7 @@ async def _json_complete(messages: list[dict], *, max_tokens: int, effort: str, 
                 limit = groq_deadline.attempt(25.0)
                 if limit is None:
                     break
-                body = {"model": model, "messages": messages, "temperature": 0.6, "max_completion_tokens": max_tokens,
+                body = {"model": model, "messages": messages, "temperature": 0.45, "max_completion_tokens": max_tokens,
                         "reasoning_effort": effort, "response_format": {"type": "json_object"}}
                 try:
                     r = await asyncio.wait_for(client.post(GROQ_URL, headers={"Authorization": f"Bearer {key}"}, json=body,
@@ -207,8 +250,58 @@ def _has_persian(text: str, minimum: int = 6) -> bool:
     return sum(1 for ch in text if "؀" <= ch <= "ۿ") >= minimum
 
 
+_FA_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+_DE_NEG = re.compile(r"\b(nicht|kein\w*|nichts|nie|niemals|ohne|weder)\b", re.I)
+_FA_NEG = re.compile(r"نمی|نه\b|نیست|نیستم|نیستند|نیستیم|هیچ|بدون|هرگز|نخواه|نکرد|نرفت|ندارد|ندارند|نبود|نشد")
+_DE_WORD = re.compile(r"[a-zäöüß]{3,}", re.I)
+_DE_STOP = {
+    "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "eines",
+    "und", "oder", "aber", "sondern", "dass", "ob", "weil", "wenn", "als", "wie", "auch", "noch",
+    "nicht", "kein", "keine", "keinen", "keinem", "keiner", "nur", "sehr", "schon", "sich", "ich",
+    "du", "er", "sie", "es", "wir", "ihr", "man", "mir", "mich", "dir", "dich", "ihm", "ihn",
+    "uns", "euch", "ihnen", "mein", "dein", "sein", "unser", "euer", "dieser", "diese", "dieses",
+    "hat", "haben", "habe", "hatte", "hatten", "ist", "sind", "war", "waren", "bin", "bist", "seid",
+    "wird", "werden", "wurde", "wurden", "worden", "kann", "können", "muss", "müssen", "soll",
+    "sollen", "will", "wollen", "darf", "dürfen", "möchte", "möchten", "zu", "zum", "zur", "im",
+    "in", "am", "an", "auf", "aus", "bei", "mit", "nach", "von", "vor", "für", "über", "unter",
+    "durch", "gegen", "ohne", "um", "bis", "seit", "während", "wegen", "trotz", "dort", "hier",
+}
+
+
+def _numbers(text: str) -> list[str]:
+    return sorted(re.findall(r"\d+", text.translate(_FA_DIGITS)))
+
+
+def _negated(text: str, persian: bool) -> bool:
+    if persian:
+        return bool(_FA_NEG.search(text.replace("\u200c", "")))
+    return bool(_DE_NEG.search(text))
+
+
+def _stems(text: str) -> set[str]:
+    return {w[:4] for w in _DE_WORD.findall(text.lower()) if w not in _DE_STOP}
+
+
+def _pair_consistent(fa: str, de: str, back: str = "") -> bool:
+    """Cheap semantic gate: no sentence may add/drop a negation or a number, and the literal
+    back-translation of the Persian sentence must share the content words of the German one."""
+    de_words, fa_words = len(_DE_WORD.findall(de)), len(re.findall(r"\S+", fa))
+    if not 6 <= de_words <= 22 or fa_words < 4 or fa_words > 28:
+        return False
+    if _numbers(fa) != _numbers(de):
+        return False
+    if _negated(fa, True) != _negated(de, False):
+        return False
+    if back:
+        de_stems, back_stems = _stems(de), _stems(back)
+        if de_stems and back_stems and len(de_stems & back_stems) / len(de_stems) < 0.4:
+            return False
+    return True
+
+
 def _clean_items(data: dict, topics: list[str]) -> list[dict]:
-    out = []
+    good: list[dict] = []
+    weak: list[dict] = []
     for raw in data.get("items") or []:
         if not isinstance(raw, dict):
             continue
@@ -218,9 +311,60 @@ def _clean_items(data: dict, topics: list[str]) -> list[dict]:
             topic = topics[0] if len(topics) == 1 else ""
         if not topic or not _has_persian(fa) or not de or len(de) > 300 or len(fa) > 400 or _has_persian(de):
             continue
-        alt = [str(a).strip()[:300] for a in (raw.get("alt") or []) if isinstance(a, str) and a.strip() and not _has_persian(a, 1)][:2]
+        if len(de.split()) > 20:
+            continue  # too long to sound like everyday German
+        back = str(raw.get("back") or "").strip()
+        if _has_persian(back):
+            back = ""
+        alt = [str(a).strip()[:300] for a in (raw.get("alt") or [])
+               if isinstance(a, str) and a.strip() and not _has_persian(a, 1)
+               and _pair_consistent(fa, str(a).strip())][:2]
         hint = str(raw.get("hint") or "").strip()[:90]
-        out.append({"topic": topic, "fa": fa, "de": de, "alt": alt, "hint": hint if _has_persian(hint, 3) else ""})
+        item = {"topic": topic, "fa": fa, "de": de, "alt": alt, "hint": hint if _has_persian(hint, 3) else ""}
+        (good if _pair_consistent(fa, de, back) else weak).append(item)
+    # never return an empty batch: if every pair failed the gate, keep the originals (frontend falls back otherwise)
+    return good or weak
+
+
+AUDIT_SYSTEM = """Du prüfst persisch-deutsche Übungspaare streng als Deutschlehrer. Für jedes Paar:
+(a) Ist der deutsche Satz fehlerfrei? Prüfe Kasus (Verb-/Präpositionsrektion), Endungen, Kongruenz, Verbstellung, Zeitform, Trennbarkeit. Ein Satz mit Rektionsfehler (z. B. „dankte die Mitarbeiter" statt „dankte den Mitarbeitern") ist NICHT fehlerfrei.
+(b) Drücken "de" und "fa" genau denselben Inhalt aus? Gleiche Person, Zahl, Zeit, Negation, dieselben Objekte, Orte und Mengen — kein Zusatz, keine Auslassung.
+(c) Ist das Persische natürliches Persisch ohne deutsche Wörter, ohne Doppelbedeutung und ohne störende Wiederholungen — und ist jedes persische Wort die richtige Entsprechung (nicht «داده‌ها» für „Datenbanken", nicht «ارتقاء» für „Fortbildung"); ist der persische Satz grammatisch korrekt (richtige Präpositionen, korrekte Verwendung von را/به/در, keine fehlenden Satzteile)?
+(d) Ist der deutsche Satz heutiges Alltagsdeutsch — ein Satz, den eine normale Person in Deutschland heute wirklich sagen oder schreiben würde? Ersetze seltene, literarische, gestelzte oder rein konstruierte Formulierungen (auch unnötigen Nominalstil, erfundene Zahlen und künstliche Lehrbuchsätze) durch die gebräuchliche Alltagsformulierung (auch förmliche Verben durch alltägliche ersetzen: erhalten→bekommen, äußern→sagen, benötigen→brauchen, durchführen→machen); Zielgrammatik, Person, Zeit und Inhalt bleiben erhalten.
+Ist alles in Ordnung: Satz unverändert zurückgeben ("ok": true). Sonst korrigieren: erst den deutschen Satz (bei (d) ruhig ganz neu, aber alltäglich und mit derselben Zielgrammatik), dann die persische Übersetzung passend dazu; Zielgrammatik und Thema bleiben.
+Antworte NUR mit JSON: {"items":[{"i":<Index aus der Eingabe>,"de":"…","fa":"…","ok":true|false}]}
+- genau ein Eintrag pro Eingabesatz, keine Erklärungen, keine weiteren Felder."""
+
+
+async def _audit_items(items: list[dict], topics: list[str]) -> list[dict]:
+    """Second pass: a strict editor fixes case/agreement errors and Persian↔German meaning drift.
+    Best effort — if the editor is unavailable the generated pairs are returned unchanged."""
+    if not items:
+        return items
+    rows = [{"i": i, "topic": it["topic"], "de": it["de"], "fa": it["fa"]} for i, it in enumerate(items)]
+    messages = [{"role": "system", "content": AUDIT_SYSTEM},
+                {"role": "user", "content": json.dumps(rows, ensure_ascii=False)}]
+    try:
+        data, _model = await _json_complete(messages, max_tokens=1800, effort="medium", budget=10.0,
+                                            accept=lambda d: bool(d.get("items")))
+    except Exception:  # noqa: BLE001 - audit is optional, never break the exercise
+        log.warning("grammar drill: audit pass skipped", exc_info=True)
+        return items
+    out = list(items)
+    for row in data.get("items") or []:
+        if not isinstance(row, dict):
+            continue
+        try:
+            index = int(row.get("i"))
+        except (TypeError, ValueError):
+            continue
+        if not 0 <= index < len(items):
+            continue
+        de = str(row.get("de") or "").strip() or items[index]["de"]
+        fa = str(row.get("fa") or "").strip() or items[index]["fa"]
+        if len(de) > 300 or len(fa) > 400 or _has_persian(de) or not _has_persian(fa) or not _pair_consistent(fa, de):
+            continue
+        out[index] = dict(items[index], de=de, fa=fa)
     return out
 
 
@@ -228,16 +372,70 @@ def _clean_items(data: dict, topics: list[str]) -> list[dict]:
 async def sentences(payload: SentenceRequest, user: User = Depends(get_current_user)) -> dict:
     require_premium(user)
     _rate_limit(user)
-    picks = [random.choice(payload.topics) for _ in range(payload.count)]
-    plan = "\n".join(f"{i + 1}. topic \"{t}\": {TOPICS[t]} — Thema: {random.choice(THEMES)}" for i, t in enumerate(picks))
-    user_msg = f"Erstelle genau {payload.count} Übungen, in dieser Reihenfolge:\n{plan}"
-    if payload.avoid:
-        user_msg += "\nNicht wiederholen (schon geübt): " + " | ".join(payload.avoid[-12:])
-    messages = [{"role": "system", "content": GEN_SYSTEM}, {"role": "user", "content": user_msg}]
-    data, model = await _json_complete(messages, max_tokens=4000, effort="medium", budget=40.0,
-                                       accept=lambda d: bool(_clean_items(d, payload.topics)))
-    items = _clean_items(data, payload.topics)
-    return {"items": items[:payload.count], "model": model}
+    theme = THEMES.get(payload.theme, payload.theme)
+    # The meaning gate drops pairs that drift, so ask for a couple more and top up once:
+    # the learner should always get the full batch of everyday sentences.
+    items: list[dict] = []
+    seen: set[str] = set()
+    model = ""
+    for round_index in range(2):
+        need = payload.count - len(items)
+        if need <= 0:
+            break
+        ask = min(6, need + 2)
+        picks = [random.choice(payload.topics) for _ in range(ask)]
+        plan = "\n".join(
+            f"{i + 1}. topic \"{t}\": {TOPICS[t]} — Thema: {theme or random.choice(list(THEMES.values()))}"
+            for i, t in enumerate(picks)
+        )
+        user_msg = f"Erstelle genau {ask} Übungen, in dieser Reihenfolge:\n{plan}"
+        if theme:
+            user_msg += (f"\nALLE Sätze sollen inhaltlich klar zum Thema „{theme}\" passen: typische Situationen, "
+                         "Personen und Wortschatz genau dieses Themas, ohne den Satz künstlich zu wirken.")
+        avoid = list(payload.avoid[-12:]) + [it["fa"] for it in items]
+        if avoid:
+            user_msg += "\nNicht wiederholen (schon geübt): " + " | ".join(avoid[-14:])
+        messages = [{"role": "system", "content": GEN_SYSTEM}, {"role": "user", "content": user_msg}]
+        try:
+            data, model = await _json_complete(messages, max_tokens=4000, effort="medium",
+                                               budget=22.0 if round_index == 0 else 8.0,
+                                               accept=lambda d: bool(_clean_items(d, payload.topics)))
+        except Exception:  # noqa: BLE001 - a failed top-up must not throw away the sentences we already have
+            if not items:
+                raise
+            log.warning("grammar drill: top-up round skipped", exc_info=True)
+            break
+        for item in _clean_items(data, payload.topics):
+            if item["fa"] in seen:
+                continue
+            seen.add(item["fa"])
+            items.append(item)
+            if len(items) >= payload.count:
+                break
+    items = await _audit_items(items[:payload.count], payload.topics)
+    return {"items": items[:payload.count], "model": model, "theme": payload.theme}
+
+
+TRANSLATE_SYSTEM = """Du übersetzt persische Sätze von Deutschlernenden natürlich und grammatisch korrekt ins Deutsche.
+Bleibe nah am Inhalt, benutze Alltagsdeutsch auf dem Niveau B1–C1, keine Erklärungen, keine Transliteration.
+Antworte NUR mit JSON: {"de":"…"}
+"""
+
+
+@router.post("/translate")
+async def translate(payload: TranslateRequest, user: User = Depends(get_current_user)) -> dict:
+    require_premium(user)
+    _rate_limit(user)
+    messages = [{"role": "system", "content": TRANSLATE_SYSTEM},
+                {"role": "user", "content": f"Persischer Text: {payload.fa}"}]
+
+    def accept(d: dict) -> bool:
+        return bool(str(d.get("de") or "").strip())
+    data, model = await _json_complete(messages, max_tokens=800, effort="low", budget=20.0, accept=accept)
+    de = str(data.get("de") or "").strip()[:600]
+    if not de:
+        raise ai_guard.unavailable(60, "AI is busy right now")
+    return {"de": de, "model": model}
 
 
 @router.post("/check")

@@ -1,9 +1,10 @@
-// Grammar drill bot («ربات تمرین گرامر») — port of the site's grammar-drill.js. Persian sentence → German
-// translation with a short correction: AI first (/v1/grammar-drill, premium), the offline sentence bank (the
-// «grammar» content pack) otherwise. Selected topics stay in local storage under the site's key.
-// Generated from the site file by the scratchpad script port_gdrill.py, then kept by hand.
+// Grammar drill bot («ربات تمرین گرامر») — port of the site's grammar-drill.js (2026-11-21).
+// Persian sentence → German translation with a short correction: AI first (/v1/grammar-drill, premium), the offline
+// sentence bank (the «grammar» content pack) otherwise. Sentence topics (themes), the selected grammars and the chat
+// session are kept in local storage under the site's keys, so the bot reopens on the last conversation.
 
 import { lang as uiLang } from '../core/i18n.js';
+import { confirmDialog } from './widgets.js';
 
 export function createGrammarDrill(env) {
   /** The site's apiRequest(path, {method, body: JSON}) on top of the app bridge: resolves data, rejects {status, details}. */
@@ -15,8 +16,9 @@ export function createGrammarDrill(env) {
       throw e;
     });
   }
-  var VER = '20261113g2';
+  var VER = '20261121theme6';
   var LS_KEY = 'amookht_gd_topics';
+  var THEME_KEY = 'amookht_gd_theme';
   var AI_TIMEOUT = 28000;
 
   var GROUPS = [
@@ -49,12 +51,47 @@ export function createGrammarDrill(env) {
   var TOPIC = {};
   TOPICS.forEach(function (t) { TOPIC[t.id] = t; });
 
+  /* Inhaltliches Thema der Sätze (ids must match THEMES in backend/app/api/routes/grammar_drill.py). */
+  var THEMES = [
+    ['', 'خودکار (تصادفی)', 'Auto (random)', 'Automatisch'],
+    ['alltag', 'زندگی روزمره', 'Everyday life', 'Alltag'],
+    ['studium', 'دانشگاه و تحصیل', 'Studies & university', 'Studium'],
+    ['beruf', 'کار و حرفه', 'Work & career', 'Beruf'],
+    ['familie', 'خانواده', 'Family', 'Familie'],
+    ['wohnen', 'خانه و اجاره', 'Housing & rent', 'Wohnen'],
+    ['reisen', 'سفر', 'Travel', 'Reisen'],
+    ['verkehr', 'حمل‌ونقل', 'Transport', 'Verkehr'],
+    ['gesundheit', 'سلامت و پزشک', 'Health & doctor', 'Gesundheit'],
+    ['ernaehrung', 'تغذیه و غذا', 'Food & nutrition', 'Ernährung'],
+    ['umwelt', 'محیط زیست', 'Environment', 'Umwelt'],
+    ['digital', 'دیجیتال و اینترنت', 'Digital & internet', 'Digitalisierung'],
+    ['ki', 'هوش مصنوعی', 'Artificial intelligence', 'Künstliche Intelligenz'],
+    ['medien', 'رسانه و اخبار', 'Media & news', 'Medien'],
+    ['wirtschaft', 'اقتصاد و پول', 'Economy & money', 'Wirtschaft'],
+    ['bildung', 'آموزش و مدرسه', 'Education & school', 'Bildung'],
+    ['kultur', 'فرهنگ، موسیقی و سینما', 'Culture & arts', 'Kultur'],
+    ['sport', 'ورزش و اوقات فراغت', 'Sport & leisure', 'Sport'],
+    ['behoerde', 'اداره و کارهای اداری', 'Authorities & paperwork', 'Ämter'],
+    ['einkaufen', 'خرید و مصرف', 'Shopping & consumption', 'Einkaufen']
+  ].map(function (t) { return { id: t[0], fa: t[1], en: t[2], de: t[3] }; });
+  var THEME = {};
+  THEMES.forEach(function (t) { THEME[t.id] = t; });
+
   var COPY = {
     fa: {
       title: 'ربات تمرین گرامر', sub: 'جمله فارسی → ترجمه آلمانی', open: 'شروع تمرین',
       entry: 'گرامرهای دلخواهت را انتخاب کن؛ ربات جمله فارسی می‌دهد، تو به آلمانی ترجمه می‌کنی و فوری اصلاح کوتاه می‌گیری.',
       hello: 'سلام! 👋 کدوم گرامرها رو می‌خوای تمرین کنی؟ روی هر کدوم بزن تا انتخاب بشه، بعد «تأیید» رو بزن.',
       all: 'همه', none: 'هیچ', confirm: 'تأیید و شروع', pickFirst: 'حداقل یک گرامر انتخاب کن',
+      themeTitle: 'موضوع جمله‌ها', themeHint: 'موضوع را انتخاب کن یا خودت بنویس تا جمله‌ها دربارهٔ همین موضوع ساخته شوند.',
+      themeBank: 'در حالت آفلاین بانک جمله‌ها موضوعی نیست و موضوع انتخابی اعمال نمی‌شود.',
+      themeBtn: 'موضوع', themeCustom: 'یا موضوع دلخواهت را بنویس…', themeApply: 'اعمال موضوع', themeAuto: 'خودکار (تصادفی)',
+      themeSet: function (t) { return 'موضوع جمله‌ها: ' + t + '؛ جملهٔ بعدی دربارهٔ همین موضوع ساخته می‌شود.'; },
+      allTopics: 'همهٔ گرامرها', allHint: 'تصادفی از هر گرامری سؤال می‌پرسد؛ برای خاموش‌کردن دوباره بزن.',
+      translating: 'در حال ترجمه به آلمانی…', translated: 'ترجمهٔ آلمانی:',
+      translateNeedsAI: 'ترجمهٔ متن فارسی به هوش مصنوعی نیاز دارد (حساب پرمیوم و اتصال اینترنت).',
+      translateFailed: 'ترجمه ممکن نشد؛ کمی بعد دوباره امتحان کن.',
+      clearChat: 'تاریخچه', clearAsk: 'تاریخچهٔ پیام‌ها و امتیازها پاک شود؟',
       start: function (n) { return 'عالی! ' + n + ' گرامر انتخاب شد. هر جمله فارسی را به آلمانی بنویس و Enter بزن. هر وقت خواستی، پنجره را ببند.'; },
       translate: 'به آلمانی ترجمه کن:', hint: 'راهنما', placeholder: 'ترجمه آلمانی را بنویس…', check: 'بررسی', skip: 'نمی‌دونم',
       correct: 'درسته! ✅', almost: 'تقریباً درسته 🟡', wrong: 'نه کاملاً ❌', solution: 'جواب درست:', shown: 'جواب این جمله:',
@@ -71,6 +108,15 @@ export function createGrammarDrill(env) {
       entry: 'Pick grammar topics; the bot gives you Persian sentences, you translate them into German and get a short correction.',
       hello: 'Hi! 👋 Which grammar topics do you want to practise? Tap to select, then press “Confirm”.',
       all: 'All', none: 'None', confirm: 'Confirm & start', pickFirst: 'Select at least one topic',
+      themeTitle: 'Sentence topic', themeHint: 'Pick a topic or type your own; the sentences will be about it.',
+      themeBank: 'Offline the built-in sentence bank is not topic-based, so the chosen topic is not applied.',
+      themeBtn: 'Topic', themeCustom: 'Or type your own topic…', themeApply: 'Apply topic', themeAuto: 'Auto (random)',
+      themeSet: function (t) { return 'Sentence topic: ' + t + '. The next sentence will be about it.'; },
+      allTopics: 'All grammar topics', allHint: 'Asks a random question from every grammar topic; tap again to switch it off.',
+      translating: 'Translating into German…', translated: 'German translation:',
+      translateNeedsAI: 'Translating Persian needs the AI (Premium and an internet connection).',
+      translateFailed: 'Translation failed; try again in a moment.',
+      clearChat: 'History', clearAsk: 'Clear the message history and the score?',
       start: function (n) { return 'Great! ' + n + ' topics selected. Write each Persian sentence in German and press Enter. Close the window whenever you like.'; },
       translate: 'Translate into German:', hint: 'Hint', placeholder: 'Write the German translation…', check: 'Check', skip: "I don't know",
       correct: 'Correct! ✅', almost: 'Almost 🟡', wrong: 'Not quite ❌', solution: 'Correct answer:', shown: 'Answer:',
@@ -87,6 +133,15 @@ export function createGrammarDrill(env) {
       entry: 'Wähle Grammatikthemen; der Bot gibt persische Sätze, du übersetzt sie ins Deutsche und bekommst eine kurze Korrektur.',
       hello: 'Hallo! 👋 Welche Grammatik möchtest du üben? Tippe zum Auswählen und dann auf „Bestätigen“.',
       all: 'Alle', none: 'Keine', confirm: 'Bestätigen & starten', pickFirst: 'Wähle mindestens ein Thema',
+      themeTitle: 'Thema der Sätze', themeHint: 'Wähle ein Thema oder tippe dein eigenes; die Sätze handeln dann davon.',
+      themeBank: 'Offline ist die eingebaute Satzbank nicht thematisch, das gewählte Thema gilt dort nicht.',
+      themeBtn: 'Thema', themeCustom: 'Oder eigenes Thema eintippen…', themeApply: 'Thema übernehmen', themeAuto: 'Automatisch',
+      themeSet: function (t) { return 'Thema der Sätze: ' + t + '. Der nächste Satz handelt davon.'; },
+      allTopics: 'Alle Grammatikthemen', allHint: 'Stellt zufällig Aufgaben aus allen Grammatikthemen; erneut tippen zum Ausschalten.',
+      translating: 'Wird ins Deutsche übersetzt…', translated: 'Deutsche Übersetzung:',
+      translateNeedsAI: 'Für die Übersetzung persischer Sätze wird die KI gebraucht (Premium und Internet).',
+      translateFailed: 'Übersetzung fehlgeschlagen; bitte gleich erneut versuchen.',
+      clearChat: 'Verlauf', clearAsk: 'Nachrichtenverlauf und Punkte löschen?',
       start: function (n) { return 'Super! ' + n + ' Themen gewählt. Übersetze jeden persischen Satz ins Deutsche und drücke Enter. Schließe das Fenster, wann du willst.'; },
       translate: 'Übersetze ins Deutsche:', hint: 'Tipp', placeholder: 'Deutsche Übersetzung schreiben…', check: 'Prüfen', skip: 'Weiß nicht',
       correct: 'Richtig! ✅', almost: 'Fast richtig 🟡', wrong: 'Nicht ganz ❌', solution: 'Richtige Lösung:', shown: 'Lösung:',
@@ -103,13 +158,53 @@ export function createGrammarDrill(env) {
   function c() { return COPY[lang()]; }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   function topicLabel(t) { return lang() === 'fa' ? t.fa + ' · ' + t.de : t.de; }
+  function themeLabel(id) {
+    var t = THEME[id];
+    if (!t) return '';
+    return lang() === 'fa' ? t.fa + ' · ' + t.de : (lang() === 'en' ? t.en : t.de);
+  }
+  function themeShort(t) { return t[lang()] || t.fa; }
+  function themeName() { return st.themeText || themeLabel(st.theme); }
+  function themeValue() { return st.themeText || st.theme; }
   function premium() { return !!env.premium(); }
+  function accountEmail() { try { return String((env.data() || {}).user && (env.data().user.email || env.data().user.id) || ''); } catch (e) { return ''; } }
 
   /* ---------- state ---------- */
-  var st = { open: false, phase: 'pick', selected: [], queue: [], fetching: null, current: null, busy: false,
-             stats: { ok: 0, total: 0 }, recent: [], recentIds: {}, aiPauseUntil: 0, aiMode: null, decks: {} };
+  var st = { open: false, phase: 'pick', selected: [], theme: '', themeText: '', queue: [], fetching: null, current: null, busy: false,
+             stats: { ok: 0, total: 0 }, recent: [], recentIds: {}, aiPauseUntil: 0, aiMode: null, decks: {}, log: [], replay: false };
   function loadSelection() { try { var v = JSON.parse(localStorage.getItem(LS_KEY) || '[]'); return Array.isArray(v) ? v.filter(function (x) { return TOPIC[x]; }) : []; } catch (e) { return []; } }
+  /* ---------- session (2026-11-21): the chat survives closing the window ---------- */
+  var SESSION_KEY = 'amookht_gd_session_v1';
+  function sessionUser() { try { return accountEmail(); } catch (e) { return ''; } }
+  function saveSession() {
+    if (st.phase !== 'drill' || !st.log.length) return;
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ v: 1, u: sessionUser(), t: Date.now(), selected: st.selected, theme: st.theme, themeText: st.themeText, stats: st.stats,
+        recent: st.recent.slice(-30), current: st.current, log: st.log.slice(-160) }));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function loadSession() {
+    try {
+      var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+      if (!d || d.v !== 1 || d.u !== sessionUser()) return null;
+      if (!Array.isArray(d.log) || !d.log.length || !Array.isArray(d.selected) || !d.selected.length) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+  function clearSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ } }
   function saveSelection() { try { localStorage.setItem(LS_KEY, JSON.stringify(st.selected)); } catch (e) { /* private mode */ } }
+  function loadTheme() {
+    try {
+      var raw = localStorage.getItem(THEME_KEY) || '';
+      if (!raw) return { id: '', text: '' };
+      if (raw.charAt(0) === '{') {
+        var o = JSON.parse(raw) || {};
+        return { id: THEME[o.id] ? o.id : '', text: typeof o.text === 'string' ? o.text.replace(/\s+/g, ' ').trim().slice(0, 60) : '' };
+      }
+      return { id: THEME[raw] ? raw : '', text: '' };
+    } catch (e) { return { id: '', text: '' }; }
+  }
+  function saveTheme() { try { localStorage.setItem(THEME_KEY, JSON.stringify({ id: st.theme, text: st.themeText })); } catch (e) { /* private mode */ } }
 
   /* ---------- offline bank ---------- */
   function loadBank() { return env.loadPack('grammar'); }
@@ -134,20 +229,20 @@ export function createGrammarDrill(env) {
   }
   function fetchAI() {
     if (st.fetching) return st.fetching;
-    var topics = st.selected.slice();
-    st.fetching = withTimeout(apiRequest('/grammar-drill/sentences', { method: 'POST', body: JSON.stringify({ topics: topics, count: 4, avoid: st.recent.slice(-12) }) }), AI_TIMEOUT)
+    var topics = st.selected.slice(), theme = themeValue();
+    st.fetching = withTimeout(apiRequest('/grammar-drill/sentences', { method: 'POST', body: JSON.stringify({ topics: topics, theme: theme, count: 4, avoid: st.recent.slice(-12) }) }), AI_TIMEOUT)
       .then(function (data) {
         var items = (data && data.items || []).filter(function (x) { return x && x.fa && x.de && topics.indexOf(x.topic) >= 0; });
         if (!items.length) throw new Error('no items');
         items.forEach(function (x) { x.source = 'ai'; x.alt = (x.alt || []).filter(function (a) { return !/[؀-ۿ]/.test(a); }); });
-        if (sameSelection(topics)) st.queue = st.queue.concat(items);
+        if (sameSelection(topics, theme)) st.queue = st.queue.concat(items);
         return items;
       })
       .catch(function (err) { aiFailed(err); throw err; })
       .finally(function () { st.fetching = null; });
     return st.fetching;
   }
-  function sameSelection(t) { return t.join(',') === st.selected.join(','); }
+  function sameSelection(t, theme) { return t.join(',') === st.selected.join(',') && theme === themeValue(); }
   function prefetch() { if (aiAllowed() && st.queue.length < 2 && !st.fetching) fetchAI().catch(function () { /* fallback happens on demand */ }); }
 
   function nextItem() {
@@ -216,20 +311,37 @@ export function createGrammarDrill(env) {
     root.className = 'gd-overlay';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
-    root.innerHTML = '<div class="gd-panel" dir="' + (lang() === 'fa' ? 'rtl' : 'ltr') + '"><header class="gd-head"><div class="gd-avatar">🤖</div><div class="gd-titles"><b>' + esc(c().title) + '</b><small>' + esc(c().sub) + '</small></div><div class="gd-score" title="' + esc(c().score) + '"></div><button type="button" class="gd-hbtn gd-change">' + esc(c().change) + '</button><button type="button" class="gd-x" aria-label="' + esc(c().close) + '">✕</button></header><div class="gd-log" aria-live="polite"></div><footer class="gd-foot"></footer></div>';
+    root.innerHTML = '<div class="gd-panel" dir="' + (lang() === 'fa' ? 'rtl' : 'ltr') + '"><header class="gd-head"><div class="gd-avatar">🤖</div><div class="gd-titles"><b>' + esc(c().title) + '</b><small>' + esc(c().sub) + '</small></div><div class="gd-score" title="' + esc(c().score) + '"></div><button type="button" class="gd-hbtn gd-theme-btn">' + esc(c().themeBtn) + '</button><button type="button" class="gd-hbtn gd-change">' + esc(c().change) + '</button><button type="button" class="gd-hbtn gd-clear" title="' + esc(c().clearAsk) + '" aria-label="' + esc(c().clearChat) + '">🗑</button><button type="button" class="gd-x" aria-label="' + esc(c().close) + '">✕</button></header><div class="gd-log" aria-live="polite"></div><footer class="gd-foot"></footer></div>';
     document.body.appendChild(root);
     logEl = root.querySelector('.gd-log');
     footEl = root.querySelector('.gd-foot');
     root.querySelector('.gd-x').onclick = close;
     root.querySelector('.gd-change').onclick = function () { if (!st.busy) startPick(); };
+    root.querySelector('.gd-theme-btn').onclick = startTheme;
+    // GD-CLEAR-DIALOG: the same in-app glass dialog as every other confirmation (no native window.confirm)
+    root.querySelector('.gd-clear').onclick = function () {
+      if (st.busy) return;
+      confirmDialog(c().clearAsk, { ok: c().clearChat }).then(function (yes) { if (yes) clearHistory(); });
+    };
     root.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.preventDefault(); close(); } });
   }
-  function scrollEnd() { requestAnimationFrame(function () { if (logEl) logEl.scrollTop = logEl.scrollHeight; }); }
+  function scrollEnd() {
+    if (!logEl) return;
+    var toBottom = function () { if (logEl) logEl.scrollTop = logEl.scrollHeight; };
+    toBottom();
+    requestAnimationFrame(toBottom);
+    setTimeout(toBottom, 90);
+  }
   function bubble(html, who, cls) {
     var el = document.createElement('div');
     el.className = 'gd-msg gd-' + (who || 'bot') + (cls ? ' ' + cls : '');
     el.innerHTML = html;
     logEl.appendChild(el);
+    if (!st.replay && st.phase === 'drill' && cls !== 'gd-typing' && !/\bgd-typing\b/.test(cls || '')) {
+      st.log.push({ who: who || 'bot', cls: cls || '', html: html });
+      if (st.log.length > 200) st.log.shift();
+      saveSession();
+    }
     scrollEnd();
     return el;
   }
@@ -239,28 +351,130 @@ export function createGrammarDrill(env) {
     if (el) el.textContent = st.stats.total ? st.stats.ok + ' / ' + st.stats.total : '';
     var ch = root && root.querySelector('.gd-change');
     if (ch) ch.hidden = st.phase !== 'drill';
+    var th = root && root.querySelector('.gd-theme-btn');
+    if (th) th.hidden = st.phase !== 'drill';
+    var cl = root && root.querySelector('.gd-clear');
+    if (cl) cl.hidden = st.phase !== 'drill';
   }
   function noteMode() {
     var mode = aiAllowed() ? 'ai' : 'bank';
     if (mode === st.aiMode) return;
     var first = st.aiMode === null;
     st.aiMode = mode;
-    if (mode === 'bank') bubble(esc(premium() ? c().offline : c().offlineFree), 'bot', 'gd-info');
+    if (mode === 'bank') bubble(esc((premium() ? c().offline : c().offlineFree) + (themeValue() ? ' ' + c().themeBank : '')), 'bot', 'gd-info');
     else if (!first) bubble(esc(c().back), 'bot', 'gd-info');
   }
 
+  function themeBoxHtml() {
+    return '<section class="gd-group gd-theme"><div class="gd-group-head"><b>' + esc(c().themeTitle) + '</b></div><div class="gd-chips gd-theme-chips">' +
+      THEMES.map(function (t) { return '<button type="button" class="gd-chip gd-tchip' + (!st.themeText && st.theme === t.id ? ' is-on' : '') + '" data-theme="' + t.id + '" aria-pressed="' + (!st.themeText && st.theme === t.id) + '">' + esc(themeShort(t)) + '</button>'; }).join('') +
+      '</div><div class="gd-theme-custom"><input type="text" class="gd-theme-input" maxlength="60" autocomplete="off" value="' + esc(st.themeText) + '" placeholder="' + esc(c().themeCustom) + '"></div>' +
+      '<p class="gd-theme-note">' + esc(c().themeHint) + '</p></section>';
+  }
+  function setTheme(id, text) {
+    st.theme = id;
+    st.themeText = text;
+    st.queue = [];
+    saveTheme();
+  }
+  function bindTheme(card) {
+    var inp = card.querySelector('.gd-theme-input');
+    if (!inp) return;
+    inp.addEventListener('input', function () {
+      var text = inp.value.replace(/\s+/g, ' ').trim().slice(0, 60);
+      setTheme(text ? '' : st.theme, text);
+      paintChips(card);
+    });
+  }
+  /* change of topic/theme must drop the sentence still awaiting an answer,
+     otherwise the learner types into the old question and only the second one is visible. */
+  function dropPending() {
+    if (!st.current) return;
+    st.current = null;
+    if (logEl) {
+      var qs = logEl.querySelectorAll('.gd-q');
+      if (qs.length) qs[qs.length - 1].remove();
+    }
+    for (var i = st.log.length - 1; i >= 0; i--) {
+      if (String(st.log[i].cls || '').indexOf('gd-q') === 0) { st.log.splice(i, 1); break; }
+    }
+    saveSession();
+  }
+  function startTheme() {
+    if (st.phase !== 'drill' || st.busy) return;
+    var card = bubble(themeBoxHtml(), 'bot', 'gd-picker gd-picker-inline');
+    st.log.pop();      /* picker UI, not chat history */
+    saveSession();
+    card.classList.add('is-live');
+    bindTheme(card);
+    card.addEventListener('click', function (e) {
+      var tchip = e.target.closest('.gd-tchip');
+      if (!tchip || st.busy) return;
+      var inp = card.querySelector('.gd-theme-input');
+      if (inp) inp.value = '';
+      setTheme(tchip.dataset.theme, '');
+      paintChips(card);
+      var cnt = footEl.querySelector('.gd-count');
+      if (cnt) cnt.textContent = themeName() || c().themeAuto;
+    });
+    footEl.innerHTML = '<div class="gd-pickbar"><span class="gd-count">' + esc(themeName() || c().themeAuto) + '</span><button type="button" class="gd-primary gd-theme-ok">' + esc(c().themeApply) + '</button></div>';
+    footEl.querySelector('.gd-theme-ok').onclick = function () {
+      card.classList.remove('is-live');
+      card.remove();
+      saveTheme();
+      st.queue = [];
+      dropPending();
+      drillFooter();
+      bubble(esc(c().themeSet(themeName() || c().themeAuto)), 'bot', 'gd-info');
+      ask();
+      setTimeout(function () { var ta = footEl.querySelector('textarea'); if (ta) ta.focus({ preventScroll: true }); }, 0);
+    };
+  }
+  function clearHistory() {
+    clearSession();
+    st.log = [];
+    st.stats = { ok: 0, total: 0 };
+    st.recent = [];
+    st.recentIds = {};
+    st.current = null;
+    st.queue = [];
+    st.decks = {};
+    st.aiMode = null;
+    if (logEl) logEl.innerHTML = '';
+    updateScore();
+    if (!st.open) return;
+    if (st.selected.length) {
+      st.phase = 'drill';
+      bubble(esc(c().start(st.selected.length)), 'bot');
+      drillFooter();
+      noteMode();
+      ask();
+    } else {
+      startPick();
+    }
+  }
   function startPick() {
     st.phase = 'pick';
     st.current = null;
     updateScore();
     bubble(esc(c().hello), 'bot');
-    var card = bubble(GROUPS.map(function (g) {
+    var allBox = '<section class="gd-group gd-allbox"><button type="button" class="gd-chip gd-chip-all">' + esc(c().allTopics) + '</button><p class="gd-theme-note gd-all-note">' + esc(c().allHint) + '</p></section>';
+    var card = bubble(themeBoxHtml() + allBox + GROUPS.map(function (g) {
       var list = TOPICS.filter(function (t) { return t.group === g.id; });
       return '<section class="gd-group"><div class="gd-group-head"><b>' + esc(g[lang()] || g.fa) + '</b><button type="button" class="gd-all" data-group="' + g.id + '">' + esc(c().all) + '</button></div><div class="gd-chips">' +
         list.map(function (t) { return '<button type="button" class="gd-chip' + (st.selected.indexOf(t.id) >= 0 ? ' is-on' : '') + '" data-topic="' + t.id + '" aria-pressed="' + (st.selected.indexOf(t.id) >= 0) + '">' + esc(topicLabel(t)) + '</button>'; }).join('') + '</div></section>';
     }).join(''), 'bot', 'gd-picker');
     card.addEventListener('click', function (e) {
       if (st.phase !== 'pick' || !card.classList.contains('is-live')) return;
+      var tchip = e.target.closest('.gd-tchip');
+      if (tchip) {
+        var ti = card.querySelector('.gd-theme-input');
+        if (ti) ti.value = '';
+        setTheme(tchip.dataset.theme, '');
+        paintChips(card);
+        return;
+      }
+      if (e.target.closest('.gd-chip-all')) { toggleAll(); paintChips(card); return; }
       var chip = e.target.closest('.gd-chip'), all = e.target.closest('.gd-all');
       if (chip) toggle(chip.dataset.topic);
       if (all) {
@@ -272,14 +486,22 @@ export function createGrammarDrill(env) {
     });
     logEl.querySelectorAll('.gd-picker.is-live').forEach(function (old) { old.classList.remove('is-live'); });
     card.classList.add('is-live');
+    bindTheme(card);
     paintChips(card);
     footEl.innerHTML = '<div class="gd-pickbar"><span class="gd-count"></span><button type="button" class="gd-primary gd-confirm">' + esc(c().confirm) + '</button></div>';
     footEl.querySelector('.gd-confirm').onclick = confirmPick;
     paintChips(card);
   }
   function toggle(id) { var i = st.selected.indexOf(id); if (i >= 0) st.selected.splice(i, 1); else st.selected.push(id); }
+  function allSelected() { return TOPICS.every(function (t) { return st.selected.indexOf(t.id) >= 0; }); }
+  function toggleAll() { st.selected = allSelected() ? [] : TOPICS.map(function (t) { return t.id; }); }
   function paintChips(card) {
-    card.querySelectorAll('.gd-chip').forEach(function (b) { var on = st.selected.indexOf(b.dataset.topic) >= 0; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+    card.querySelectorAll('.gd-chip').forEach(function (b) {
+      if (b.classList.contains('gd-tchip') || b.classList.contains('gd-chip-all')) return;
+      var on = st.selected.indexOf(b.dataset.topic) >= 0; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on));
+    });
+    card.querySelectorAll('.gd-tchip').forEach(function (b) { var on = !st.themeText && st.theme === b.dataset.theme; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+    card.querySelectorAll('.gd-chip-all').forEach(function (b) { var on = allSelected(); b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
     card.querySelectorAll('.gd-all').forEach(function (b) {
       var ids = TOPICS.filter(function (t) { return t.group === b.dataset.group; }).map(function (t) { return t.id; });
       b.textContent = ids.every(function (id) { return st.selected.indexOf(id) >= 0; }) ? c().none : c().all;
@@ -294,20 +516,26 @@ export function createGrammarDrill(env) {
     saveSelection();
     var live = logEl.querySelector('.gd-picker.is-live');
     if (live) live.classList.remove('is-live');
+    logEl.querySelectorAll('.gd-picker').forEach(function (el) { el.remove(); });
     bubble(st.selected.map(function (id) { return '<span class="gd-tag">' + esc(topicLabel(TOPIC[id])) + '</span>'; }).join(' '), 'me', 'gd-tags');
     st.phase = 'drill';
     st.queue = [];
     st.decks = {};
+    st.log = [];
+    clearSession();
     updateScore();
     bubble(esc(c().start(st.selected.length)), 'bot');
     st.aiMode = null;
     noteMode();
+    drillFooter();
+    ask();
+  }
+  function drillFooter() {
     footEl.innerHTML = '<form class="gd-input"><textarea rows="2" dir="ltr" lang="de" spellcheck="false" autocapitalize="sentences" autocomplete="off" placeholder="' + esc(c().placeholder) + '"></textarea><div class="gd-actions"><button type="submit" class="gd-primary">' + esc(c().check) + '</button><button type="button" class="gd-ghost gd-skip">' + esc(c().skip) + '</button></div></form>';
     var form = footEl.querySelector('form'), ta = form.querySelector('textarea');
     form.onsubmit = function (e) { e.preventDefault(); submit(); };
     ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); submit(); } });
     form.querySelector('.gd-skip').onclick = skip;
-    ask();
   }
   function setBusy(on) {
     st.busy = on;
@@ -317,22 +545,24 @@ export function createGrammarDrill(env) {
   function ask() {
     if (!st.open || st.phase !== 'drill') return;
     setBusy(true);
-    var wait = typing(c().thinking), sel = st.selected.join(',');
+    var wait = typing(c().thinking), sel = st.selected.join(','), theme = themeValue();
     nextItem().then(function (item) {
       wait.remove();
-      if (!st.open || st.phase !== 'drill' || sel !== st.selected.join(',')) return;
+      if (!st.open || st.phase !== 'drill' || sel !== st.selected.join(',') || theme !== themeValue()) return;
       noteMode();
       st.current = item;
       st.recent.push(item.de);
       if (st.recent.length > 30) st.recent.shift();
       var t = TOPIC[item.topic] || { fa: item.topic, de: item.topic };
-      var el = bubble('<div class="gd-qhead"><span class="gd-tag">' + esc(topicLabel(t)) + '</span><span class="gd-src gd-src-' + item.source + '">' + esc(item.source === 'ai' ? c().ai : c().bank) + '</span></div><small>' + esc(c().translate) + '</small><p class="gd-fa" dir="rtl" lang="fa">' + esc(item.fa) + '</p>' +
+      var el = bubble('<div class="gd-qhead"><span class="gd-tag">' + esc(topicLabel(t)) + '</span>' + (item.source === 'ai' && themeValue() ? '<span class="gd-tag gd-tag-theme">' + esc(themeName()) + '</span>' : '') + '<span class="gd-src gd-src-' + item.source + '">' + esc(item.source === 'ai' ? c().ai : c().bank) + '</span></div><small>' + esc(c().translate) + '</small><p class="gd-fa" dir="rtl" lang="fa">' + esc(item.fa) + '</p>' +
         (item.hint ? '<button type="button" class="gd-hint-btn">💡 ' + esc(c().hint) + '</button><span class="gd-hint" dir="auto" hidden>' + esc(item.hint) + '</span>' : ''), 'bot', 'gd-q');
       var hb = el.querySelector('.gd-hint-btn');
       if (hb) hb.onclick = function () { hb.hidden = true; el.querySelector('.gd-hint').hidden = false; scrollEnd(); };
       setBusy(false);
       var ta = footEl.querySelector('textarea');
       if (ta) { ta.value = ''; ta.focus({ preventScroll: true }); }
+      scrollEnd();
+      setTimeout(scrollEnd, 220);
       prefetch();
     }, function () {
       wait.remove();
@@ -341,9 +571,43 @@ export function createGrammarDrill(env) {
       el.querySelector('button').onclick = function () { el.remove(); ask(); };
     });
   }
+  /* Persian text in the answer box = “translate this for me”, not a German answer. */
+  function isPersian(text) {
+    var fa = (String(text).match(/[\u0600-\u06FF]/g) || []).length;
+    if (fa < 3) return false;
+    var latin = (String(text).match(/[A-Za-zÄÖÜäöüß]/g) || []).length;
+    return fa >= latin;
+  }
+  function translateFa(text) {
+    if (!st.open || st.busy) return;
+    var ta = footEl.querySelector('textarea');
+    var mine = bubble(esc(text), 'me', 'gd-answer');
+    mine.dir = 'rtl';
+    mine.lang = 'fa';
+    if (ta) { ta.value = ''; ta.focus({ preventScroll: true }); }
+    if (!aiAllowed()) { bubble(esc(c().translateNeedsAI), 'bot', 'gd-info'); return; }
+    setBusy(true);
+    var wait = typing(c().translating);
+    withTimeout(apiRequest('/grammar-drill/translate', { method: 'POST', body: JSON.stringify({ fa: text }) }), AI_TIMEOUT)
+      .then(function (r) {
+        wait.remove();
+        if (!r || !r.de) throw new Error('bad translate');
+        bubble('<small>' + esc(c().translated) + '</small><p dir="ltr" lang="de" class="gd-solo">' + esc(r.de) + '</p>', 'bot', 'gd-res');
+        setBusy(false);
+        var t = footEl.querySelector('textarea');
+        if (t) t.focus({ preventScroll: true });
+      })
+      .catch(function (err) {
+        wait.remove();
+        aiFailed(err);
+        bubble(esc(c().translateFailed), 'bot', 'gd-info');
+        setBusy(false);
+      });
+  }
   function submit() {
     var ta = footEl.querySelector('textarea'), answer = ta ? ta.value.trim() : '', item = st.current;
     if (!answer || !item || st.busy) return;
+    if (isPersian(answer)) { translateFa(answer); return; }
     st.current = null;
     var mineEl = bubble(esc(answer), 'me', 'gd-answer');
     mineEl.dir = 'ltr';
@@ -382,15 +646,48 @@ export function createGrammarDrill(env) {
     if (st.open) return;
     st.open = true;
     st.selected = st.selected.length ? st.selected : loadSelection();
+    if (!st.theme && !st.themeText) {
+      var thm = loadTheme();
+      st.theme = thm.id;
+      st.themeText = thm.text;
+    }
     st.stats = { ok: 0, total: 0 };
     mount();
     logEl.innerHTML = '';
     document.documentElement.classList.add('gd-lock');
-    startPick();
+    var saved = loadSession();
+    if (saved) {
+      st.selected = saved.selected.filter(function (x) { return TOPIC[x]; });
+      st.theme = THEME[saved.theme] ? saved.theme : st.theme;
+      if (typeof saved.themeText === 'string') st.themeText = saved.themeText.slice(0, 60);
+      if (!st.selected.length) saved = null;
+    }
+    if (!saved && st.log.length && st.selected.length) {
+      saved = { log: st.log, selected: st.selected, theme: st.theme, stats: st.stats, recent: st.recent, current: st.current };
+    }
+    if (saved) {
+      st.stats = saved.stats && typeof saved.stats.ok === 'number' ? { ok: saved.stats.ok, total: saved.stats.total } : { ok: 0, total: 0 };
+      st.recent = Array.isArray(saved.recent) ? saved.recent.slice(-30) : [];
+      st.current = saved.current || null;
+      st.recentIds = {};
+      st.phase = 'drill';
+      st.replay = true;
+      saved.log.forEach(function (m) { bubble(m.html, m.who, m.cls); });
+      st.replay = false;
+      st.log = saved.log.slice(-160);
+      updateScore();
+      drillFooter();
+      if (!st.current) ask();
+      else { var ta = footEl.querySelector('textarea'); if (ta) ta.focus({ preventScroll: true }); }
+    } else {
+      st.log = [];
+      startPick();
+    }
     loadBank().catch(function () { /* retried on demand */ });
     setTimeout(function () { var b = root.querySelector('.gd-confirm'); if (b) b.focus({ preventScroll: true }); }, 50);
   }
   function close() {
+    saveSession();
     st.open = false;
     st.phase = 'pick';
     st.current = null;
@@ -405,5 +702,7 @@ export function createGrammarDrill(env) {
   }
 
   window.addEventListener('online', function () { if (st.open && st.phase === 'drill' && premium()) { st.aiPauseUntil = 0; } });
-  return { open: open, close: close, entryCard: entryCard, localCheck: localCheck, state: st, version: VER };
+  window.addEventListener('pagehide', saveSession);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveSession(); });
+  return { open: open, close: close, entryCard: entryCard, clearHistory: clearHistory, localCheck: localCheck, state: st, version: VER };
 }

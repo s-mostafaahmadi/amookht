@@ -1,0 +1,21 @@
+/* Amookht · ÖSD Training System – level card and ÖSD task types (complements testdaf-method.css) */
+.osd-settings{padding:18px 20px!important;color:inherit;margin-bottom:14px}
+.tdm-hub .osd-settings{margin:12px 0;border-radius:20px;background:var(--card,#141a2e);border:1px solid var(--line,rgba(148,163,184,.25))}
+.osd-settings-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.osd-settings-head h3{margin:2px 0 0;font-size:1.02rem;font-weight:900}
+.osd-settings-head .tdm-kicker{font-size:.72rem;font-weight:900;letter-spacing:.06em;color:#e11d48;margin:0}
+.osd-flag{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;font-size:1.35rem;background:linear-gradient(135deg,rgba(225,29,72,.16),rgba(244,63,94,.06));border:1px solid rgba(225,29,72,.28)}
+.osd-settings-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px}
+.osd-label{font-size:.82rem;font-weight:800;color:var(--muted,#94a3b8);white-space:nowrap}
+.osd-seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;direction:ltr}
+.osd-seg button{display:grid;gap:2px;justify-items:center;text-align:center;padding:10px 8px;border-radius:14px;border:1px solid var(--line,rgba(148,163,184,.3));background:transparent;color:inherit;cursor:pointer;font:inherit;transition:border-color .15s,transform .15s,box-shadow .15s}
+.osd-seg button:hover{border-color:#f43f5e;transform:translateY(-1px)}
+.osd-seg button b{font-size:1.05rem;font-weight:900;letter-spacing:.02em}
+.osd-seg button b i{font-style:normal;font-size:.66rem;font-weight:800;padding:1px 6px;border-radius:999px;background:rgba(244,63,94,.15);color:#e11d48;margin-inline-start:4px;vertical-align:middle}
+.osd-seg button small{font-size:.7rem;color:var(--muted,#94a3b8);line-height:1.35}
+.osd-seg button.is-cur{background:linear-gradient(135deg,#e11d48,#f43f5e);border:0;color:#fff;box-shadow:0 8px 20px rgba(225,29,72,.28)}
+.osd-seg button.is-cur small{color:rgba(255,255,255,.86)}
+.osd-seg button.is-next{border-style:dashed;border-color:#f43f5e}
+.osd-note{margin:10px 0 0!important;font-size:.78rem;line-height:1.7}
+.tdm-gap{max-width:220px;font-weight:700;letter-spacing:.01em}
+@media (max-width:520px){.osd-settings-row{grid-template-columns:1fr}.osd-label{white-space:normal}}

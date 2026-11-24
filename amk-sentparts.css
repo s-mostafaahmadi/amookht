@@ -1,0 +1,23 @@
+/* Amookht — sentence-structure colours (SENT-PARTS, 2026-11-15) */
+:root{--sp-s:#2563eb;--sp-v:#dc2626;--sp-o:#059669;--sp-p:#c2410c;--sp-k:var(--aca-600,#7c3aed)}
+html.dark{--sp-s:#7cb4ff;--sp-v:#ff7b7b;--sp-o:#4ade9b;--sp-p:#fbbf5a;--sp-k:var(--aca-300,#c4b5fd)}
+.sp{border-bottom:2px solid color-mix(in srgb,currentColor 38%,transparent);border-radius:2px;padding-bottom:1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.sp-S{color:var(--sp-s)!important}
+.sp-V{color:var(--sp-v)!important;font-weight:800}
+.sp-O{color:var(--sp-o)!important}
+.sp-P{color:var(--sp-p)!important}
+.sp-K{color:var(--sp-k)!important;font-style:italic}
+.amk-sp i{font-style:normal}
+.sp-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:10px 0;padding:8px 12px;border-radius:14px;font-size:.78rem;line-height:1.6;background:color-mix(in srgb,var(--aca-500,#7c5cff) 7%,transparent);border:1px solid color-mix(in srgb,var(--aca-400,#a78bfa) 22%,transparent)}
+.sp-lg-t{font-weight:800;opacity:.8}
+.sp-chip{padding:1px 9px;border-radius:999px;font-weight:700;border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:color-mix(in srgb,currentColor 9%,transparent)}
+.sp-chip.sp-S{color:var(--sp-s)}.sp-chip.sp-V{color:var(--sp-v)}.sp-chip.sp-O{color:var(--sp-o)}.sp-chip.sp-P{color:var(--sp-p)}.sp-chip.sp-K{color:var(--sp-k);font-style:normal}
+/*SP-TOGGLE*/ .sp-lg-btn{margin-inline-start:auto;border:0;background:transparent;color:inherit;opacity:.55;font:inherit;font-size:.74rem;cursor:pointer;padding:2px 8px;border-radius:8px}
+.sp-lg-btn:hover{opacity:1;background:rgba(127,127,160,.15)}
+.sp-lg-on{opacity:1;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--aca-600,#6d4fe6),var(--acb-500,#a855f7))}
+.sp-lg-on:hover{filter:brightness(1.08);background:linear-gradient(135deg,var(--aca-600,#6d4fe6),var(--acb-500,#a855f7))}
+.sp-legend.is-off{opacity:.85}
+.amk-sp-set .sp-set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;cursor:pointer}
+.amk-sp-set .sp-set-demo{font-size:.95rem}
+.amk-sp-set input{width:34px;height:18px;accent-color:var(--app-accent)}
+@media (max-width:720px){.sp-legend{font-size:.72rem;padding:7px 10px}.sp-chip{padding:0 7px}}
